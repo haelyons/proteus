@@ -167,6 +167,7 @@ def main():
                 pass
             for f in a.mirror:
                 try:
+                    (out / f).parent.mkdir(parents=True, exist_ok=True)
                     (out / f).write_text(jup.read_text(f"{base}/{f}"))
                 except Exception:  # noqa: BLE001
                     pass

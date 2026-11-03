@@ -83,6 +83,21 @@ class SwissProt:
         for grp in plan[start:]:
             yield self._make(grp, aa_tok, cls_, eos, pad)
 
+    def pilot_plan(self, plan: list[list[int]], pilot_tokens: int, tokens_per_batch: int, seed: int = 0) -> list[list[int]]:
+        """Pilot batches from sequences drawn uniformly at random from the whole plan (all
+        lengths), rather than the plan's first, length-homogeneous batches. Every pilot
+        sequence is also streamed later, which is what makes the top-K seed exact."""
+        seqs = [i for grp in plan for i in grp]
+        perm = torch.randperm(len(seqs), generator=torch.Generator().manual_seed(seed + 7)).tolist()
+        pick, n = [], 0
+        for j in perm:
+            i = seqs[j]
+            pick.append(i)
+            n += min(int(self.len[i]), self.max_res)
+            if n >= pilot_tokens:
+                break
+        return self.plan(torch.tensor(pick), tokens_per_batch, window=len(pick), seed=seed)
+
     def _make(self, idx, aa_tok, cls_, eos, pad) -> Batch:
         B = len(idx)
         lens = [min(int(self.len[i]), self.max_res) for i in idx]

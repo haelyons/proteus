@@ -10,7 +10,7 @@ import torch
 sys.path.insert(0, ".")
 
 
-def check_kernel(dev, dtype, T=777, D=300, frac_pad=0.15, seed=0, BLOCK_T=32, BLOCK_D=128):
+def check_kernel(dev, dtype, T=777, D=300, frac_pad=0.15, seed=0, BLOCK_T=32, BLOCK_D=128, thr_base=2.5, neg_inf_cols=7):
     from atlas.filter_triton import filter_candidates
 
     g = torch.Generator().manual_seed(seed)
@@ -19,9 +19,9 @@ def check_kernel(dev, dtype, T=777, D=300, frac_pad=0.15, seed=0, BLOCK_T=32, BL
     rowmap = torch.full((T,), -1, dtype=torch.long)
     rowmap[valid] = torch.arange(int(valid.sum()))
     rowmap = rowmap.to(dev)
-    thr_p = (torch.rand(D, generator=g) * 2 + 2.5).to(dev)
-    thr_n = (torch.rand(D, generator=g) * 2 + 2.5).to(dev)
-    thr_n[:7] = float("-inf")  # columns where everything valid survives (warm-up-like)
+    thr_p = (torch.rand(D, generator=g) * 2 + thr_base).to(dev)
+    thr_n = (torch.rand(D, generator=g) * 2 + thr_base).to(dev)
+    thr_n[:neg_inf_cols] = float("-inf")  # columns where everything valid survives (warm-up-like)
     cap = 1 << 16
     v, r, c, cnt = filter_candidates(H, rowmap, thr_p, thr_n, cap, BLOCK_T=BLOCK_T, BLOCK_D=BLOCK_D)
     n = int(cnt)
@@ -36,10 +36,14 @@ def check_kernel(dev, dtype, T=777, D=300, frac_pad=0.15, seed=0, BLOCK_T=32, BL
     inv[rowmap[rowmap >= 0]] = torch.nonzero(rowmap >= 0).squeeze(1)
     assert torch.equal(v[:n], Hf[inv[r[:n]], c[:n]]), "survivor values wrong"
     # overflow reporting: count must exceed a too-small cap, and no out-of-bounds writes
-    v2, r2, c2, cnt2 = filter_candidates(H, rowmap, thr_p, thr_n, 64, BLOCK_T=BLOCK_T, BLOCK_D=BLOCK_D)
-    assert int(cnt2) == n and n > 64
-    print(f"kernel OK on {dev} {dtype}: T={T} D={D} (non-multiples of the {BLOCK_T}x{BLOCK_D} tile), "
-          f"{n} survivors incl. -inf columns, overflow detected (count {int(cnt2)} > cap 64)")
+    n_tiles = -(-T // BLOCK_T) * -(-D // BLOCK_D)
+    if n > 64:
+        v2, r2, c2, cnt2 = filter_candidates(H, rowmap, thr_p, thr_n, 64, BLOCK_T=BLOCK_T, BLOCK_D=BLOCK_D)
+        assert int(cnt2) == n
+        ov = f"overflow detected (count {int(cnt2)} > cap 64)"
+    else:
+        ov = "no overflow case (few survivors)"
+    print(f"kernel OK on {dev} {dtype}: T={T} D={D}, tile {BLOCK_T}x{BLOCK_D} ({n_tiles} tiles), {n} survivors, {ov}")
 
 
 if __name__ == "__main__":
@@ -47,9 +51,10 @@ if __name__ == "__main__":
     dev = "cuda" if cuda else "cpu"
     if not cuda:
         assert os.environ.get("TRITON_INTERPRET") == "1", "set TRITON_INTERPRET=1 for CPU"
-    for dtype in (torch.float32, torch.bfloat16):
+    cases = [dict(), dict(thr_base=8.0, neg_inf_cols=0), dict(thr_base=8.0, neg_inf_cols=0, BLOCK_T=16, BLOCK_D=256)]
+    for dtype, kw in [(dt, kw) for dt in (torch.float32, torch.bfloat16) for kw in cases]:
         try:
-            check_kernel(dev, dtype)
+            check_kernel(dev, dtype, **kw)
         except Exception as e:  # noqa: BLE001
             print(f"kernel FAILED on {dev} {dtype}: {type(e).__name__}: {str(e)[:300]}")
             if cuda:

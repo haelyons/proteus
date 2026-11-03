@@ -82,14 +82,17 @@ def pilot(model, batches, device, max_tokens: int, store_device="cpu"):
 
     hs = attach(model, sink)
     n = 0
+    toks = []
     try:
         for b in batches:
             cur["rows"] = b.valid_rows.to(device)
             model(input_ids=b.input_ids.to(device), attention_mask=b.attention_mask.to(device))
             n += b.valid_rows.numel()
+            toks.append(b.tok)
             if n >= max_tokens:
                 break
     finally:
         for h in hs:
             h.remove()
+    pilot.last_tok = torch.cat(toks)  # packed token ids of the pilot rows (row order)
     return [torch.cat(x) for x in bufs], n

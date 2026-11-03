@@ -29,7 +29,8 @@ def make_stream(L, D, n_seq, seed, dtype):
     return lens, seqs
 
 
-def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, seed=0, verbose=True, device="cpu"):
+def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, seed=0, verbose=True, device="cpu",
+        seeded=False, seed_c=4.0):
     lens, seqs = make_stream(L, D, n_seq, seed, dtype)
     g = torch.Generator().manual_seed(seed + 1)
     ann_full = [torch.randint(-1, n_annot, (n, 3), generator=g) for n in lens.tolist()]
@@ -38,6 +39,10 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
     E = pilot_edges(Hp)
     cfg = AtlasConfig(K=K, Kr=Kr, rho_res=0.05, rho_sub=0.2, cap_frac=0.05, backend=backend, seed=7)
     atlas = Atlas(L, D, E, cfg, n_annot=n_annot, device=device)
+    if seeded:  # pilot tokens (first 150 seqs) are streamed below, as in run_atlas
+        from atlas.reference import pilot_seeds
+        ts, rk = pilot_seeds(Hp, E, K, Kr, n_total=int(lens.sum()), c=seed_c)
+        atlas.seed(ts, rk)
     t0 = time.perf_counter()
     i = 0
     bi = 0
@@ -118,11 +123,27 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
         cols = torch.arange(D)[None, :, None, None].expand_as(rt)
         att &= bool((H[rows_of(rt[m]), cols[m]] == got["res_val"][l][m]).all())
     check("reservoir tokens attain their stored values", att)
-    check("reservoir keys exact", torch.equal(got["res_key"].where(got["res_tok"] >= 0, torch.iinfo(torch.int64).max), ref["res_key"]))
-    check("reservoir tokens exact", torch.equal(got["res_tok"], ref["res_tok"]))
-    check("reservoir values exact", torch.allclose(got["res_val"], ref["res_val"], equal_nan=True, atol=0, rtol=0))
+    lim = got["res_seed_limited"].unsqueeze(-1).expand_as(got["res_tok"])  # bins verification rejects
+    ok_bins = ~lim
+    if seeded:
+        print(f"  info: seeds active on {got['res_seeded_bins']} bins; verification rejects {got['res_seed_limited_bins']}; "
+              f"top-K groups short of K under seed: {got['top_seed_short_groups']}")
+    check("top-K: no group short under its seed", got["top_seed_short_groups"] == 0)
+    rk_got = got["res_key"].where(got["res_tok"] >= 0, torch.iinfo(torch.int64).max)
+    check("reservoir keys exact (verified bins)", torch.equal(rk_got[ok_bins], ref["res_key"][ok_bins]))
+    check("reservoir tokens exact (verified bins)", torch.equal(got["res_tok"][ok_bins], ref["res_tok"][ok_bins]))
+    check("reservoir values exact (verified bins)", torch.allclose(got["res_val"][ok_bins], ref["res_val"][ok_bins], equal_nan=True, atol=0, rtol=0))
+    if seeded and got["res_seed_limited_bins"]:
+        # a rejected bin must hold exactly the bin's keys below its seed (all of them, nothing else).
+        # ref holds the Kr smallest keys of the bin; when fewer than Kr are under the seed they are all there.
+        MAX = torch.iinfo(torch.int64).max
+        sk = got["res_seed_key"].unsqueeze(-1)
+        want = torch.where(ref["res_key"] < sk, ref["res_key"], torch.full_like(ref["res_key"], MAX)).sort(-1).values
+        have = rk_got.sort(-1).values
+        m = got["res_seed_limited"]
+        check(f"rejected bins hold exactly the bin's keys under the seed ({int(m.sum())} bins)", torch.equal(have[m], want[m]))
     check("n_sub", got["n_sub"] == ref["n_sub"])
-    check("subsample bin masses exact", torch.equal(got["sub_bin"], ref["sub_bin"]))
+    check("subsample bin masses exact", torch.equal(got["sub_bin"].double(), ref["sub_bin"]))
     check("subsample sums", torch.allclose(got["sub_sum"], ref["sub_sum"], rtol=1e-6, atol=1e-6))
     check("subsample sum of squares", torch.allclose(got["sub_sq"], ref["sub_sq"], rtol=1e-6, atol=1e-6))
     check("enrichment counts exact", torch.equal(got["enr"].double(), ref["enr"].double()))
@@ -138,4 +159,8 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
 
 if __name__ == "__main__":
     ok = run(torch.float32) & run(torch.bfloat16)
+    print("-- seeded (top-K from pilot 2K-th, reservoir c=4)")
+    ok &= run(torch.bfloat16, seeded=True, verbose=False)
+    print("-- seeded too tight (c=0.25): verification must flag bins")
+    ok &= run(torch.bfloat16, seeded=True, seed_c=0.25, verbose=False)
     sys.exit(0 if ok else 1)

@@ -72,3 +72,50 @@ def pilot_edges(Hs: list[torch.Tensor], probs=(0.5, 0.9, 0.99, 0.999, 0.9999), c
     for b in range(1, E.shape[-1]):
         E[..., b] = torch.maximum(E[..., b], torch.nextafter(E[..., b - 1], torch.full_like(E[..., b - 1], float("inf"))))
     return E
+
+
+def pilot_seeds(Hs: list[torch.Tensor], E: torch.Tensor, K: int, Kr: int, n_total: int,
+                c: float = 4.0, z: float = 2.0, chunk: int = 512, groups: torch.Tensor | None = None):
+    """Exact-preserving start thresholds from pilot activations (tokens that are also streamed).
+
+    top_seed [L,2,D]: prev(2K-th largest pilot s). The pilot tokens are streamed, so the final
+      K-th value is >= the pilot's K-th >= this seed; the 2K margin also absorbs any last-bit
+      difference between the pilot forward and the streamed forward of the same tokens.
+    res_seed_key [L,2,D,B] int64: key ceiling with expected c*Kr keys under it over the stream,
+      using a z-sigma lower bound on the pilot bin mass; 2^32 (= unseeded) when the bound is 0.
+      groups [n] (e.g. protein index of each pilot row): tail tokens cluster within proteins, so the
+      bound uses the cluster-effective count n_eff = (sum c_i)^2 / sum c_i^2 over groups instead of
+      the token count: m_lo = m_hat * max(0, 1 - z / sqrt(n_eff)). A bin fed by one protein -> unseeded.
+    """
+    if groups is not None:
+        _, gidx = torch.unique(groups, return_inverse=True)
+        n_g = int(gidx.max()) + 1
+        chunk = min(chunk, 128)  # per-row [n, chunk, B] masks: keep scratch small at 650M widths
+    tops, keys = [], []
+    for li, H in enumerate(Hs):
+        n, D = H.shape
+        kk = min(2 * K, n)
+        tp, kp = [], []
+        for p, sgn in ((0, 1.0), (1, -1.0)):
+            t_cols, k_cols = [], []
+            for c0 in range(0, D, chunk):
+                s = H[:, c0:c0 + chunk].float() * sgn
+                t = torch.topk(s, kk, dim=0).values[kk - 1]
+                t_cols.append(torch.nextafter(t, torch.full_like(t, float("-inf"))))
+                ge_rows = s.unsqueeze(-1) >= E[li, p, c0:c0 + chunk].to(s.device)        # [n, chunk, B]
+                in_bin = ge_rows & ~torch.cat((ge_rows[..., 1:], torch.zeros_like(ge_rows[..., :1])), -1)
+                cnt = in_bin.sum(0).double()                                               # [chunk, B]
+                if groups is None:
+                    m_lo = (cnt - z * cnt.sqrt()).clamp(min=0) / n
+                else:
+                    per = torch.zeros((n_g,) + tuple(cnt.shape), dtype=torch.float32, device=s.device)
+                    per.index_add_(0, gidx.to(s.device), in_bin.float())  # [groups, chunk, B]; counts exact in fp32
+                    n_eff = cnt ** 2 / (per.double() ** 2).sum(0).clamp(min=1)
+                    m_lo = (cnt / n) * (1 - z / n_eff.clamp(min=1e-9).sqrt()).clamp(min=0)
+                    del per
+                theta = torch.where(m_lo > 0, c * Kr * 2.0**32 / (n_total * m_lo), torch.full_like(m_lo, 2.0**32))
+                k_cols.append(theta.clamp(max=2.0**32).floor().to(torch.int64))
+                del s, ge_rows, in_bin
+            tp.append(torch.cat(t_cols)); kp.append(torch.cat(k_cols))
+        tops.append(torch.stack(tp)); keys.append(torch.stack(kp))
+    return torch.stack(tops).cpu(), torch.stack(keys).cpu()

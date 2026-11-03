@@ -71,6 +71,11 @@ def main():
     ap.add_argument("--ckpt-every", type=int, default=500)
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--stop-after", type=int, default=0, help="testing: stop after this many batches (simulated cap)")
+    ap.add_argument("--seed-thresholds", action="store_true",
+                    help="exact-preserving start thresholds from the pilot (top-K: 2K-th pilot value; reservoir: key ceilings)")
+    ap.add_argument("--pair-forward", action="store_true", help="time a hook-free forward of each batch first (overhead per batch)")
+    ap.add_argument("--profile-at", type=int, nargs="*", default=[], help="batch indices to profile (torch.profiler)")
+    ap.add_argument("--max-batches", type=int, default=0, help="stream only the first M batches of the plan (complete run)")
     ap.add_argument("--deadline", type=float, default=0.0,
                     help="epoch seconds; checkpoint and exit cleanly when the time left drops below 2x (batch + checkpoint) time")
     a = ap.parse_args()
@@ -88,6 +93,9 @@ def main():
     vocab = tok.get_vocab()
     L, D = info["n_layers"], info["d_ff"]
     plan = ds.plan(order, a.tokens_per_batch, a.window, a.seed, shuffle_batches=not a.sorted_batches)
+    if a.max_batches:
+        plan = plan[: a.max_batches]
+    n_total = int(sum(min(int(ds.len[i]), ds.max_res) for grp in plan for i in grp))
     t_load = time.time() - t0
 
     cfg = AtlasConfig(K=a.K, Kr=a.Kr, backend=a.backend, seed=a.seed, reservoir=not a.no_reservoir,
@@ -100,8 +108,16 @@ def main():
         E = st["atlas"]["E"]
         start = st["next_batch"]
     else:
-        Hp, n_pilot = pilot(model, ds.batches(vocab, order, a.tokens_per_batch, plan=plan), dev, a.pilot_tokens)
+        pplan = ds.pilot_plan(plan, a.pilot_tokens, a.tokens_per_batch, a.seed)  # random sequences, all lengths
+        Hp, n_pilot = pilot(model, ds.batches(vocab, order, a.tokens_per_batch, plan=pplan), dev, 1 << 40)
         E = torch.cat([pilot_edges([h.to(dev)]).cpu() for h in Hp])  # one layer on device at a time
+        seeds = None
+        if a.seed_thresholds:
+            from atlas.reference import pilot_seeds
+            prot = pilot.last_tok // 1024  # protein of each pilot row: tails cluster within proteins
+            parts = [pilot_seeds([h.to(dev)], E[li:li + 1].to(dev), a.K, a.Kr, n_total, groups=prot)
+                     for li, h in enumerate(Hp)]
+            seeds = (torch.cat([p_[0] for p_ in parts]), torch.cat([p_[1] for p_ in parts]))
         del Hp
         start = 0
     t_pilot = time.time() - t1
@@ -109,6 +125,10 @@ def main():
     if ck is not None:
         atlas.load_state_dict(st["atlas"])
         print(f"[atlas] resumed from {ck.name}: batch {start}/{len(plan)}, n_seen {atlas.n_seen}", flush=True)
+    elif seeds is not None:
+        atlas.seed(*seeds)
+        print(f"[atlas] seeded thresholds for n_total={n_total}: reservoir bins seeded "
+              f"{int((atlas.res_seed != torch.iinfo(torch.int64).min).sum())}/{atlas.res_seed.numel()}", flush=True)
     attach(model, atlas.observe)
     tie_acc = {}
     if a.count_ties:
@@ -131,26 +151,44 @@ def main():
                 "stream_this_process": time.time() - t2}, "n_seen": atlas.n_seen, "stats": atlas.stats}
 
     logf = open(out / "batches.jsonl", "a")
-    ckpt_s, batch_s = 0.0, 0.0
+    ckpt_s, batch_s, last_ckpt_s = 0.0, 0.0, None
 
     def save_ckpt(next_batch):
-        nonlocal ckpt_s
+        nonlocal ckpt_s, last_ckpt_s
         t = time.time()
         atomic_save({"atlas": atlas.state_dict(), "next_batch": next_batch, "args_key": _args_key(a),
                      "model": info}, out / "ckpt" / f"ckpt_{next_batch}.pt")
         for old in sorted((out / "ckpt").glob("ckpt_*.pt"), key=lambda p: int(p.stem.split("_")[1]))[:-2]:
             old.unlink()
         (out / "run.json").write_text(json.dumps(summary(False, next_batch), indent=1))
-        ckpt_s = max(ckpt_s, time.time() - t)
-        print(f"[atlas] checkpoint at batch {next_batch}/{len(plan)} ({time.time() - t:.1f}s)", flush=True)
+        last_ckpt_s = time.time() - t
+        ckpt_s = max(ckpt_s, last_ckpt_s)
+        sz = (out / "ckpt" / f"ckpt_{next_batch}.pt").stat().st_size
+        print(f"[atlas] checkpoint at batch {next_batch}/{len(plan)} ({last_ckpt_s:.1f}s, {sz / 1e9:.2f} GB)", flush=True)
     t2 = time.time()
     n_done = 0
     bi = start
     with torch.no_grad():
         for bi, b in enumerate(ds.batches(vocab, order, a.tokens_per_batch, plan=plan, start=start), start=start):
             tb = time.time()
-            ctx = atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann)
             ids, am = b.input_ids.to(dev, non_blocking=True), b.attention_mask.to(dev, non_blocking=True)
+            fwd_s = None
+            if a.pair_forward:  # same batch, hooks off: the per-batch baseline
+                atlas.enabled = False
+                sync(dev)
+                tf0 = time.time()
+                model(input_ids=ids, attention_mask=am)
+                sync(dev)
+                fwd_s = time.time() - tf0
+                atlas.enabled = True
+            prof = None
+            if bi in a.profile_at:
+                acts = [torch.profiler.ProfilerActivity.CPU] + ([torch.profiler.ProfilerActivity.CUDA] if str(dev).startswith("cuda") else [])
+                prof = torch.profiler.profile(activities=acts)
+                prof.__enter__()
+            ta0 = time.time()
+            ctx = atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann)
+            t_ctx = time.time() - ta0
             before = dict(atlas.stats)
             n_before = atlas.n_seen
             tie_acc.clear()
@@ -165,10 +203,17 @@ def main():
             if bi % 100 == 99:
                 atlas.flush_gram()
             sync(dev)
+            atlas_s = time.time() - ta0
+            if prof is not None:
+                prof.__exit__(None, None, None)
+                _write_profile(prof, out / f"profile_batch_{bi}.txt", dev)
+                print(f"[atlas] profiled batch {bi} -> profile_batch_{bi}.txt", flush=True)
             s = atlas.stats
             elems = 2 * ctx.n_v * D * L
             rec = {"batch": bi, "n_seen_before": n_before, "n_valid": ctx.n_v, "rows": b.n_rows,
-                   "Lmax": int(b.input_ids.shape[1]), "seconds": time.time() - tb,
+                   "Lmax": int(b.input_ids.shape[1]), "seconds": time.time() - tb, "t_start": tb, "t_end": time.time(),
+                   "fwd_only_s": fwd_s, "atlas_pass_s": atlas_s, "make_ctx_s": t_ctx,
+                   "overhead_vs_fwd": (atlas_s / fwd_s - 1) if fwd_s else None, "profiled": prof is not None,
                    "flops": flops_per_batch(info, b.n_rows, b.input_ids.shape[1]), "redo_layers": redo,
                    "compacted_frac": (s["compacted"] - before["compacted"]) / elems,
                    "topk_cand_frac": (s["top_cand"] - before["top_cand"]) / elems,
@@ -176,12 +221,14 @@ def main():
                    "pred_topk_frac_iid": a.K / (n_before + 1) if n_before else None}
             if ties is not None and not redo and n_before:
                 rec["ties_at_tau_frac"] = ties / elems
-            logf.write(json.dumps(rec) + "\n")
-            logf.flush()
             n_done += 1
-            batch_s = max(batch_s, rec["seconds"]) if n_done > 2 else batch_s
+            last_ckpt_s = None
             if (bi + 1) % a.ckpt_every == 0:
                 save_ckpt(bi + 1)
+            rec["ckpt_s"] = last_ckpt_s
+            logf.write(json.dumps(rec) + "\n")
+            logf.flush()
+            batch_s = max(batch_s, rec["seconds"]) if n_done > 2 else batch_s
             if a.deadline and bi + 1 < len(plan) and time.time() > a.deadline - 2 * (batch_s + max(ckpt_s, 30.0)):
                 if (bi + 1) % a.ckpt_every:
                     save_ckpt(bi + 1)
@@ -193,16 +240,37 @@ def main():
                 return
     logf.close()
     res = atlas.result()
-    res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed})
+    res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed,
+                "n_total_plan": n_total, "n_batches": len(plan)})
+    tf = time.time()
     atomic_save(res, out / "atlas.pt")
-    (out / "run.json").write_text(json.dumps(summary(True, len(plan)), indent=1))
+    final_s = time.time() - tf
+    sm = summary(True, len(plan))
+    sm.update({"final_save_s": final_s, "atlas_pt_GB": (out / "atlas.pt").stat().st_size / 1e9,
+               "gram_rows": res.get("gram_rows"), "res_seeded_bins": res["res_seeded_bins"],
+               "res_seed_limited_bins": res["res_seed_limited_bins"], "top_seed_short_groups": res["top_seed_short_groups"]})
+    (out / "run.json").write_text(json.dumps(sm, indent=1))
+    print(f"[atlas] done: final save {final_s:.1f}s ({sm['atlas_pt_GB']:.2f} GB); seed verification: "
+          f"{res['res_seed_limited_bins']} of {res['res_seeded_bins']} seeded bins short, top-K groups short {res['top_seed_short_groups']}", flush=True)
     print(json.dumps({k: v for k, v in summary(True, len(plan)).items() if k in ("model", "coverage", "seconds", "n_seen")}, indent=1))
     print("stats", atlas.stats)
 
 
+def _write_profile(prof, path, dev):
+    ka = prof.key_averages()
+    for key in (("self_cuda_time_total", "cuda_time_total") if str(dev).startswith("cuda") else ("self_cpu_time_total",)):
+        try:
+            path.write_text(ka.table(sort_by=key, row_limit=60))
+            return
+        except Exception:  # noqa: BLE001  (key names move between torch versions)
+            continue
+    path.write_text(ka.table(sort_by="self_device_time_total", row_limit=60))
+
+
 def _args_key(a) -> dict:
     keep = ["model", "control", "data", "dtype", "max_seqs", "tokens_per_batch", "window", "sorted_batches",
-            "pilot_tokens", "K", "Kr", "no_reservoir", "no_subsample", "no_gram", "naive", "seed"]
+            "pilot_tokens", "K", "Kr", "no_reservoir", "no_subsample", "no_gram", "naive", "seed",
+            "seed_thresholds", "max_batches"]
     return {k: getattr(a, k) for k in keep}
 
 
