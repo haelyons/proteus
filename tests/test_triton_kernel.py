@@ -51,7 +51,8 @@ if __name__ == "__main__":
     dev = "cuda" if cuda else "cpu"
     if not cuda:
         assert os.environ.get("TRITON_INTERPRET") == "1", "set TRITON_INTERPRET=1 for CPU"
-    cases = [dict(), dict(thr_base=8.0, neg_inf_cols=0), dict(thr_base=8.0, neg_inf_cols=0, BLOCK_T=16, BLOCK_D=256)]
+    cases = [dict(), dict(thr_base=8.0, neg_inf_cols=0), dict(thr_base=8.0, neg_inf_cols=0, BLOCK_T=16, BLOCK_D=256),
+             dict(BLOCK_T=8, BLOCK_D=512), dict(thr_base=8.0, neg_inf_cols=0, BLOCK_T=8, BLOCK_D=512)]  # tuned default
     for dtype, kw in [(dt, kw) for dt in (torch.float32, torch.bfloat16) for kw in cases]:
         try:
             check_kernel(dev, dtype, **kw)

@@ -1,0 +1,112 @@
+[atlas] start 2026-11-03T19:43:18Z job=atlas-a10prof-20261103-1937 smoke=0 deadline=1793740690 (5692s left)
+NVIDIA A10, 23028 MiB, 570.148.08, 150.00 W, 1695 MHz
+pipx 1.0.0 requires argcomplete>=1.9.4, but you have argcomplete 1.8.1 which is incompatible.
+[atlas] versions torch 2.7.0 triton 3.3.0 transformers 5.20.2 pillow 12.3.0 | EsmModel import ok
+[atlas] smi logger pid 2607 fields: timestamp,power.draw,power.limit,clocks.sm,clocks.max.sm,clocks.mem,temperature.gpu,utilization.gpu
+[atlas] gpu tests
+[atlas] gpu tests rc=0 6 kernel cases OK; [torch.bfloat16, triton, cuda] OK  N=73529 tokens, L=3, D=96, K=8, Kr=4, 55 batches, 4.14s; dense layer-batches=7, redo layers=4; compacted fraction 2.04e-03 [torch.bfloat16, torch, cuda] OK  N=73529 tokens, L=3, D=96, K=8, Kr=4, 55 batches, 1.35s; dense layer-batches=7, redo layers=4; compacted fraction 2.04e-03 
+[atlas] profile_forward
+Loading weights:   0%|          | 0/534 [00:00<?, ?it/s]Loading weights:   3%|▎         | 16/534 [00:00<00:19, 26.71it/s]Loading weights: 100%|██████████| 534/534 [00:00<00:00, 839.37it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t33_650M_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[atlas] profile {"t_start": 1793735081.718748, "t_end": 1793735085.7362654, "batches": 3, "wall_ms_per_batch": 1339.1724427541096, "device_ms_per_batch_by_class": {"elementwise": 1695.1177263333282, "gemm_bf16": 516.6021169999996, "other": 239.95563499999986, "attention": 184.907093333335, "layernorm": 58.900193999999495}, "device_ms_per_batch_total": 2695.482765666662, "class_share": {"elementwise": 0.6288735168054699, "gemm_bf16": 0.19165476536527978, "other": 0.08902139462971216, "attention": 0.06859887797783888, "layernorm": 0.02185144522169926}, "linear_flops_per_batch": 42194475417600.0, "est_flops_per_batch": 45959785006080.0, "gemm_tflops_on_gemm_time": 81.67693090889914}
+[atlas] forward 34.8 TFLOP/s over 7 batches
+[atlas] determinism {"bucketed": {"padding_frac": 0.013825734300110581, "bitwise_identical": true, "max_abs_diff": 0.0}, "padded_mixed_lengths": {"padding_frac": 0.5704441983511751, "bitwise_identical": true, "max_abs_diff": 0.0}}
+[atlas] gemm {"ffn_up_bf16": 72.0, "ffn_up_tf32": 34.7, "ffn_down_bf16": 75.0, "ffn_down_tf32": 34.8, "attn_proj_bf16": 68.5, "attn_proj_tf32": 34.5, "sustained_ffn_up_bf16": 70.8}
+[atlas] tiles {"late_~2_per_col": {"survivors": 19230, "16x256_w4": 1.1374768257141112, "32x256_w4": 2.0792400360107424, "16x512_w4": 2.216257667541504, "32x512_w8": "error: out of resource: shared memory, Required: 131584, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.", "64x256_w8": "error: out of resource: shared memory, Required: 132096, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.", "8x512_w4": 0.9451775550842285, "8x1024_w8": 1.672470474243164, "64x128_w4": 2.2992719650268554, "128x128_w8": "error: out of resource: shared memory, Required: 133120, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.", "32x1024_w8": "error: out of resource: shared memory, Required: 262656, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.", "torch_nonzero_ms": 6.612888336181641}, "early_~30_per_col": {"survivors": 296457, "16x256_w4": 2.567740821838379, "32x256_w4": 3.4470977783203125, "16x512_w4": 3.966342544555664, "32x512_w8": "error: out of resource: shared memory, Required: 131584, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.", "64x256_w8": "error: out of resource: shared memory, Required: 132096, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.", "8x512_w4": 2.078099250793457, "8x1024_w8": 2.9618608474731447, "64x128_w4": 3.6220062255859373, "128x128_w8": "error: out of resource: shared memory, Required: 133120, Hardware limit: 101376. Reducing block sizes or `
+[atlas] profile_forward done
+[atlas] seeded run (120 batches)
+Loading weights:   0%|          | 0/534 [00:00<?, ?it/s]Loading weights:   3%|▎         | 16/534 [00:00<00:03, 147.05it/s]Loading weights: 100%|██████████| 534/534 [00:00<00:00, 3968.55it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t33_650M_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[atlas] seeded thresholds for n_total=3792174: reservoir bins seeded 1543826/1689600
+[atlas] done: final save 114.1s (8.79 GB); seed verification: 0 of 1543826 seeded bins short, top-K groups short 0
+{
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981
+ },
+ "coverage": {
+  "n_seq": 575748,
+  "n_res_full": 209017843,
+  "n_res_used": 198257936,
+  "n_truncated": 18483,
+  "frac_seq_truncated": 0.03210258483886719,
+  "frac_res_dropped": 0.051478415727615356
+ },
+ "seconds": {
+  "load": 8.295932292938232,
+  "pilot": 105.84013676643372,
+  "stream_this_process": 551.3302247524261
+ },
+ "n_seen": 3792174
+}
+stats {'batches': 120, 'dense_layer_batches': 22, 'redo_layers': 22, 'compacted': 703206520, 'elements': 1281451438080, 'top_cand': 125994432, 'res_cand': 84255313}
+[atlas] long run (620 batches, unseeded)
+Loading weights:   0%|          | 0/534 [00:00<?, ?it/s]Loading weights:   3%|▎         | 16/534 [00:00<00:03, 144.74it/s]Loading weights: 100%|██████████| 534/534 [00:00<00:00, 3805.18it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t33_650M_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[atlas] checkpoint at batch 200/620 (24.2s, 1.87 GB)
+[atlas] checkpoint at batch 400/620 (26.2s, 1.87 GB)
+[atlas] checkpoint at batch 600/620 (26.2s, 1.87 GB)
+[atlas] profiled batch 600 -> profile_batch_600.txt
+[atlas] done: final save 118.0s (8.79 GB); seed verification: 0 of 0 seeded bins short, top-K groups short 0
+{
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981
+ },
+ "coverage": {
+  "n_seq": 575748,
+  "n_res_full": 209017843,
+  "n_res_used": 198257936,
+  "n_truncated": 18483,
+  "frac_seq_truncated": 0.03210258483886719,
+  "frac_res_dropped": 0.051478415727615356
+ },
+ "seconds": {
+  "load": 9.039454460144043,
+  "pilot": 77.11331605911255,
+  "stream_this_process": 2506.555444955826
+ },
+ "n_seen": 19602128
+}
+stats {'batches': 620, 'dense_layer_batches': 273, 'redo_layers': 240, 'compacted': 972419971, 'elements': 6623951093760, 'top_cand': 278592287, 'res_cand': 300363226}
+[atlas] end 2026-11-03T20:40:00Z long rc=0

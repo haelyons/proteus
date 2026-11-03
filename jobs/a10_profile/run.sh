@@ -26,7 +26,7 @@ if [ "$SMOKE" != 1 ]; then
   F=""
   for cand in "clocks_event_reasons.sw_power_cap,clocks_event_reasons.hw_slowdown,clocks_event_reasons.sw_thermal_slowdown" \
               "clocks_throttle_reasons.sw_power_cap,clocks_throttle_reasons.hw_slowdown,clocks_throttle_reasons.sw_thermal_slowdown"; do
-    nvidia-smi --query-gpu=$cand --format=csv,noheader -c 1 >/dev/null 2>&1 && { F=",$cand"; break; }
+    nvidia-smi --query-gpu=$cand --format=csv,noheader >/dev/null 2>&1 && { F=",$cand"; break; }  # (-c is compute-mode, not count)
   done
   Q="timestamp,power.draw,power.limit,clocks.sm,clocks.max.sm,clocks.mem,temperature.gpu,utilization.gpu$F"
   echo "$Q" > $OUT/smi.csv

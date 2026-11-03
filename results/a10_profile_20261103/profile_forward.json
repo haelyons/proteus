@@ -1,0 +1,403 @@
+{
+ "env": {
+  "gpu": "NVIDIA A10",
+  "torch": "2.7.0",
+  "model": {
+   "hf": "facebook/esm2_t33_650M_UR50D",
+   "control": "none",
+   "attn": "sdpa",
+   "n_layers": 33,
+   "d_model": 1280,
+   "d_ff": 5120,
+   "n_params": 649400981
+  },
+  "param_dtypes": {
+   "torch.bfloat16": 533
+  },
+  "buffer_dtypes": {
+   "position_ids:torch.int64": 1,
+   "inv_freq:torch.bfloat16": 1
+  },
+  "attn_impl": "sdpa",
+  "attn_class": "EsmSelfAttention",
+  "allow_tf32_matmul": false,
+  "autocast": false
+ },
+ "profile": {
+  "t_start": 1793735081.718748,
+  "t_end": 1793735085.7362654,
+  "batches": 3,
+  "wall_ms_per_batch": 1339.1724427541096,
+  "device_ms_per_batch_by_class": {
+   "elementwise": 1695.1177263333282,
+   "gemm_bf16": 516.6021169999996,
+   "other": 239.95563499999986,
+   "attention": 184.907093333335,
+   "layernorm": 58.900193999999495
+  },
+  "device_ms_per_batch_total": 2695.482765666662,
+  "class_share": {
+   "elementwise": 0.6288735168054699,
+   "gemm_bf16": 0.19165476536527978,
+   "other": 0.08902139462971216,
+   "attention": 0.06859887797783888,
+   "layernorm": 0.02185144522169926
+  },
+  "linear_flops_per_batch": 42194475417600.0,
+  "est_flops_per_batch": 45959785006080.0,
+  "gemm_tflops_on_gemm_time": 81.67693090889914,
+  "top_kernels": [
+   {
+    "name": "aten::addmm",
+    "ms_per_batch": 516.6021169999996,
+    "calls_per_batch": 198.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "ampere_bf16_s16816gemm_bf16_256x128_ldg8_relu_f2f_stages_32x3_tn",
+    "ms_per_batch": 341.30972500000024,
+    "calls_per_batch": 165.0,
+    "class": "gemm_bf16"
+   },
+   {
+    "name": "aten::mul",
+    "ms_per_batch": 216.6969580000018,
+    "calls_per_batch": 237.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8::Params)",
+    "ms_per_batch": 175.2923919999993,
+    "calls_per_batch": 33.0,
+    "class": "gemm_bf16"
+   },
+   {
+    "name": "aten::add",
+    "ms_per_batch": 146.66324466666558,
+    "calls_per_batch": 167.33333333333334,
+    "class": "elementwise"
+   },
+   {
+    "name": "Command Buffer Full",
+    "ms_per_batch": 122.85684966666702,
+    "calls_per_batch": 122.66666666666667,
+    "class": "other"
+   },
+   {
+    "name": "aten::copy_",
+    "ms_per_batch": 108.31599266666454,
+    "calls_per_batch": 236.33333333333334,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::n",
+    "ms_per_batch": 92.0285553333345,
+    "calls_per_batch": 132.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::a",
+    "ms_per_batch": 70.41067799999938,
+    "calls_per_batch": 135.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}",
+    "ms_per_batch": 67.82728833333304,
+    "calls_per_batch": 66.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int,",
+    "ms_per_batch": 67.56172000000011,
+    "calls_per_batch": 33.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "aten::_efficient_attention_forward",
+    "ms_per_batch": 65.31024266666704,
+    "calls_per_batch": 22.0,
+    "class": "attention"
+   },
+   {
+    "name": "fmha_cutlassF_bf16_aligned_64x64_rf_sm80(PyTorchMemEffAttention::AttentionKernel<cutlass::bfloat16_t, cutlass::arch::Sm80, true, 64, 64, 64, true, true>::Params)",
+    "ms_per_batch": 65.31024266666704,
+    "calls_per_batch": 22.0,
+    "class": "attention"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::AUnaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul> >(int,",
+    "ms_per_batch": 56.61308100000074,
+    "calls_per_batch": 67.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "aten::cat",
+    "ms_per_batch": 55.23837900000007,
+    "calls_per_batch": 67.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<at::native::(anonymous namespace)::OpaqueType<4u>, unsigned int, 4, 64, 64>(at::native::(anonymous namespace)::OpaqueType<4u>*, at::native::",
+    "ms_per_batch": 55.23510433333332,
+    "calls_per_batch": 66.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "aten::div",
+    "ms_per_batch": 45.61658366666628,
+    "calls_per_batch": 35.0,
+    "class": "other"
+   },
+   {
+    "name": "aten::erf",
+    "ms_per_batch": 45.099054000000024,
+    "calls_per_batch": 33.0,
+    "class": "other"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::erf_kernel_cuda(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(c10::BFloat16)#1}, s",
+    "ms_per_batch": 45.099054000000024,
+    "calls_per_batch": 33.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctorOnSelf_add<c10::BFloat16>, std::array<char*, 2ul> >(int, at::native::CUDAFunctorOnSelf_add<c10::BFloat16>, std::array<char*, 2u",
+    "ms_per_batch": 45.055825333333395,
+    "calls_per_batch": 33.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::BUnaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 2ul> >(int,",
+    "ms_per_batch": 45.04540266666617,
+    "calls_per_batch": 33.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::bfloat16_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda(float)#1}, std::array<char*, 2ul> >(int, at::native::bfloat16_copy_kernel_cuda",
+    "ms_per_batch": 34.08134166666577,
+    "calls_per_batch": 69.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul> >(int, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*, 3ul>)",
+    "ms_per_batch": 33.77526733333239,
+    "calls_per_batch": 66.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "aten::native_layer_norm",
+    "ms_per_batch": 29.450096999999747,
+    "calls_per_batch": 67.0,
+    "class": "layernorm"
+   },
+   {
+    "name": "void at::native::(anonymous namespace)::vectorized_layer_norm_kernel<c10::BFloat16, float>(int, float, c10::BFloat16 const*, c10::BFloat16 const*, c10::BFloat16 const*, float*, float*, c10::BFloat16*)",
+    "ms_per_batch": 29.450096999999747,
+    "calls_per_batch": 67.0,
+    "class": "layernorm"
+   },
+   {
+    "name": "aten::_flash_attention_forward",
+    "ms_per_batch": 27.14330400000047,
+    "calls_per_batch": 11.0,
+    "class": "attention"
+   },
+   {
+    "name": "void pytorch_flash::flash_fwd_kernel<Flash_fwd_kernel_traits<64, 128, 128, 4, false, false, cutlass::bfloat16_t, Flash_kernel_traits<64, 128, 128, 4, cutlass::bfloat16_t> >, false, false, false, false",
+    "ms_per_batch": 27.14330400000047,
+    "calls_per_batch": 11.0,
+    "class": "attention"
+   },
+   {
+    "name": "aten::neg",
+    "ms_per_batch": 23.418249000000245,
+    "calls_per_batch": 66.0,
+    "class": "other"
+   },
+   {
+    "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#7}::operator()() const:",
+    "ms_per_batch": 23.418249000000245,
+    "calls_per_batch": 66.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl_nocast<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#12}::operator()",
+    "ms_per_batch": 3.4109796666661385,
+    "calls_per_batch": 22.0,
+    "class": "elementwise"
+   }
+  ]
+ },
+ "forward": {
+  "batches": [
+   {
+    "t_start": 1793735087.9763155,
+    "t_end": 1793735089.2481494,
+    "s": 1.271833896636963,
+    "rows": 32548,
+    "Lmax": 412,
+    "flops": 44500417167360
+   },
+   {
+    "t_start": 1793735089.2482512,
+    "t_end": 1793735090.5692403,
+    "s": 1.3209891319274902,
+    "rows": 32277,
+    "Lmax": 609,
+    "flops": 45204243194880
+   },
+   {
+    "t_start": 1793735090.569357,
+    "t_end": 1793735091.8098192,
+    "s": 1.240462303161621,
+    "rows": 32760,
+    "Lmax": 130,
+    "flops": 43229362176000
+   },
+   {
+    "t_start": 1793735091.809943,
+    "t_end": 1793735093.0449731,
+    "s": 1.235030174255371,
+    "rows": 32702,
+    "Lmax": 166,
+    "flops": 43351738552320
+   },
+   {
+    "t_start": 1793735093.0450797,
+    "t_end": 1793735094.3772578,
+    "s": 1.3321781158447266,
+    "rows": 32360,
+    "Lmax": 809,
+    "flops": 46413994598400
+   },
+   {
+    "t_start": 1793735094.377371,
+    "t_end": 1793735095.6479084,
+    "s": 1.2705373764038086,
+    "rows": 32578,
+    "Lmax": 358,
+    "flops": 44244197437440
+   },
+   {
+    "t_start": 1793735095.64801,
+    "t_end": 1793735096.9279218,
+    "s": 1.279911756515503,
+    "rows": 32760,
+    "Lmax": 364,
+    "flops": 44524582502400
+   }
+  ],
+  "tflops": 34.79728830392419
+ },
+ "determinism": {
+  "bucketed": {
+   "padding_frac": 0.013825734300110581,
+   "bitwise_identical": true,
+   "max_abs_diff": 0.0
+  },
+  "padded_mixed_lengths": {
+   "padding_frac": 0.5704441983511751,
+   "bitwise_identical": true,
+   "max_abs_diff": 0.0
+  }
+ },
+ "gemm": {
+  "ffn_up_bf16": {
+   "t_start": 1793735104.9193757,
+   "t_end": 1793735105.0984519,
+   "tflops": 71.9520643435574,
+   "shape": [
+    32768,
+    1280,
+    5120
+   ]
+  },
+  "ffn_up_tf32": {
+   "t_start": 1793735105.17442,
+   "t_end": 1793735105.5457754,
+   "tflops": 34.696965561539464,
+   "shape": [
+    32768,
+    1280,
+    5120
+   ]
+  },
+  "ffn_down_bf16": {
+   "t_start": 1793735105.5646696,
+   "t_end": 1793735105.7365367,
+   "tflops": 74.97013375418902,
+   "shape": [
+    32768,
+    5120,
+    1280
+   ]
+  },
+  "ffn_down_tf32": {
+   "t_start": 1793735105.7737358,
+   "t_end": 1793735106.144115,
+   "tflops": 34.78840484797449,
+   "shape": [
+    32768,
+    5120,
+    1280
+   ]
+  },
+  "attn_proj_bf16": {
+   "t_start": 1793735106.1495545,
+   "t_end": 1793735106.1965873,
+   "tflops": 68.48886745126724,
+   "shape": [
+    32768,
+    1280,
+    1280
+   ]
+  },
+  "attn_proj_tf32": {
+   "t_start": 1793735106.206334,
+   "t_end": 1793735106.299573,
+   "tflops": 34.5481110437758,
+   "shape": [
+    32768,
+    1280,
+    1280
+   ]
+  },
+  "sustained_ffn_up_bf16": {
+   "t_start": 1793735106.2997386,
+   "t_end": 1793735121.3472877,
+   "tflops": 70.78573984029268
+  }
+ },
+ "tiles": {
+  "late_~2_per_col": {
+   "survivors": 19230,
+   "16x256_w4": 1.1374768257141112,
+   "32x256_w4": 2.0792400360107424,
+   "16x512_w4": 2.216257667541504,
+   "32x512_w8": "error: out of resource: shared memory, Required: 131584, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "64x256_w8": "error: out of resource: shared memory, Required: 132096, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "8x512_w4": 0.9451775550842285,
+   "8x1024_w8": 1.672470474243164,
+   "64x128_w4": 2.2992719650268554,
+   "128x128_w8": "error: out of resource: shared memory, Required: 133120, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "32x1024_w8": "error: out of resource: shared memory, Required: 262656, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "torch_nonzero_ms": 6.612888336181641
+  },
+  "early_~30_per_col": {
+   "survivors": 296457,
+   "16x256_w4": 2.567740821838379,
+   "32x256_w4": 3.4470977783203125,
+   "16x512_w4": 3.966342544555664,
+   "32x512_w8": "error: out of resource: shared memory, Required: 131584, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "64x256_w8": "error: out of resource: shared memory, Required: 132096, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "8x512_w4": 2.078099250793457,
+   "8x1024_w8": 2.9618608474731447,
+   "64x128_w4": 3.6220062255859373,
+   "128x128_w8": "error: out of resource: shared memory, Required: 133120, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "32x1024_w8": "error: out of resource: shared memory, Required: 262656, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "torch_nonzero_ms": 6.650520324707031
+  },
+  "one_read_ms_at_peak_bw": null
+ }
+}

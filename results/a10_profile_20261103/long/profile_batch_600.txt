@@ -1,0 +1,66 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                            aten::addmm         0.31%       5.647ms         0.44%       8.083ms      40.825us     522.246ms        29.41%     522.246ms       2.638ms           198  
+ampere_bf16_s16816gemm_bf16_256x128_ldg8_relu_f2f_st...         0.00%       0.000us         0.00%       0.000us       0.000us     347.174ms        19.55%     347.174ms       2.104ms           165  
+                                        atlas.subsample         0.00%       0.000us         0.00%       0.000us       0.000us     322.237ms        18.14%     322.237ms       9.765ms            33  
+                                              aten::mul         0.23%       4.234ms         0.37%       6.791ms      14.149us     230.476ms        12.98%     230.476ms     480.159us           480  
+                                            aten::copy_         0.26%       4.830ms        88.01%        1.620s       1.538ms     215.132ms        12.11%     215.144ms     204.316us          1053  
+void cutlass::Kernel2<cutlass_80_tensorop_bf16_s1681...         0.00%       0.000us         0.00%       0.000us       0.000us     175.072ms         9.86%     175.072ms       5.305ms            33  
+                     aten::_efficient_attention_forward         0.02%     432.878us         0.05%     989.406us      29.982us     168.547ms         9.49%     168.547ms       5.107ms            33  
+fmha_cutlassF_bf16_aligned_64x64_rf_sm80(PyTorchMemE...         0.00%       0.000us         0.00%       0.000us       0.000us     168.547ms         9.49%     168.547ms       5.107ms            33  
+                                              aten::add         0.13%       2.455ms         0.22%       4.041ms      13.119us     149.460ms         8.42%     149.460ms     485.260us           308  
+                                            atlas.merge         0.00%       0.000us         0.00%       0.000us       0.000us     122.287ms         6.89%     122.287ms     122.287ms             1  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us      92.677ms         5.22%      92.677ms     396.055us           234  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      91.499ms         5.15%      91.499ms     693.171us           132  
+                                               aten::mm         0.23%       4.267ms         0.28%       5.116ms      51.676us      88.026ms         4.96%      88.026ms     889.149us            99  
+void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_...         0.00%       0.000us         0.00%       0.000us       0.000us      72.480ms         4.08%      72.480ms       2.196ms            33  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      67.368ms         3.79%      67.368ms       1.021ms            66  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      67.186ms         3.78%      67.186ms       2.036ms            33  
+void at::native::unrolled_elementwise_kernel<at::nat...         0.00%       0.000us         0.00%       0.000us       0.000us      67.157ms         3.78%      67.157ms     248.731us           270  
+                                              aten::sum         0.18%       3.267ms         0.43%       7.907ms      38.950us      58.808ms         3.31%     121.047ms     596.289us           203  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      56.322ms         3.17%      56.322ms     840.627us            67  
+                                              aten::cat         0.11%       1.998ms         0.16%       2.923ms      19.488us      55.477ms         3.12%      55.477ms     369.846us           150  
+void at::native::(anonymous namespace)::CatArrayBatc...         0.00%       0.000us         0.00%       0.000us       0.000us      54.953ms         3.09%      54.953ms     832.614us            66  
+                                              aten::div         0.02%     378.095us         0.03%     609.506us      17.414us      45.361ms         2.55%      45.361ms       1.296ms            35  
+                                              aten::erf         0.02%     314.596us         0.03%     536.321us      16.252us      44.854ms         2.53%      44.854ms       1.359ms            33  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      44.854ms         2.53%      44.854ms       1.359ms            33  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      44.788ms         2.52%      44.788ms       1.357ms            33  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      44.783ms         2.52%      44.783ms       1.357ms            33  
+void at::native::reduce_kernel<128, 4, at::native::R...         0.00%       0.000us         0.00%       0.000us       0.000us      43.705ms         2.46%      43.705ms     662.190us            66  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      34.017ms         1.92%      34.017ms     492.998us            69  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us      33.573ms         1.89%      33.573ms     508.676us            66  
+                                          atlas.compact         0.00%       0.000us         0.00%       0.000us       0.000us      33.295ms         1.87%      33.295ms       1.009ms            33  
+                                         _filter_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      31.815ms         1.79%      31.815ms     964.097us            33  
+                                aten::native_layer_norm         0.05%     901.695us         0.12%       2.167ms      32.347us      29.383ms         1.65%      29.383ms     438.546us            67  
+void at::native::(anonymous namespace)::vectorized_l...         0.00%       0.000us         0.00%       0.000us       0.000us      29.383ms         1.65%      29.383ms     438.546us            67  
+                                             aten::add_         0.07%       1.362ms         0.14%       2.513ms      10.831us      28.454ms         1.60%      28.454ms     122.647us           232  
+                                               aten::ge         0.10%       1.826ms         0.16%       2.999ms      14.556us      25.783ms         1.45%      25.783ms     125.158us           206  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      23.696ms         1.33%      23.696ms     176.837us           134  
+                                              aten::neg         0.06%       1.080ms         0.10%       1.766ms      13.085us      23.680ms         1.33%      23.680ms     175.409us           135  
+                                            aten::index         0.33%       5.993ms         0.77%      14.109ms      27.080us      23.668ms         1.33%      24.034ms      46.131us           521  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      23.509ms         1.32%      23.509ms     356.196us            66  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      21.487ms         1.21%      21.487ms     651.122us            33  
+void at::native::index_elementwise_kernel<128, 4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      17.943ms         1.01%      17.943ms     267.805us            67  
+void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_...         0.00%       0.000us         0.00%       0.000us       0.000us      15.546ms         0.88%      15.546ms     235.541us            66  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us      11.454ms         0.64%      11.454ms     173.546us            66  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      10.465ms         0.59%      10.465ms      76.945us           136  
+void at::native::reduce_kernel<512, 1, at::native::R...         0.00%       0.000us         0.00%       0.000us       0.000us       9.546ms         0.54%       9.546ms     136.371us            70  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us       8.880ms         0.50%       8.880ms     269.102us            33  
+                                            aten::where         0.03%     622.557us         0.13%       2.371ms      35.392us       7.422ms         0.42%      14.863ms     221.838us            67  
+void at::native::elementwise_kernel<128, 4, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us       7.374ms         0.42%       7.374ms     223.452us            33  
+void at::native::vectorized_elementwise_kernel<2, at...         0.00%       0.000us         0.00%       0.000us       0.000us       6.952ms         0.39%       6.952ms      33.582us           207  
+                                     aten::index_select         0.09%       1.591ms         0.18%       3.390ms      25.485us       6.474ms         0.36%       6.474ms      48.674us           133  
+void at::native::reduce_kernel<128, 4, at::native::R...         0.00%       0.000us         0.00%       0.000us       0.000us       5.426ms         0.31%       5.426ms      82.214us            66  
+void at::native::index_elementwise_kernel<128, 4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       5.121ms         0.29%       5.121ms      13.804us           371  
+void at::native::(anonymous namespace)::indexSelectL...         0.00%       0.000us         0.00%       0.000us       0.000us       5.093ms         0.29%       5.093ms     149.782us            34  
+                                            aten::fill_         0.07%       1.223ms         0.15%       2.703ms      11.216us       4.482ms         0.25%       4.482ms      18.597us           241  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       4.318ms         0.24%       4.318ms     130.837us            33  
+void at::native::vectorized_elementwise_kernel<8, at...         0.00%       0.000us         0.00%       0.000us       0.000us       4.150ms         0.23%       4.150ms      41.916us            99  
+void at::native::elementwise_kernel<128, 2, at::nati...         0.00%       0.000us         0.00%       0.000us       0.000us       3.519ms         0.20%       3.519ms      53.322us            66  
+                                            aten::clamp         0.03%     568.468us         0.05%     930.201us      13.679us       3.342ms         0.19%       3.342ms      49.144us            68  
+void at::native::vectorized_elementwise_kernel<2, at...         0.00%       0.000us         0.00%       0.000us       0.000us       3.342ms         0.19%       3.342ms      49.144us            68  
+void at::native::vectorized_elementwise_kernel<2, at...         0.00%       0.000us         0.00%       0.000us       0.000us       3.251ms         0.18%       3.251ms      23.388us           139  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 1.841s
+Self CUDA time total: 1.776s

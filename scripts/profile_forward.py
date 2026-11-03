@@ -108,10 +108,15 @@ def main():
         ka = prof.key_averages()
         rows = []
         for e in ka:
-            dt = getattr(e, "self_device_time_total", None)
-            if dt is None:
-                dt = getattr(e, "self_cuda_time_total", 0)
-            if not cuda:
+            if cuda:
+                # kernel rows only: aten:: ops report the device time of the kernels they launch,
+                # so summing both double-counts (phase-1 profile: 2.7 s "device" per 1.34 s batch)
+                if str(getattr(e, "device_type", "")).split(".")[-1] not in ("CUDA",) and (e.key.startswith("aten::") or e.key in ("Command Buffer Full",)):
+                    continue
+                dt = getattr(e, "self_device_time_total", None)
+                if dt is None:
+                    dt = getattr(e, "self_cuda_time_total", 0)
+            else:
                 dt = e.self_cpu_time_total
             if dt:
                 rows.append((e.key, dt / 1e3 / len(pb), e.count / len(pb)))  # ms per batch

@@ -59,7 +59,7 @@ def _filter_kernel(
 _BUF: dict = {}
 
 
-DEFAULT_TILE = {"BLOCK_T": 16, "BLOCK_D": 256, "num_warps": 4}  # phase-1 sweep best (pre early-exit); retuned on GPU
+DEFAULT_TILE = {"BLOCK_T": 8, "BLOCK_D": 512, "num_warps": 4}  # A10 sweep 2026-11-03 with early exit: 0.95 ms per [32768, 5120] bf16
 
 
 def filter_candidates(H, rowmap, thr_pos, thr_neg, max_out, BLOCK_T=None, BLOCK_D=None, num_warps=None):

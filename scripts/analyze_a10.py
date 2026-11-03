@@ -52,6 +52,11 @@ def load_smi(p: Path):
     return hdr, out
 
 
+def mean_or_none(xs):
+    xs = [x for x in xs if x is not None]
+    return st.mean(xs) if xs else None
+
+
 def window(smi, t0, t1, key):
     v = [s[key] for s in smi if t0 <= s["t"] <= t1 and isinstance(s.get(key), float)]
     return st.mean(v) if v else None
@@ -83,8 +88,8 @@ def main():
                                "sm_MHz": window(smi, v["t_start"], v["t_end"], sm)} for k, v in pf["gemm"].items()}
     if smi and pf.get("forward"):
         fb = pf["forward"]["batches"]
-        S["forward_power"] = {"power_W": st.mean(filter(None, (window(smi, r["t_start"], r["t_end"], pw) for r in fb))) if fb else None,
-                              "sm_MHz": st.mean(filter(None, (window(smi, r["t_start"], r["t_end"], sm) for r in fb))) if fb else None,
+        S["forward_power"] = {"power_W": mean_or_none((window(smi, r["t_start"], r["t_end"], pw) for r in fb)) if fb else None,
+                              "sm_MHz": mean_or_none((window(smi, r["t_start"], r["t_end"], sm) for r in fb)) if fb else None,
                               "power_cap_active_frac": window(smi, fb[0]["t_start"], fb[-1]["t_end"], cap) if cap and fb else None}
     S["tiles"] = pf.get("tiles")
     runs = {}
@@ -108,8 +113,8 @@ def main():
                       "ckpt_s": [r["ckpt_s"] for r in R if r.get("ckpt_s")],
                       "final_save_s": info.get("final_save_s"), "atlas_pt_GB": info.get("atlas_pt_GB"),
                       "seed_verification": {k: info.get(k) for k in ("res_seeded_bins", "res_seed_limited_bins", "top_seed_short_groups")},
-                      "fwd_power_W": st.mean(filter(None, (window(smi, r["t_start"], r["t_start"] + r["fwd_only_s"], pw) for r in R if r.get("fwd_only_s")))) if smi and pw else None,
-                      "fwd_sm_MHz": st.mean(filter(None, (window(smi, r["t_start"], r["t_start"] + r["fwd_only_s"], sm) for r in R if r.get("fwd_only_s")))) if smi and sm else None}
+                      "fwd_power_W": mean_or_none(((window(smi, r["t_start"], r["t_start"] + r["fwd_only_s"], pw) for r in R if r.get("fwd_only_s")))) if smi and pw else None,
+                      "fwd_sm_MHz": mean_or_none(((window(smi, r["t_start"], r["t_start"] + r["fwd_only_s"], sm) for r in R if r.get("fwd_only_s")))) if smi and sm else None}
         runs[name]["_series"] = [(r["batch"], r.get("overhead_vs_fwd"), bool(r["redo_layers"]), r["n_seen_before"]) for r in R]
     S["runs"] = {k: {kk: vv for kk, vv in v.items() if kk != "_series"} for k, v in runs.items()}
     (out / "a10_summary.json").write_text(json.dumps(S, indent=1))

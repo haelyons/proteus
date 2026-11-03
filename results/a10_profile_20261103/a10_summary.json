@@ -1,0 +1,379 @@
+{
+ "forward_profile": {
+  "env": {
+   "gpu": "NVIDIA A10",
+   "torch": "2.7.0",
+   "model": {
+    "hf": "facebook/esm2_t33_650M_UR50D",
+    "control": "none",
+    "attn": "sdpa",
+    "n_layers": 33,
+    "d_model": 1280,
+    "d_ff": 5120,
+    "n_params": 649400981
+   },
+   "param_dtypes": {
+    "torch.bfloat16": 533
+   },
+   "buffer_dtypes": {
+    "position_ids:torch.int64": 1,
+    "inv_freq:torch.bfloat16": 1
+   },
+   "attn_impl": "sdpa",
+   "attn_class": "EsmSelfAttention",
+   "allow_tf32_matmul": false,
+   "autocast": false
+  },
+  "determinism": {
+   "bucketed": {
+    "padding_frac": 0.013825734300110581,
+    "bitwise_identical": true,
+    "max_abs_diff": 0.0
+   },
+   "padded_mixed_lengths": {
+    "padding_frac": 0.5704441983511751,
+    "bitwise_identical": true,
+    "max_abs_diff": 0.0
+   }
+  },
+  "gemm": {
+   "ffn_up_bf16": {
+    "t_start": 1793735104.9193757,
+    "t_end": 1793735105.0984519,
+    "tflops": 71.9520643435574,
+    "shape": [
+     32768,
+     1280,
+     5120
+    ]
+   },
+   "ffn_up_tf32": {
+    "t_start": 1793735105.17442,
+    "t_end": 1793735105.5457754,
+    "tflops": 34.696965561539464,
+    "shape": [
+     32768,
+     1280,
+     5120
+    ]
+   },
+   "ffn_down_bf16": {
+    "t_start": 1793735105.5646696,
+    "t_end": 1793735105.7365367,
+    "tflops": 74.97013375418902,
+    "shape": [
+     32768,
+     5120,
+     1280
+    ]
+   },
+   "ffn_down_tf32": {
+    "t_start": 1793735105.7737358,
+    "t_end": 1793735106.144115,
+    "tflops": 34.78840484797449,
+    "shape": [
+     32768,
+     5120,
+     1280
+    ]
+   },
+   "attn_proj_bf16": {
+    "t_start": 1793735106.1495545,
+    "t_end": 1793735106.1965873,
+    "tflops": 68.48886745126724,
+    "shape": [
+     32768,
+     1280,
+     1280
+    ]
+   },
+   "attn_proj_tf32": {
+    "t_start": 1793735106.206334,
+    "t_end": 1793735106.299573,
+    "tflops": 34.5481110437758,
+    "shape": [
+     32768,
+     1280,
+     1280
+    ]
+   },
+   "sustained_ffn_up_bf16": {
+    "t_start": 1793735106.2997386,
+    "t_end": 1793735121.3472877,
+    "tflops": 70.78573984029268
+   }
+  },
+  "class_share": {
+   "elementwise": 0.6288735168054699,
+   "gemm_bf16": 0.19165476536527978,
+   "other": 0.08902139462971216,
+   "attention": 0.06859887797783888,
+   "layernorm": 0.02185144522169926
+  },
+  "device_ms_per_batch_by_class": {
+   "elementwise": 1695.1177263333282,
+   "gemm_bf16": 516.6021169999996,
+   "other": 239.95563499999986,
+   "attention": 184.907093333335,
+   "layernorm": 58.900193999999495
+  },
+  "gemm_tflops_on_gemm_time": 81.67693090889914,
+  "top_kernels": [
+   {
+    "name": "aten::addmm",
+    "ms_per_batch": 516.6021169999996,
+    "calls_per_batch": 198.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "ampere_bf16_s16816gemm_bf16_256x128_ldg8_relu_f2f_stages_32x3_tn",
+    "ms_per_batch": 341.30972500000024,
+    "calls_per_batch": 165.0,
+    "class": "gemm_bf16"
+   },
+   {
+    "name": "aten::mul",
+    "ms_per_batch": 216.6969580000018,
+    "calls_per_batch": 237.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void cutlass::Kernel2<cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8>(cutlass_80_tensorop_bf16_s16816gemm_relu_bf16_256x128_32x3_tn_align8::Params)",
+    "ms_per_batch": 175.2923919999993,
+    "calls_per_batch": 33.0,
+    "class": "gemm_bf16"
+   },
+   {
+    "name": "aten::add",
+    "ms_per_batch": 146.66324466666558,
+    "calls_per_batch": 167.33333333333334,
+    "class": "elementwise"
+   },
+   {
+    "name": "Command Buffer Full",
+    "ms_per_batch": 122.85684966666702,
+    "calls_per_batch": 122.66666666666667,
+    "class": "other"
+   },
+   {
+    "name": "aten::copy_",
+    "ms_per_batch": 108.31599266666454,
+    "calls_per_batch": 236.33333333333334,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::n",
+    "ms_per_batch": 92.0285553333345,
+    "calls_per_batch": 132.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#3}::operator()() const::{lambda()#7}::operator()() const::{lambda(float)#1}, std::a",
+    "ms_per_batch": 70.41067799999938,
+    "calls_per_batch": 135.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}",
+    "ms_per_batch": 67.82728833333304,
+    "calls_per_batch": 66.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10::BFloat16, at::native::binary_internal::MulFunctor<float> >, std::array<char*, 3ul> >(int,",
+    "ms_per_batch": 67.56172000000011,
+    "calls_per_batch": 33.0,
+    "class": "elementwise"
+   },
+   {
+    "name": "aten::_efficient_attention_forward",
+    "ms_per_batch": 65.31024266666704,
+    "calls_per_batch": 22.0,
+    "class": "attention"
+   }
+  ]
+ },
+ "gemm_power": {
+  "ffn_up_bf16": {
+   "tflops": 71.9520643435574,
+   "power_W": null,
+   "sm_MHz": null
+  },
+  "ffn_up_tf32": {
+   "tflops": 34.696965561539464,
+   "power_W": 139.13,
+   "sm_MHz": 1035.0
+  },
+  "ffn_down_bf16": {
+   "tflops": 74.97013375418902,
+   "power_W": 140.94,
+   "sm_MHz": 1065.0
+  },
+  "ffn_down_tf32": {
+   "tflops": 34.78840484797449,
+   "power_W": 141.29,
+   "sm_MHz": 1050.0
+  },
+  "attn_proj_bf16": {
+   "tflops": 68.48886745126724,
+   "power_W": 146.03,
+   "sm_MHz": 1005.0
+  },
+  "attn_proj_tf32": {
+   "tflops": 34.5481110437758,
+   "power_W": null,
+   "sm_MHz": null
+  },
+  "sustained_ffn_up_bf16": {
+   "tflops": 70.78573984029268,
+   "power_W": 149.71186440677965,
+   "sm_MHz": 1081.7796610169491
+  }
+ },
+ "forward_power": {
+  "power_W": 142.76685714285713,
+  "sm_MHz": 1262.142857142857,
+  "power_cap_active_frac": null
+ },
+ "tiles": {
+  "late_~2_per_col": {
+   "survivors": 19230,
+   "16x256_w4": 1.1374768257141112,
+   "32x256_w4": 2.0792400360107424,
+   "16x512_w4": 2.216257667541504,
+   "32x512_w8": "error: out of resource: shared memory, Required: 131584, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "64x256_w8": "error: out of resource: shared memory, Required: 132096, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "8x512_w4": 0.9451775550842285,
+   "8x1024_w8": 1.672470474243164,
+   "64x128_w4": 2.2992719650268554,
+   "128x128_w8": "error: out of resource: shared memory, Required: 133120, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "32x1024_w8": "error: out of resource: shared memory, Required: 262656, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "torch_nonzero_ms": 6.612888336181641
+  },
+  "early_~30_per_col": {
+   "survivors": 296457,
+   "16x256_w4": 2.567740821838379,
+   "32x256_w4": 3.4470977783203125,
+   "16x512_w4": 3.966342544555664,
+   "32x512_w8": "error: out of resource: shared memory, Required: 131584, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "64x256_w8": "error: out of resource: shared memory, Required: 132096, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "8x512_w4": 2.078099250793457,
+   "8x1024_w8": 2.9618608474731447,
+   "64x128_w4": 3.6220062255859373,
+   "128x128_w8": "error: out of resource: shared memory, Required: 133120, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "32x1024_w8": "error: out of resource: shared memory, Required: 262656, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.",
+   "torch_nonzero_ms": 6.650520324707031
+  },
+  "one_read_ms_at_peak_bw": null
+ },
+ "runs": {
+  "seeded": {
+   "batches": 120,
+   "tokens": 3792174,
+   "overhead_by_segment": {
+    "0-10": {
+     "median": 1.39768772538326,
+     "mean": 1.5340874445852881,
+     "n": 10,
+     "redo_batches": 5,
+     "compacted_frac_median": 0.0010490847687060012
+    },
+    "10-50": {
+     "median": 0.40193773251795906,
+     "mean": 0.7615775555653383,
+     "n": 40,
+     "redo_batches": 6,
+     "compacted_frac_median": 0.0009297017863934068
+    },
+    "50-100": {
+     "median": 0.352656687889492,
+     "mean": 0.42356058517483325,
+     "n": 50,
+     "redo_batches": 0,
+     "compacted_frac_median": 0.0002609804097947982
+    },
+    "100-200": {
+     "median": 0.3471727456807805,
+     "mean": 0.5402227219234038,
+     "n": 20,
+     "redo_batches": 2,
+     "compacted_frac_median": 0.00013846101069915422
+    }
+   },
+   "overhead_pooled": 0.6444460418678515,
+   "ckpt_s": [],
+   "final_save_s": 114.08559036254883,
+   "atlas_pt_GB": 8.788971737,
+   "seed_verification": {
+    "res_seeded_bins": 1543826,
+    "res_seed_limited_bins": 0,
+    "top_seed_short_groups": 0
+   },
+   "fwd_power_W": null,
+   "fwd_sm_MHz": null
+  },
+  "long": {
+   "batches": 620,
+   "tokens": 19602128,
+   "overhead_by_segment": {
+    "0-10": {
+     "median": 28.727266152968944,
+     "mean": 23.29643356073033,
+     "n": 10,
+     "redo_batches": 8,
+     "compacted_frac_median": 0.0
+    },
+    "10-50": {
+     "median": 0.39902370639335016,
+     "mean": 0.7681274252497173,
+     "n": 40,
+     "redo_batches": 6,
+     "compacted_frac_median": 0.0009527574647659625
+    },
+    "50-100": {
+     "median": 0.3481552643477157,
+     "mean": 0.4107256261966755,
+     "n": 50,
+     "redo_batches": 0,
+     "compacted_frac_median": 0.00025185790584139156
+    },
+    "100-200": {
+     "median": 0.33284087887861935,
+     "mean": 0.378537351024877,
+     "n": 100,
+     "redo_batches": 1,
+     "compacted_frac_median": 0.0001205957266354078
+    },
+    "200-400": {
+     "median": 0.3205305852698258,
+     "mean": 0.3532280496566357,
+     "n": 200,
+     "redo_batches": 0,
+     "compacted_frac_median": 7.491232880931687e-05
+    },
+    "400-620": {
+     "median": 0.3138942649121613,
+     "mean": 0.3418823848788779,
+     "n": 220,
+     "redo_batches": 0,
+     "compacted_frac_median": 2.8201181212161707e-05
+    }
+   },
+   "overhead_pooled": 0.7532291386893948,
+   "ckpt_s": [
+    24.163450956344604,
+    26.206244945526123,
+    26.232738971710205
+   ],
+   "final_save_s": 117.97737717628479,
+   "atlas_pt_GB": 8.788971737,
+   "seed_verification": {
+    "res_seeded_bins": 0,
+    "res_seed_limited_bins": 0,
+    "top_seed_short_groups": 0
+   },
+   "fwd_power_W": null,
+   "fwd_sm_MHz": null
+  }
+ }
+}
