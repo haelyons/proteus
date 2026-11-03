@@ -1,0 +1,6 @@
+kernel OK on cuda torch.float32: T=777 D=300 (non-multiples of the 32x128 tile), 21975 survivors incl. -inf columns, overflow detected (count 21975 > cap 64)
+kernel OK on cuda torch.bfloat16: T=777 D=300 (non-multiples of the 32x128 tile), 21993 survivors incl. -inf columns, overflow detected (count 21993 > cap 64)
+  info: 223 top-K id differences, all exact ties (values equal, ids attain them)
+[torch.bfloat16, triton, cuda] OK  N=73529 tokens, L=3, D=96, K=8, Kr=4, 55 batches, 2.46s; dense layer-batches=7, redo layers=4; compacted fraction 2.04e-03
+  info: 220 top-K id differences, all exact ties (values equal, ids attain them)
+[torch.bfloat16, torch, cuda] OK  N=73529 tokens, L=3, D=96, K=8, Kr=4, 55 batches, 0.83s; dense layer-batches=7, redo layers=4; compacted fraction 2.04e-03
