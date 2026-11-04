@@ -188,6 +188,50 @@ Notes and open items:
 - The launcher was replaced by a detached `infra/reattach.py` after submission (tool calls here time
   out at 2 h); SIGKILL so the launcher's finally-block would not terminate the instance.
 
+## 2026-11-04 (evening) - Follow-up on one A100 40 GB: batch prefetch and stats-kernel row split
+
+`followup_650m_20261104/`: per-batch JSONL, `run.json` (with per-field sha256 digests), trace
+attributions at batches 500 and 3000, gate runs and comparison, row-split sweep, held-out atlas
+record, redundancy per bin (`bin_clusters.json`), `ps.log` (nvidia-smi logger every 2 min), the full
+`smi.csv`. Predictions committed before launch: `followup_650m_predictions.md` (48fe506). Instance:
+gpu_1x_a100_sxm4, us-east-1 (same GPU model as the science pass). Only two changes: batches and their
+host-side contexts built on a prefetch thread, and the stats kernel's row split (R automatic).
+Atlas copy #2 (10.85 GB) is on `esm-atlas-results` (us-east-1); #1 on `esm-atlas-asia-south-1`.
+
+| quantity | science pass | predicted | observed |
+|---|---|---|---|
+| stats kernel, ms per batch (in run, batch 3000) | 40.1 | 7-11 | **19.1** |
+| stats kernel per layer, sweep at the 650M shape (R = 1 / 2 / 4 / 6 / 8 / 16) | - | - | 1.67 / 1.00 / 0.96 / 0.95 / 0.82 / 0.86 ms |
+| mean gap between batches | 0.119 s | 0.005-0.03 s | **0.000 s** |
+| make_ctx inside the atlas pass | 11 ms | 1-3 ms | 1.0 ms |
+| overhead, last 1,600 batches, median / mean | 0.271 / 0.273 | 0.21-0.23 | **0.208 / 0.204** |
+| overhead, whole run, median / mean | 0.286 / 0.296 | 0.23-0.25 | **0.216 / 0.220** |
+| overhead by window (median): 100-1000 / 1000-3000 / 3000-6143 | 0.31 / 0.30 / 0.27 | - | 0.250 / 0.222 / 0.209 |
+| stream wall | 77.0 min | 64-68 min | **66.3 min** |
+| end to end (pilot + stream + save) | 82 min | 69-73 min | **71.3 min** (2.5 + 66.3 + 2.5) |
+| gate (v1 + loop vs v3 row split + stacked) | - | bitwise except sums | bitwise except sums (4.5e-9, the same as with R = 1) |
+| redo batches / seeds short | 47 / 0 | 40-55 / 0 | 47 / 0 |
+| nvidia-smi logger | "died" | dies within minutes | **alive the whole run** (5,846 lines; see below) |
+
+Stream: 66.3 min = forward 48.8 + atlas 11.6 + paired timing forwards 2.0 + checkpoints 3.8 (host batch
+building 0.0). **Forward plus atlas: 60.4 min; the README number.** The paired timing forwards and the
+checkpoints are run configuration, not cost of the method.
+
+Notes:
+- Row split: 1.7x, not the 4-6x predicted; flat past R = 4. The kernel is no longer limited by the
+  number of programs. My guess, unchecked: the int8 mask writes (49 MB per layer in 16-byte pieces at
+  stride n). Not pursued (scope: two changes).
+- The sums do not depend on R (fp32 within a 16-row block, fp64 across blocks, exact here), so the
+  gate's sum difference against v1 is identical to the science pass's.
+- nvidia-smi: the logger was alive at every ps (2 min interval) and at the end (1 h 24 min, 4,997 lines
+  at the end of the pass). The three earlier "deaths" were a stale cache: a plain GET of the file's
+  contents URL returned a frozen copy while the file kept growing; a unique-query GET returned it
+  current. Fixed in `infra/lambda_api.py` (209afe4).
+- The held-out atlas took 11 min, not 2-4: without seeds it warms up densely (961 layer redos over 130
+  batches), and `--edges-from` loads the full 10.85 GB atlas for the edges.
+- Atlas #2 vs #1: exact-field digests are recorded for #2; #1's are not yet computed (asia-south-1 had no
+  capacity). Prediction: identical.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which

@@ -1,0 +1,70 @@
+{
+ "device": "NVIDIA A100-SXM4-40GB",
+ "torch": "2.7.0",
+ "shape": {
+  "n": 1600,
+  "D": 5120,
+  "B": 6,
+  "out": "/lambda/nfs/esm-atlas-results/runs/atlas-fu650-20261104-1425/tune_rows.json",
+  "rows_only": true
+ },
+ "stats": [
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 1,
+   "num_warps": 4,
+   "ms": 1.6650240421295166,
+   "same": true
+  },
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 2,
+   "num_warps": 4,
+   "ms": 0.9983999729156494,
+   "same": true
+  },
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 4,
+   "num_warps": 4,
+   "ms": 0.9553920030593872,
+   "same": true
+  },
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 6,
+   "num_warps": 4,
+   "ms": 0.9461759924888611,
+   "same": true
+  },
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 8,
+   "num_warps": 4,
+   "ms": 0.8181759715080261,
+   "same": true
+  },
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 16,
+   "num_warps": 4,
+   "ms": 0.8616960048675537,
+   "same": true
+  },
+  {
+   "BLOCK_N": 16,
+   "BLOCK_D": 64,
+   "R": 0,
+   "num_warps": 4,
+   "ms": 0.9625599980354309,
+   "same": true
+  }
+ ],
+ "gram": []
+}

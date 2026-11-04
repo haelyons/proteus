@@ -3,7 +3,10 @@
 Per-neuron atlas of ESM-2 FFN units over Swiss-Prot, computed in one streaming pass without
 materialising activations. Claim under test: an exact, monotone-threshold filter turns a ~70 TB
 problem (168,960 FFN units x ~2e8 residues in bf16, for ESM-2 650M) into a one-GPU job of about an
-hour. Measurements so far, each next to its prediction, are in [`results/README.md`](results/README.md).
+hour. Measured (ESM-2 650M, Swiss-Prot 2026_03 minus a held-out set: 194M tokens, 168,960 units x 2
+poles): one A100 40 GB, 60.4 min of forward plus atlas (forward alone 48.8 min), 71 min end to end with
+pilot, checkpoints and save. Every measurement, next to its prediction, is in
+[`results/README.md`](results/README.md).
 
 ## What is computed
 
