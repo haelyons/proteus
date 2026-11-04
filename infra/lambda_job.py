@@ -54,7 +54,7 @@ def ensure_fs(region: str, log) -> str:
         assert have[0]["region"]["name"] == region, (name, have[0]["region"])
         return name
     L.api("POST", "/filesystems", {"name": name, "region": region})
-    log("filesystem_created", name=name, region=region)
+    log("filesystem_created", fs=name, region=region)
     return name
 
 RUNNER = r"""#!/bin/bash
