@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import torch
 
-from .core import bin_of, token_keys
+from .core import bin_of, token_keys, top_key
 
 
 def reference(Hs: list[torch.Tensor], toks: torch.Tensor, edges: torch.Tensor, K: int, Kr: int,
@@ -22,7 +22,8 @@ def reference(Hs: list[torch.Tensor], toks: torch.Tensor, edges: torch.Tensor, K
         tv, tt, rk, rt, rv, sb, en = [], [], [], [], [], [], []
         for p, sgn in ((0, 1.0), (1, -1.0)):
             S = H * sgn
-            v, i = torch.topk(S, K, dim=0)
+            _, i = torch.topk(top_key(S, toks[:, None].expand_as(S)), K, dim=0)  # (s desc, tok asc)
+            v = S.gather(0, i)
             tv.append((v * sgn).T); tt.append(toks[i].T)
             b = bin_of(S, edges[l, p])
             kb, tb, vb = [], [], []

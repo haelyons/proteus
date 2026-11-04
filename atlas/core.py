@@ -4,8 +4,10 @@ reservoirs, and hashed-subsample statistics (moments, enrichment, Gram).
 Everything is exact w.r.t. a stated definition:
 
 * top-K   : for every (layer, pole, neuron) the K largest pole-oriented values
-            s = +h (pole 0) / -h (pole 1) over all valid tokens. Exact because the
-            running K-th value tau only rises (monotone-threshold filter).
+            s = +h (pole 0) / -h (pole 1) over all valid tokens, ties broken by the
+            smaller token id (a total order: top_key(s, tok)). Exact and deterministic:
+            the running K-th key only rises, so `s >= tau` admits every token that can
+            still enter, whatever the arrival order.
 * reservoir: for every (layer, pole, neuron, bin) the K_r tokens with the smallest
             32-bit key u(tok) among tokens whose s falls in that bin ("bottom-k").
             u is a bijective hash of the token id, so samples are uniform within
@@ -23,6 +25,7 @@ Merges run once after the forward, stacked over all layers.
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 
 import torch
@@ -60,8 +63,16 @@ def unpack_tok(tok: torch.Tensor):
     return tok // SEQ_STRIDE, tok % SEQ_STRIDE
 
 
+def top_key(s: torch.Tensor, tok: torch.Tensor) -> torch.Tensor:
+    """int64 key ordering tokens by (s descending, token id ascending): a strict total order,
+    so the top-K is unique. s float (-0.0 is canonicalised to +0.0), 0 <= tok < 2^32."""
+    i = (s.float() + 0.0).view(torch.int32).to(torch.int64)
+    i = torch.where(i < 0, i ^ 0x7FFFFFFF, i)          # order-preserving float -> int
+    return i * 4294967296 + (M32 - tok.to(torch.int64))
+
+
 # --------------------------------------------------------------------------- merge
-def grouped_merge(state_score, state_pay, g, score, pay, K):
+def grouped_merge(state_score, state_pay, g, score, pay, K, pay_fill=None):
     """In-place exact merge of candidates into per-group top-K (higher score is better).
 
     state_score [G, K] sorted descending; state_pay list of [G, K]; g [n] group ids;
@@ -85,8 +96,8 @@ def grouped_merge(state_score, state_pay, g, score, pay, K):
     allv = torch.cat((state_score[ug], cs), 1)
     newv, idx = torch.topk(allv, K, dim=1)
     state_score[ug] = newv
-    for sp, p in zip(state_pay, pay):
-        pf = -1 if not p.is_floating_point() else float("nan")
+    for j, (sp, p) in enumerate(zip(state_pay, pay)):
+        pf = pay_fill[j] if pay_fill is not None else (-1 if not p.is_floating_point() else float("nan"))
         cp = torch.full((nu, K), pf, dtype=p.dtype, device=dev)
         cp[inv_s[keep], rank[keep]] = p[order][keep]
         sp[ug] = torch.gather(torch.cat((sp[ug], cp), 1), 1, idx)
@@ -109,7 +120,7 @@ class AtlasConfig:
     gram: bool = True
     cap_frac: float = 0.005     # candidate buffer per layer = cap_frac * T * D (overflow -> dense redo, exact)
     backend: str = "torch"      # "torch" | "triton"
-    stats_impl: str = "v2"      # hashed-subsample statistics: "v2" (searchsorted bins, int GEMM) | "v1" (reference)
+    stats_impl: str = "v3"      # subsample statistics: "v3" Triton kernels (CUDA; CPU falls back to v1) | "v2" | "v1" (reference)
     merge_impl: str = "stacked" # reservoir bulk-bin candidates: "stacked" across layers | "loop" (per layer and pole)
     seed_c: float = 4.0         # reservoir seed: expected keys under the seed over the stream = seed_c * Kr
     seed_z: float = 2.0         # ...computed from a z-sigma lower bound on the pilot bin mass
@@ -134,6 +145,7 @@ class BatchCtx:
     n_v: int = 0
     n_s: int = 0
     n_r: int = 0
+    sub_rows: torch.Tensor | None = None  # [n_s] rows of H holding the subsample (device)
 
 
 class Atlas:
@@ -152,6 +164,7 @@ class Atlas:
         G = L * 2 * D
         self.top_s = torch.full((G, K), NEG_INF, device=dev)
         self.top_t = torch.full((G, K), -1, dtype=torch.long, device=dev)
+        self.top_k = torch.full((G, K), I64_MIN, dtype=torch.long, device=dev)  # top_key(s, tok), descending
         self.res_s = torch.full((G * B, Kr), I64_MIN, dtype=torch.long, device=dev)  # = -key
         self.res_t = torch.full((G * B, Kr), -1, dtype=torch.long, device=dev)
         self.res_v = torch.full((G * B, Kr), float("nan"), device=dev)
@@ -189,6 +202,7 @@ class Atlas:
                  ann_ids: torch.Tensor | None = None) -> BatchCtx:
         """Host tensors in; everything row-level is decided here (no device sync later).
         ann_ids: [n_v, M_a] int64 annotation ids per valid token (-1 padded) or None."""
+        assert tok.numel() == 0 or (int(tok.min()) >= 0 and int(tok.max()) < 2**32), "token ids must be in [0, 2^32)"
         key = token_keys(tok, self.cfg.seed)
         sub = torch.nonzero(key < self.U_sub).squeeze(1)
         res_in_sub = torch.nonzero(key[sub] < self.U_res).squeeze(1)
@@ -210,7 +224,8 @@ class Atlas:
         return BatchCtx(T=T, valid_rows=valid_rows.to(d), tok=tok.to(d), key=key.to(d),
                         rowmap=rowmap.to(d), sub_idx=sub.to(d), res_in_sub=res_in_sub.to(d),
                         ann_sub=None if ann_sub is None else ann_sub.to(d), ann_sub_i8=ann_i8,
-                        n_v=valid_rows.numel(), n_s=sub.numel(), n_r=res_in_sub.numel())
+                        n_v=valid_rows.numel(), n_s=sub.numel(), n_r=res_in_sub.numel(),
+                        sub_rows=valid_rows[sub].to(d))
 
     def begin_batch(self, ctx: BatchCtx, redo_layers: list[int] | None = None):
         """redo_layers=None: a fresh batch over all layers. Otherwise a re-run of the same
@@ -225,7 +240,9 @@ class Atlas:
             self._active = set(redo_layers)
         # thresholds for the compaction pass, from state at batch start (device, no sync)
         L, D, B, Kr = self.L, self.D, self.B, self.cfg.Kr
-        tau_top = torch.maximum(self.top_s[:, -1], self.top_seed).view(L, 2, D)
+        # s >= tau_K (ties at tau can still enter with a smaller id)  <=>  s > prev(tau_K); and s > seed
+        tau = self.top_s[:, -1]
+        tau_top = torch.maximum(torch.nextafter(tau, torch.full_like(tau, NEG_INF)), self.top_seed).view(L, 2, D)
         kth = torch.maximum(self.res_s[:, Kr - 1], self.res_seed).view(L, 2, D, B)
         underfilled = kth < -self.U_res  # key threshold > U_res (or reservoir not full)
         eps = torch.where(underfilled, self.E, torch.full_like(self.E, float("inf"))).amin(-1)
@@ -260,19 +277,27 @@ class Atlas:
         R = None
         if self.cfg.subsample or self.cfg.reservoir:
             with _rf("atlas.subsample"):
-                Hn = H.index_select(0, ctx.valid_rows.index_select(0, ctx.sub_idx))  # [n_s, D] native dtype
-                Hs = Hn.float()
+                Hn = H.index_select(0, ctx.sub_rows)  # [n_s, D] native dtype
                 if self.cfg.subsample and l not in self._sub_done:
-                    self._subsample_stats(l, Hs, Hn)
-                R = Hs.index_select(0, ctx.res_in_sub) if self.cfg.reservoir else None
+                    self._subsample_stats(l, Hn)
+                R = Hn.index_select(0, ctx.res_in_sub).float() if self.cfg.reservoir else None
         self._pending[l] = (vals, rows, cols, cnt, R)
 
     def _cap(self, ctx):
         return max(4096, int(self.cfg.cap_frac * ctx.n_v * self.D))
 
-    def _subsample_stats(self, l, Hs, Hs_native=None):
-        if self.cfg.stats_impl == "v2":
-            return self._subsample_stats_v2(l, Hs, Hs_native)
+    def _subsample_stats(self, l, Hn):
+        """Hn [n_s, D]: the subsample rows in the hook's dtype."""
+        impl = self.cfg.stats_impl
+        if impl == "v3" and self.dev.type != "cuda" and os.environ.get("TRITON_INTERPRET") != "1":
+            impl = "v1"  # Triton kernels need CUDA (or the interpreter, for tests); v1 computes the same quantities
+        if impl == "v3":
+            return self._subsample_stats_v3(l, Hn)
+        if impl == "v2":
+            return self._subsample_stats_v2(l, Hn.float(), Hn)
+        return self._subsample_stats_v1(l, Hn.float())
+
+    def _subsample_stats_v1(self, l, Hs):
         self._sub_done.add(l)
         if Hs.shape[0] == 0:
             return
@@ -338,25 +363,57 @@ class Atlas:
                 if l == 0:
                     self.gram_rows += n
 
+    def _subsample_stats_v3(self, l, Hn):
+        """Two Triton kernels (atlas/stats_triton.py): one pass over the subsample rows for bin
+        counts, moments and int8 enrichment masks, then one exact int8 GEMM for the contingency
+        counts; Gram on the upper block triangle, accumulated in place."""
+        from .stats_triton import gram_accumulate, sub_stats
+        self._sub_done.add(l)
+        n = Hn.shape[0]
+        if n == 0:
+            return
+        D = self.D
+        ann = self.n_a and self.ctx.ann_sub is not None
+        levels = list(self.cfg.enrich_levels) if ann else []
+        with _rf("atlas.sub.kernel"):
+            s, sq, cnt, M = sub_stats(Hn, self.E[l, 0], self.E[l, 1], levels)
+            self.sub_sum[l] += s.double()
+            self.sub_sq[l] += sq.double()
+            self.sub_bin[l] += cnt.to(torch.int64)
+        if ann:
+            with _rf("atlas.sub.enrich"):
+                NL = len(levels)
+                c = _count_mm_i8(M.reshape(2 * NL * D, M.shape[-1]), self.ctx.ann_sub_i8, self.ctx.ann_sub)
+                self.enr[l] += c[:, : self.n_a].reshape(2, NL, D, self.n_a).to(torch.int64)
+        if self.gram is not None:
+            with _rf("atlas.sub.gram"):
+                gram_accumulate(Hn, self.gram[l])
+                if l == 0:
+                    self.gram_rows += n
+
     # ------------------------------------------------------------------ dense path
     def _dense(self, l, H):
         """Warm-up / overflow path: exact, sync-heavy, no thresholds used."""
         ctx = self.ctx
         Hv = H.index_select(0, ctx.valid_rows)  # native dtype (bf16 topk is exact)
         if self.cfg.subsample and l not in self._sub_done:  # once per layer per batch
-            Hn = Hv.index_select(0, ctx.sub_idx)
-            self._subsample_stats(l, Hn.float(), Hn)
+            self._subsample_stats(l, Hv.index_select(0, ctx.sub_idx))
         D, B, K, Kr = self.D, self.B, self.cfg.K, self.cfg.Kr
         cols = torch.arange(D, device=self.dev)
         for p, sgn in ((0, 1.0), (1, -1.0)):
             S = Hv if p == 0 else -Hv
             k = min(K, S.shape[0])
-            v, i = torch.topk(S, k, dim=0)  # [k, D]
-            g = ((l * 2 + p) * D + cols).expand(k, D).reshape(-1)
-            v, i = v.float().reshape(-1), i.reshape(-1)
-            ok = v > self.top_seed[g]
-            self.stats["top_cand"] += int(ok.sum())
-            grouped_merge(self.top_s, [self.top_t], g[ok], v[ok], [ctx.tok[i[ok]]], K)
+            if k > 0:
+                vk = torch.topk(S, k, dim=0).values[k - 1]               # K-th value per column (S's dtype: exact)
+                gD = (l * 2 + p) * D + cols
+                r, c = torch.nonzero(S >= vk[None, :], as_tuple=True)   # includes every row tied at the K-th value
+                v = S[r, c].float()
+                ok = v > self.top_seed[gD[c]]
+                r, c, v = r[ok], c[ok], v[ok]
+                t = ctx.tok[r]
+                self.stats["top_cand"] += int(v.numel())
+                grouped_merge(self.top_k, [self.top_t, self.top_s], gD[c], top_key(v, t), [t, v], K,
+                              pay_fill=[-1, NEG_INF])
             if not self.cfg.reservoir:
                 continue
             S = S.float()
@@ -422,7 +479,7 @@ class Atlas:
         cols = torch.cat([p[3] for p in parts])
         self.stats["compacted"] += lay.numel()
         tok, key = ctx.tok[rows], ctx.key[rows]
-        top_thr = torch.maximum(self.top_s[:, K - 1], self.top_seed)
+        kth_key = self.top_k[:, K - 1]
         res_thr = torch.maximum(self.res_s[:, Kr - 1], self.res_seed)
         top_g, top_v, top_t = [], [], []
         res_g, res_v, res_k, res_t = [], [], [], []
@@ -430,7 +487,7 @@ class Atlas:
             for p, sgn in ((0, 1.0), (1, -1.0)):
                 s = vals * sgn
                 g = (lay * 2 + p) * D + cols
-                m = s > top_thr[g]
+                m = (s > self.top_seed[g]) & (top_key(s, tok) > kth_key[g])
                 top_g.append(g[m]); top_v.append(s[m]); top_t.append(tok[m])
                 if not self.cfg.reservoir:
                     continue
@@ -446,9 +503,10 @@ class Atlas:
             with _rf("atlas.merge.bulk"):
                 self._bulk_loop(ok, res_thr, res_g, res_k, res_t, res_v)
         with _rf("atlas.merge.top"):
-            tg = torch.cat(top_g)
+            tg, tv, tt = torch.cat(top_g), torch.cat(top_v), torch.cat(top_t)
             self.stats["top_cand"] += tg.numel()
-            grouped_merge(self.top_s, [self.top_t], tg, torch.cat(top_v), [torch.cat(top_t)], K)
+            grouped_merge(self.top_k, [self.top_t, self.top_s], tg, top_key(tv, tt), [tt, tv], K,
+                          pay_fill=[-1, NEG_INF])
         if not self.cfg.reservoir:
             return
         with _rf("atlas.merge.res"):
@@ -530,7 +588,7 @@ class Atlas:
             self.gram.zero_()
 
     # ------------------------------------------------------------------ checkpoint / merge
-    _STATE = ["top_s", "top_t", "res_s", "res_t", "res_v", "sub_sum", "sub_sq", "sub_bin", "E",
+    _STATE = ["top_s", "top_t", "top_k", "res_s", "res_t", "res_v", "sub_sum", "sub_sq", "sub_bin", "E",
               "top_seed", "res_seed"]
 
     def state_dict(self) -> dict:
@@ -564,9 +622,10 @@ class Atlas:
         assert torch.equal(other.top_seed.to(self.dev), self.top_seed) and torch.equal(other.res_seed.to(self.dev), self.res_seed), \
             "shards must share seeds (derive them from the GLOBAL stream size)"
         K, Kr = self.cfg.K, self.cfg.Kr
-        v, i = torch.topk(torch.cat((self.top_s, other.top_s.to(self.dev)), 1), K, dim=1)
+        v, i = torch.topk(torch.cat((self.top_k, other.top_k.to(self.dev)), 1), K, dim=1)  # keys are unique
         self.top_t = torch.gather(torch.cat((self.top_t, other.top_t.to(self.dev)), 1), 1, i)
-        self.top_s = v
+        self.top_s = torch.gather(torch.cat((self.top_s, other.top_s.to(self.dev)), 1), 1, i)
+        self.top_k = v
         v, i = torch.topk(torch.cat((self.res_s, other.res_s.to(self.dev)), 1), Kr, dim=1)
         self.res_t = torch.gather(torch.cat((self.res_t, other.res_t.to(self.dev)), 1), 1, i)
         self.res_v = torch.gather(torch.cat((self.res_v, other.res_v.to(self.dev)), 1), 1, i)
@@ -600,7 +659,7 @@ class Atlas:
             out["enr"] = self.enr.cpu()
             out["ann_tot"] = self.ann_tot.cpu()
         if self.gram is not None:
-            out["gram"] = self.gram64
+            out["gram"] = symmetrize_upper(self.gram64)  # v3 accumulates the upper block triangle only
             out["gram_rows"] = self.gram_rows
         out.update(self.verify_seeds())
         return out
@@ -681,6 +740,27 @@ def _mm_f32out(a, b):
 
 
 _INT_MM = {"ok": None}
+
+
+def symmetrize_upper(U: torch.Tensor) -> torch.Tensor:
+    """Full symmetric matrix from one whose upper triangle (incl. diagonal) is right. Linear and
+    idempotent on symmetric inputs, so full (v1/v2) and upper-only (v3) Grams can be mixed."""
+    return torch.triu(U) + torch.triu(U, 1).transpose(-1, -2)
+
+
+def _count_mm_i8(m_i8, ann_i8, ann_f):
+    """Exact counts m_i8[M, n8] (0/1 int8, padded columns zero) @ ann[n, A] -> int [M, >= A]."""
+    if m_i8.is_cuda and _INT_MM["ok"] is not False:
+        try:
+            out = torch._int_mm(m_i8, ann_i8)
+            _INT_MM["ok"] = True
+            return out
+        except (RuntimeError, NotImplementedError, AttributeError) as e:
+            _INT_MM["ok"] = False
+            _INT_MM["error"] = str(e)[:200]
+    n = ann_f.shape[0]
+    with _tf32():
+        return (m_i8[:, :n].float() @ ann_f).round().to(torch.int32)
 
 
 def _count_mm(mask, ann_i8, ann_f):

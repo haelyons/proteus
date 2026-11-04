@@ -14,7 +14,7 @@ from atlas.core import Atlas, AtlasConfig, pack_tok  # noqa: E402
 from atlas.reference import pilot_edges, reference  # noqa: E402
 
 
-def make_stream(L, D, n_seq, seed, dtype):
+def make_stream(L, D, n_seq, seed, dtype, grid=0.0):
     g = torch.Generator().manual_seed(seed)
     lens = torch.randint(5, 120, (n_seq,), generator=g)
     scale = torch.rand(L, D, generator=g) * 3 + 0.1
@@ -25,13 +25,15 @@ def make_stream(L, D, n_seq, seed, dtype):
         H = H * (1 + 4 * (torch.rand(L, n, D, generator=g) < 0.002))       # outlier spikes
         if i > 0.7 * n_seq:                                                    # late distribution shift
             H = H + 2.5 * scale[:, None]
+        if grid:                                                               # coarse values: many ties at tau
+            H = torch.round(H / grid) * grid
         seqs.append(H.to(dtype))
     return lens, seqs
 
 
 def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, seed=0, verbose=True, device="cpu",
-        seeded=False, seed_c=4.0, stats_impl="v2", merge_impl="stacked"):
-    lens, seqs = make_stream(L, D, n_seq, seed, dtype)
+        seeded=False, seed_c=4.0, stats_impl="v3", merge_impl="stacked", grid=0.0, shuffle_order=False):
+    lens, seqs = make_stream(L, D, n_seq, seed, dtype, grid)
     g = torch.Generator().manual_seed(seed + 1)
     ann_full = [torch.randint(-1, n_annot, (n, 3), generator=g) for n in lens.tolist()]
     # pilot from the first 150 sequences (edges then fixed)
@@ -47,9 +49,11 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
     t0 = time.perf_counter()
     i = 0
     bi = 0
+    seq_order = torch.randperm(n_seq, generator=torch.Generator().manual_seed(seed + 99)).tolist() if shuffle_order \
+        else list(range(n_seq))                                               # arrival order must not matter
     while i < n_seq:
         bsz = int(torch.randint(4, 40, (1,), generator=g))
-        idx = list(range(i, min(n_seq, i + bsz)))
+        idx = seq_order[i:min(n_seq, i + bsz)]
         i += len(idx)
         Lmax = max(lens[j] for j in idx) + 2                                    # BOS/EOS padding layout
         T = len(idx) * Lmax
@@ -112,10 +116,7 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
         att &= bool((H[rows_of(tt), cols] == got["top_val"][l]).all())
     check("top-K tokens attain their stored values", att)
     differ = got["top_tok"] != ref["top_tok"]
-    if dtype == torch.float32:
-        check("top-K token ids exact", not differ.any())
-    else:
-        print(f"  info: {int(differ.sum())} top-K id differences, all exact ties (values equal, ids attain them)")
+    check(f"top-K token ids exact (ties to the smaller id; {int(differ.sum())} differ)", not differ.any())
     att = True
     for l in range(L):
         H = Hall[l].float()
@@ -159,12 +160,23 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
 
 
 if __name__ == "__main__":
+    import os
+    if os.environ.get("TRITON_INTERPRET") == "1":  # stats v3 through the Triton interpreter (fp32: its bf16 dot is broken)
+        print("-- stats v3 (Triton kernels in the interpreter), fp32; then seeded, tie-heavy, shuffled order")
+        ok = run(torch.float32, stats_impl="v3", n_seq=400, verbose=False)
+        ok &= run(torch.float32, stats_impl="v3", n_seq=400, seeded=True, grid=0.5, shuffle_order=True, verbose=False)
+        sys.exit(0 if ok else 1)
     ok = run(torch.float32) & run(torch.bfloat16)
+    print("-- stats v2")
+    ok &= run(torch.bfloat16, stats_impl="v2", verbose=False)
     print("-- seeded (top-K from pilot 2K-th, reservoir c=4)")
     ok &= run(torch.bfloat16, seeded=True, verbose=False)
     print("-- reference implementations (stats v1, merge loop), unseeded and seeded")
     ok &= run(torch.bfloat16, stats_impl="v1", merge_impl="loop", verbose=False)
     ok &= run(torch.bfloat16, seeded=True, stats_impl="v1", merge_impl="loop", verbose=False)
+    print("-- tie-heavy values (grid 0.5), shuffled arrival order: ids still exact")
+    ok &= run(torch.bfloat16, grid=0.5, shuffle_order=True, verbose=False)
+    ok &= run(torch.bfloat16, grid=0.5, shuffle_order=True, seeded=True, verbose=False)
     print("-- seeded too tight (c=0.25): verification must flag bins")
     ok &= run(torch.bfloat16, seeded=True, seed_c=0.25, verbose=False)
     sys.exit(0 if ok else 1)
