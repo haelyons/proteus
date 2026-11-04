@@ -63,8 +63,11 @@ class Jupyter:
         self._h = {"Authorization": f"token {token}", "Content-Type": "application/json", "User-Agent": UA}
 
     def get(self, path: str, content=True, timeout=30):
-        q = "" if content else "?content=0"
-        return _req("GET", f"{self.base}/api/contents/{urllib.parse.quote(path)}{q}", None, self._h, timeout)
+        # unique query + no-cache: something between us and the instance cached plain GETs of a
+        # growing file (smi.csv mirrors froze ~3 min into three jobs while the file kept growing)
+        q = f"?_={time.time_ns()}" + ("" if content else "&content=0")
+        h = dict(self._h, **{"Cache-Control": "no-cache", "Pragma": "no-cache"})
+        return _req("GET", f"{self.base}/api/contents/{urllib.parse.quote(path)}{q}", None, h, timeout)
 
     def read_text(self, path: str) -> str:
         _, d = self.get(path)
