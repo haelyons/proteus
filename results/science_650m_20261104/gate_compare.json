@@ -1,0 +1,73 @@
+{
+ "a": "/lambda/nfs/esm-atlas-asia-south-1/runs/atlas-sci650-20261104-1140/gate_A/ckpt/ckpt_60.pt",
+ "b": "/lambda/nfs/esm-atlas-asia-south-1/runs/atlas-sci650-20261104-1140/gate_B/ckpt/ckpt_60.pt",
+ "fields": {
+  "top_s": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_t": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_k": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_s": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_t": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_v": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_bin": {
+   "exact": true,
+   "n_diff": null
+  },
+  "enr": {
+   "exact": true,
+   "n_diff": null
+  },
+  "ann_tot": {
+   "exact": true,
+   "n_diff": null
+  },
+  "E": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_seed": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_seed": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_sum": {
+   "bitwise": false,
+   "max_rel_diff": 4.5467475624406904e-09
+  },
+  "sub_sq": {
+   "bitwise": false,
+   "max_rel_diff": 1.0569019107207342e-08
+  },
+  "n_seen": {
+   "a": 1876042,
+   "b": 1876042,
+   "equal": true
+  },
+  "n_sub": {
+   "a": 93969,
+   "b": 93969,
+   "equal": true
+  }
+ },
+ "ok": true
+}

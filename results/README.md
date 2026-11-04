@@ -136,10 +136,64 @@ Notes and open items:
 - `smi.csv` mirror stopped 3 min into the job, as on 2026-11-03; the file on the filesystem was not checked.
   Mirror read errors are swallowed; unexplained.
 
+## 2026-11-04 - ESM-2 650M over Swiss-Prot on one A100 40 GB (the science pass)
+
+`science_650m_20261104/`: per-batch JSONL (6,143 batches), `run.json`, trace attributions at batches
+500 and 3000, equivalence-gate runs and comparison, GPU test logs, job/launcher/supervisor logs.
+Predictions committed before launch: `science_650m_predictions.md` (4123e1c). Instance: gpu_1x_a100_sxm4,
+asia-south-1 (first with capacity), torch 2.7.0, triton 3.3.0. The atlas (`atlas.pt`, 10.85 GB) and
+checkpoints stay on the `esm-atlas-asia-south-1` filesystem; the run is exactly reproducible
+(deterministic ties, seeded thresholds from the global stream), so it can be recomputed elsewhere.
+Frozen config: K=64, Kr=64, edges at pilot q 0.5/0.9/0.99/0.999/0.9999/0.99999 (pilot 262,144
+tokens), seeded, rho_sub 0.05, rho_res 0.01, stats v3, merge stacked, held-out list excluded.
+
+| quantity | predicted | observed |
+|---|---|---|
+| GPU tests incl. stats/Gram kernels at n=1600, D=5120 | pass | pass (Gram rel err 6.6e-6 vs fp64; 46,245 values on edges, counts exact) |
+| gate (60 batches): v1 + loop vs v3 + stacked | bitwise equal; sums < 1e-6 | bitwise equal on every exact field incl. top-K ids and keys; sums 4.5e-9 / 1.1e-8 |
+| stats kernel per layer | 0.10-0.25 ms | **1.0-1.1 ms** (in-run, batches 55/500/3000) |
+| Gram kernel per layer | 0.20-0.35 ms | **0.77-0.82 ms** (~55 TFLOP/s on the upper triangle) |
+| tokens / batches | 194.2M / ~6,090 | 194,177,125 / 6,143 |
+| hook-free forward per batch | 0.40-0.55 s | 0.469 s (mean of 246 paired batches) |
+| overhead, paired batches excl. redo/profiled/flush/checkpoint, median | 0.10-0.18 | **0.286** (0.273 after batch 3000); mean 0.296 |
+| whole-pass atlas time vs forward-only estimate | - | 62.8 vs 48.0 min (0.309) |
+| stream wall | 55-75 min | **77.0 min** = forward 48.0 + atlas 14.8 + host batch building 8.4 + checkpoints 3.8 + paired forwards 1.9 |
+| pilot / final save | 2-4 min / 2-4 min | 2.6 min / 2.3 min (10.85 GB) |
+| checkpoints | ~55 s | 56-59 s (4.10 GB, 4 of them) |
+| redo batches | < 1%, early and extreme proteins | 47 (0.8%), all by batch 1,743, layers 0-1; 0.6 min in total |
+| seed verification | 0 short | 0 of 1,666,065 seeded bins short; 0 top-K groups short |
+| q99.999 bin mass | 0.3e-5 to 3e-5 | not measured (needs atlas.pt) |
+| billed | ~95 min, ~$3.2 | ~102 min (11:43-13:25 UTC), ~$3.4 |
+
+Device time per batch at batch 3000 (ms): compaction 19.1, merge 23.2 (bulk 12.3, top 2.8, reservoir
+3.9), subsample 80.9 (stats kernel 40.1, Gram 25.3, int8 enrichment GEMM 11.0).
+
+Notes and open items:
+- The claim: one A100 40 GB computes the exact atlas over Swiss-Prot (194M tokens, 168,960 units x 2
+  poles) in 82 min end to end (pilot 2.6 + stream 77.0 + save 2.3); the forward pass alone is 48 min.
+  Known removable costs: host batch building on the critical path (8.4 min; prefetch on a thread), the
+  two Triton kernels running 3-5x slower than predicted (stats kernel: 80 programs on 108 SMs walking
+  rows serially, now has an optional row split; Gram: untuned tiles; `scripts/tune_stats.py`), paired
+  timing forwards (1.9 min).
+- Why the kernel predictions missed: I treated both as bandwidth-bound. The stats kernel is latency-
+  bound on too few programs with [16, 64, 8] temporaries per step; the Gram reaches ~55 TFLOP/s of the
+  A100's 312.
+- Redos were 9% of the first 300 batches, all layer 0 (+1): with Kr=64 the top reservoir bins are not
+  served from bulk rows, so compaction admits from the q99.99 edge and single extreme proteins overflow
+  layer 0's buffer. Added `--cap-frac-early` (larger buffer for layers 0-1) for the next run.
+- Gram flushes (every 1,000 batches) took 4.2-4.5 s on this host (2.5 s on the A10 host): host-side
+  widening and adding 3.46 GB.
+- `smi.csv` stopped after 2.5 min for the third job in a row, now under a different supervisor
+  (reattach): the nvidia-smi logger on the instance probably dies; unchecked.
+- The launcher was replaced by a detached `infra/reattach.py` after submission (tool calls here time
+  out at 2 h); SIGKILL so the launcher's finally-block would not terminate the instance.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
 failed within 1-3 minutes on job bugs and were terminated by the driver); evening profiling job ~58 minutes, ~$1.25
 (the controlling container restarted mid-run; supervision was re-attached and the instance terminated on completion).
 2026-11-04: implementation A/B, ~56 billed minutes, ~$1.20 (us-west-1; new filesystem `esm-atlas-us-west-1`
-holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). Total ~$3.59.
+holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). Science pass on an A100 40 GB
+(asia-south-1), ~102 billed minutes, ~$3.40 (new filesystem `esm-atlas-asia-south-1`: dataset, HF cache,
+checkpoints, the 10.85 GB atlas). Total ~$7.0.

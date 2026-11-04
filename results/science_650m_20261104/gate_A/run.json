@@ -1,0 +1,92 @@
+{
+ "args": {
+  "model": "650M",
+  "control": "none",
+  "data": "/lambda/nfs/esm-atlas-asia-south-1/cache/swissprot_2026_03.pt",
+  "out": "/lambda/nfs/esm-atlas-asia-south-1/runs/atlas-sci650-20261104-1140/gate_A",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 262144,
+  "K": 64,
+  "Kr": 64,
+  "backend": "triton",
+  "stats_impl": "v1",
+  "merge_impl": "loop",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 60,
+  "gram_flush_every": 500,
+  "resume": false,
+  "stop_after": 60,
+  "seed_thresholds": true,
+  "pair_forward": false,
+  "pair_every": 1,
+  "exclude_acc": "heldout_created_after_2021-11-17.tsv",
+  "edge_q": [
+   0.5,
+   0.9,
+   0.99,
+   0.999,
+   0.9999,
+   0.99999
+  ],
+  "profile_at": [],
+  "max_batches": 0,
+  "deadline": 1793806373.0
+ },
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "n_excluded": 10010,
+ "n_batches_plan": 6143,
+ "next_batch": 60,
+ "complete": false,
+ "seconds": {
+  "load": 74.54502153396606,
+  "pilot": 152.50288796424866,
+  "stream_this_process": 141.31103706359863
+ },
+ "n_seen": 1876042,
+ "stats": {
+  "batches": 60,
+  "dense_layer_batches": 13,
+  "redo_layers": 13,
+  "compacted": 139135108,
+  "elements": 633952112640,
+  "top_cand": 90354259,
+  "res_cand": 32113302
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": null
+  },
+  "mm_out_dtype": {
+   "ok": null
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ }
+}
