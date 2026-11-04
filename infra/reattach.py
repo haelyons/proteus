@@ -25,6 +25,7 @@ def main():
     ap.add_argument("--instance-id", required=True)
     ap.add_argument("--cap-at", type=float, required=True, help="epoch seconds: terminate no later than this")
     ap.add_argument("--mirror", nargs="*", default=[])
+    ap.add_argument("--fs", default=None, help="filesystem name (default: the per-region name lambda_job.py uses)")
     a = ap.parse_args()
     out = Path(__file__).parent / "runs" / a.run
     out.mkdir(parents=True, exist_ok=True)
@@ -44,7 +45,8 @@ def main():
             ev("already_down", status=inst["status"])
             return
         jup = L.Jupyter(inst["jupyter_url"], inst["jupyter_token"])
-        base = f"{FS_JUP}/runs/{a.run}"
+        fs = a.fs or (FS_JUP if inst.get("region", {}).get("name") == "us-east-1" else f"esm-atlas-{inst['region']['name']}")
+        base = f"{fs}/runs/{a.run}"
         seen = 0
         while L.now() < a.cap_at:
             try:
