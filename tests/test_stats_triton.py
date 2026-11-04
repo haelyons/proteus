@@ -15,7 +15,7 @@ from atlas.core import bin_of  # noqa: E402
 from atlas.stats_triton import gram_accumulate, sub_stats, symmetrize_upper  # noqa: E402
 
 
-def case(n, D, B, dtype, dev, levels=(2, 3, 4), small=True, seed=0):
+def case(n, D, B, dtype, dev, levels=(2, 3, 4), small=True, seed=0, R=None):
     g = torch.Generator().manual_seed(seed)
     X = (torch.randn(n, D, generator=g) * (torch.rand(D, generator=g) * 2 + 0.2)).to(dtype)
     Xf = X.float()
@@ -24,6 +24,8 @@ def case(n, D, B, dtype, dev, levels=(2, 3, 4), small=True, seed=0):
     E0 = Xf.sort(0).values[k].T.contiguous()                 # edges are data values: exact ties occur
     E1 = (-Xf).sort(0).values[k].T.contiguous()
     kw = {"BLOCK_N": 8, "BLOCK_D": 32} if small else {}
+    if R is not None:
+        kw["R"] = R
     t0 = time.perf_counter()
     s, sq, cnt, M = sub_stats(X.to(dev), E0.to(dev), E1.to(dev), levels, **kw)
     if dev == "cuda":
@@ -82,6 +84,8 @@ def main():
         for (n, D, B, dt) in [(203, 150, 5, torch.bfloat16), (64, 70, 6, torch.float32), (5, 33, 5, torch.bfloat16)]:
             ok &= case(n, D, B, dt, "cpu")
         ok &= case(37, 40, 5, torch.bfloat16, "cpu", levels=())
+        for R in (2, 3, 0):  # row split: partial sums / counts, masks from every split
+            ok &= case(203, 150, 5, torch.bfloat16, "cpu", R=R)
         # the interpreter's bf16 tl.dot is broken (bf16 loads round-trip exactly; fp16, same code path, is
         # right), so half precision is checked with fp16 here and bf16 on the GPU (--cuda)
         ok &= gram_case(50, 100, torch.float16, "cpu")
@@ -90,6 +94,7 @@ def main():
         for (n, D, B, dt) in [(203, 150, 5, torch.bfloat16), (1600, 5120, 6, torch.bfloat16), (1611, 5120, 5, torch.float32)]:
             ok &= case(n, D, B, dt, "cuda", small=False)
             ok &= case(n, D, B, dt, "cuda", small=False)  # second call: no compile time
+            ok &= case(n, D, B, dt, "cuda", small=False, R=0)
         ok &= gram_case(1600, 5120, torch.bfloat16, "cuda", small=False)
         ok &= gram_case(1600, 5120, torch.bfloat16, "cuda", small=False)
         ok &= gram_case(301, 1000, torch.float32, "cuda", small=False)

@@ -23,12 +23,15 @@ import triton.language as tl
 
 
 @triton.jit
-def _sub_stats_kernel(X_ptr, n, n8, D, stride_x,
+def _sub_stats_kernel(X_ptr, n, n8, D, stride_x, chunk,
                       E0_ptr, E1_ptr, lev_ptr,
                       sum_ptr, sq_ptr, cnt_ptr, mask_ptr,
                       B: tl.constexpr, BP: tl.constexpr, NL: tl.constexpr,
                       BLOCK_N: tl.constexpr, BLOCK_D: tl.constexpr):
     pid = tl.program_id(0)
+    pr = tl.program_id(1)                     # row split: program pr owns rows [pr*chunk, (pr+1)*chunk)
+    r_lo = pr * chunk
+    r_hi = tl.minimum(r_lo + chunk, n8)
     d = pid * BLOCK_D + tl.arange(0, BLOCK_D)
     dm = d < D
     bi = tl.arange(0, BP)
@@ -40,7 +43,7 @@ def _sub_stats_kernel(X_ptr, n, n8, D, stride_x,
     acc_q = tl.zeros([BLOCK_D], dtype=tl.float64)
     c0 = tl.zeros([BLOCK_D, BP], dtype=tl.int32)
     c1 = tl.zeros([BLOCK_D, BP], dtype=tl.int32)
-    for r0 in tl.range(0, n8, BLOCK_N):
+    for r0 in tl.range(r_lo, r_hi, BLOCK_N):
         r = r0 + tl.arange(0, BLOCK_N)
         rm = r < n
         valid = rm[:, None] & dm[None, :]
@@ -53,23 +56,25 @@ def _sub_stats_kernel(X_ptr, n, n8, D, stride_x,
         b1 = tl.where(valid, b1, -1)
         c0 += tl.sum((b0[:, :, None] == bi[None, None, :]).to(tl.int32), axis=0)
         c1 += tl.sum((b1[:, :, None] == bi[None, None, :]).to(tl.int32), axis=0)
-        st = (r < n8)[:, None] & dm[None, :]
+        st = (r < r_hi)[:, None] & dm[None, :]
         for j in tl.static_range(NL):
             lev = tl.load(lev_ptr + j)
             off0 = (j * D + d[None, :]).to(tl.int64) * n8 + r[:, None]
             off1 = ((NL + j) * D + d[None, :]).to(tl.int64) * n8 + r[:, None]
             tl.store(mask_ptr + off0, (b0 >= lev).to(tl.int8), mask=st)
             tl.store(mask_ptr + off1, (b1 >= lev).to(tl.int8), mask=st)
-    tl.store(sum_ptr + d, acc_s, mask=dm)
-    tl.store(sq_ptr + d, acc_q, mask=dm)
-    tl.store(cnt_ptr + d[:, None] * B + bi[None, :], c0, mask=em)
-    tl.store(cnt_ptr + (D + d[:, None]) * B + bi[None, :], c1, mask=em)
+    tl.store(sum_ptr + pr * D + d, acc_s, mask=dm)             # partials [R, ...], reduced in a fixed order
+    tl.store(sq_ptr + pr * D + d, acc_q, mask=dm)
+    tl.store(cnt_ptr + (pr * 2 * D + d[:, None]) * B + bi[None, :], c0, mask=em)
+    tl.store(cnt_ptr + (pr * 2 * D + D + d[:, None]) * B + bi[None, :], c1, mask=em)
 
 
-STATS_TILE = {"BLOCK_N": 16, "BLOCK_D": 64, "num_warps": 4}
+STATS_TILE = {"BLOCK_N": 16, "BLOCK_D": 64, "num_warps": 4, "R": 1}  # R=0: enough row splits for ~4 programs per SM
+_LEV: dict = {}
+_NSM: dict = {}
 
 
-def sub_stats(X: torch.Tensor, E0: torch.Tensor, E1: torch.Tensor, levels, BLOCK_N=None, BLOCK_D=None, num_warps=None):
+def sub_stats(X: torch.Tensor, E0: torch.Tensor, E1: torch.Tensor, levels, BLOCK_N=None, BLOCK_D=None, num_warps=None, R=None):
     """X [n, D] (bf16/fp32, row stride arbitrary, unit column stride); E0, E1 [D, B] fp32 edges
     for s = +h and s = -h. Returns (sum fp64 [D], sumsq fp64 [D], counts int32 [2, D, B],
     masks int8 [2, NL, D, n8] with n8 = ceil(n / 8) * 8, padding rows zero)."""
@@ -77,22 +82,38 @@ def sub_stats(X: torch.Tensor, E0: torch.Tensor, E1: torch.Tensor, levels, BLOCK
     BLOCK_N = BLOCK_N or STATS_TILE["BLOCK_N"]
     BLOCK_D = BLOCK_D or STATS_TILE["BLOCK_D"]
     num_warps = num_warps or STATS_TILE["num_warps"]
+    R = STATS_TILE["R"] if R is None else R
     n, D = X.shape
     B = E0.shape[1]
     NL = len(levels)
     n8 = -(-n // 8) * 8
     dev = X.device
-    osum = torch.empty(D, device=dev, dtype=torch.float64)
-    osq = torch.empty(D, device=dev, dtype=torch.float64)
-    ocnt = torch.empty(2, D, B, device=dev, dtype=torch.int32)
+    nblk = max(1, triton.cdiv(n8, BLOCK_N))
+    if R == 0:
+        if dev not in _NSM:
+            _NSM[dev] = torch.cuda.get_device_properties(dev).multi_processor_count if dev.type == "cuda" else 8
+        R = max(1, min(nblk, triton.cdiv(4 * _NSM[dev], triton.cdiv(D, BLOCK_D))))
+    R = max(1, min(R, nblk))
+    chunk = triton.cdiv(nblk, R) * BLOCK_N
+    R = triton.cdiv(max(n8, 1), chunk)
+    osum = torch.empty(R, D, device=dev, dtype=torch.float64)
+    osq = torch.empty(R, D, device=dev, dtype=torch.float64)
+    ocnt = torch.empty(R, 2, D, B, device=dev, dtype=torch.int32)
     omask = torch.empty(2, max(NL, 1), D, max(n8, 8), device=dev, dtype=torch.int8)
-    lev = torch.tensor(list(levels) or [0], device=dev, dtype=torch.int32)
-    grid = (triton.cdiv(D, BLOCK_D),)
-    _sub_stats_kernel[grid](X, n, n8, D, X.stride(0),
+    lk = (tuple(levels), dev)
+    if lk not in _LEV:  # cached: no host-to-device copy per call
+        _LEV[lk] = torch.tensor(list(levels) or [0], device=dev, dtype=torch.int32)
+    lev = _LEV[lk]
+    grid = (triton.cdiv(D, BLOCK_D), R)
+    _sub_stats_kernel[grid](X, n, n8, D, X.stride(0), chunk,
                             E0.contiguous().float(), E1.contiguous().float(), lev,
                             osum, osq, ocnt, omask,
                             B=B, BP=triton.next_power_of_2(max(B, 2)), NL=NL,
                             BLOCK_N=BLOCK_N, BLOCK_D=BLOCK_D, num_warps=num_warps)
+    if R > 1:
+        osum, osq, ocnt = osum.sum(0), osq.sum(0), ocnt.sum(0, dtype=torch.int32)
+    else:
+        osum, osq, ocnt = osum[0], osq[0], ocnt[0]
     return osum, osq, ocnt, omask[:, :NL, :, :n8]
 
 
