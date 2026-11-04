@@ -12,7 +12,7 @@ from pathlib import Path
 
 import torch
 
-EXACT = ["top_s", "top_t", "res_s", "res_t", "res_v", "sub_bin", "enr", "ann_tot", "E", "top_seed", "res_seed",
+EXACT = ["top_s", "top_t", "top_k", "res_s", "res_t", "res_v", "sub_bin", "enr", "ann_tot", "E", "top_seed", "res_seed",
          "top_val", "top_tok", "res_tok", "res_val", "res_key", "edges"]
 CLOSE = ["sub_sum", "sub_sq", "gram"]
 SCALAR = ["n_seen", "n_sub", "gram_rows"]

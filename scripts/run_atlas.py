@@ -62,7 +62,7 @@ def main():
     ap.add_argument("--K", type=int, default=64)
     ap.add_argument("--Kr", type=int, default=16)
     ap.add_argument("--backend", default="torch")
-    ap.add_argument("--stats-impl", default="v2", choices=["v2", "v1"], help="subsample statistics (v1 = reference)")
+    ap.add_argument("--stats-impl", default="v3", choices=["v3", "v2", "v1"], help="subsample statistics: v3 Triton kernels (CUDA), v1 reference")
     ap.add_argument("--merge-impl", default="stacked", choices=["stacked", "loop"], help="reservoir bulk rows (loop = reference)")
     ap.add_argument("--no-reservoir", action="store_true")
     ap.add_argument("--no-subsample", action="store_true")
@@ -78,6 +78,11 @@ def main():
     ap.add_argument("--seed-thresholds", action="store_true",
                     help="exact-preserving start thresholds from the pilot (top-K: 2K-th pilot value; reservoir: key ceilings)")
     ap.add_argument("--pair-forward", action="store_true", help="time a hook-free forward of each batch first (overhead per batch)")
+    ap.add_argument("--pair-every", type=int, default=0, help="as --pair-forward, but only on every N-th batch (overhead on a sample)")
+    ap.add_argument("--exclude-acc", default=None,
+                    help="file of UniProt accessions (first column; header line 'Entry' skipped) left out of the stream, e.g. a held-out set")
+    ap.add_argument("--edge-q", type=float, nargs="+", default=[0.5, 0.9, 0.99, 0.999, 0.9999],
+                    help="pilot quantiles of s used as bin lower edges")
     ap.add_argument("--profile-at", type=int, nargs="*", default=[], help="batch indices to profile (torch.profiler)")
     ap.add_argument("--max-batches", type=int, default=0, help="stream only the first M batches of the plan (complete run)")
     ap.add_argument("--deadline", type=float, default=0.0,
@@ -91,6 +96,14 @@ def main():
     t0 = time.time()
     ds = SwissProt(a.data)
     order = shuffled_order(len(ds), a.seed)
+    n_excluded = 0
+    if a.exclude_acc:
+        ex = {ln.split("\t")[0].split(",")[0].strip() for ln in open(a.exclude_acc) if ln.strip() and not ln.startswith("Entry")}
+        drop = torch.tensor([acc in ex for acc in ds.d["acc"]], dtype=torch.bool)
+        keep = ~drop[order]
+        n_excluded = int((~keep).sum())
+        order = order[keep]
+        print(f"[atlas] excluded {n_excluded} of {len(ex)} listed accessions ({a.exclude_acc})", flush=True)
     if a.max_seqs:
         order = order[: a.max_seqs]
     model, tok, info = load(a.model, a.control, dtype=dtype, device=dev, seed=a.seed)
@@ -115,7 +128,7 @@ def main():
     else:
         pplan = ds.pilot_plan(plan, a.pilot_tokens, a.tokens_per_batch, a.seed)  # random sequences, all lengths
         Hp, n_pilot = pilot(model, ds.batches(vocab, order, a.tokens_per_batch, plan=pplan), dev, 1 << 40)
-        E = torch.cat([pilot_edges([h.to(dev)]).cpu() for h in Hp])  # one layer on device at a time
+        E = torch.cat([pilot_edges([h.to(dev)], probs=tuple(a.edge_q)).cpu() for h in Hp])  # one layer on device at a time
         seeds = None
         if a.seed_thresholds:
             from atlas.reference import pilot_seeds
@@ -151,7 +164,7 @@ def main():
         attach(model, observe_ties)
 
     def summary(done: bool, bi: int):
-        return {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_batches_plan": len(plan),
+        return {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_excluded": n_excluded, "n_batches_plan": len(plan),
                 "next_batch": bi, "complete": done, "seconds": {"load": t_load, "pilot": t_pilot,
                 "stream_this_process": time.time() - t2}, "n_seen": atlas.n_seen, "stats": atlas.stats,
                 "gemm_paths": gemm_paths()}
@@ -179,7 +192,7 @@ def main():
             tb = time.time()
             ids, am = b.input_ids.to(dev, non_blocking=True), b.attention_mask.to(dev, non_blocking=True)
             fwd_s = None
-            if a.pair_forward:  # same batch, hooks off: the per-batch baseline
+            if a.pair_forward or (a.pair_every and bi % a.pair_every == 0):  # same batch, hooks off: the baseline
                 atlas.enabled = False
                 sync(dev)
                 tf0 = time.time()
@@ -296,7 +309,7 @@ def _write_profile(prof, path, dev):
 def _args_key(a) -> dict:
     keep = ["model", "control", "data", "dtype", "max_seqs", "tokens_per_batch", "window", "sorted_batches",
             "pilot_tokens", "K", "Kr", "no_reservoir", "no_subsample", "no_gram", "naive", "seed",
-            "seed_thresholds", "max_batches"]
+            "seed_thresholds", "max_batches", "exclude_acc", "edge_q"]
     return {k: getattr(a, k) for k in keep}
 
 

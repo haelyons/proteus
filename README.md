@@ -12,7 +12,7 @@ actually computed):
 
 | quantity | definition | how |
 |---|---|---|
-| top-K | per (layer, pole, unit) the K largest s = +h / -h over valid tokens | the running K-th value tau only rises, so `s > tau` admits every token that can still enter |
+| top-K | per (layer, pole, unit) the K largest s = +h / -h over valid tokens, ties broken by the smaller token id | an int64 key (s, then -token id) orders tokens strictly; the running K-th key only rises, so `s >= tau` admits every token that can still enter, in any arrival order |
 | reservoir | per (layer, pole, unit, bin) the K_r tokens with the smallest key u(token) among tokens with s in the bin | bottom-k on a bijective 32-bit hash of the packed token id: a uniform, reproducible sample with no key ties; same monotone argument |
 | subsample statistics | sums, sums of squares, bin masses, annotation contingency counts, Gram | exact on the hashed subsample u < rho_sub * 2^32 (estimates of full-data quantities; the Gram is structure, not statistics) |
 
@@ -65,24 +65,30 @@ sequences longer than 1022 residues are truncated and coverage is reported (Swis
 
 ### Statistics implementations
 
-`AtlasConfig.stats_impl = "v2"` (default) computes the subsample statistics without materialising
-[n, D, B] booleans: one transposed copy, bin index by `searchsorted`, counts by integer
-`scatter_add`, enrichment by an exact integer GEMM (`torch._int_mm`), Gram on native-dtype inputs
-with fp32 output. `"v1"` is the reference implementation, kept for A/B measurement.
-`merge_impl = "stacked"` (default) builds reservoir candidates from the bulk rows across all layers
-at once; `"loop"` is the per-layer reference. Both pairs are in the exactness tests. On real data
-(`results/impl_ab_20261104`, A10) they give bitwise-equal top-K values, reservoirs, bin masses,
-enrichment counts and sums; top-K token ids differ only among tied values, because the Triton
-compaction's atomic slot order varies between runs and `s > tau` keeps the first tied token (the CPU
-path, fixed order, is bitwise equal). Measured cost on the A10: stacked merge saves ~32 ms per batch;
-stats v2 is no faster than v1 (340 vs 333 ms per batch: int64 [D, n] passes replace the booleans).
-The bf16 Gram with fp32 output needs torch >= 2.8 (`mm(out_dtype=)`); older builds take the TF32
-path on fp32 copies, also exact products for bf16 inputs. `run.json` records which GEMM paths were taken.
+`AtlasConfig.stats_impl = "v3"` (default) runs two Triton kernels (`atlas/stats_triton.py`) on CUDA:
+one pass over the subsample rows that keeps per-column bin counts and moments in registers (fp32
+per 16-row block, fp64 across blocks) and writes the int8 enrichment masks in the layout of one exact
+int8 GEMM; and a Gram kernel that accumulates the upper block triangle of X^T X in place (bf16 tensor
+cores, fp32 accumulation; symmetrised once at the end). On CPU v3 falls back to `"v1"`, the reference,
+unless `TRITON_INTERPRET=1`. `"v2"` (searchsorted bins, int64 index arithmetic) was measured no faster
+than v1 on the A10 (340 vs 333 ms per batch: the int64 [D, n] passes cost as much as the booleans they
+replaced) and is kept only for the record. `merge_impl = "stacked"` (default) builds reservoir
+candidates from the bulk rows across all layers at once (-32 ms per batch on the A10); `"loop"` is the
+per-layer reference. All are in the exactness tests, including tie-heavy data in shuffled arrival
+order. `jobs/science_650m` checks v1 + loop against v3 + stacked on real data (checkpoints bitwise equal
+except sums, which agree to < 1e-5) before the full pass.
+
+### Held-out set
+
+`lists/heldout_created_after_2021-11-17.tsv`: the 10,010 Swiss-Prot entries created after UniProt
+release 2021_04 (17 Nov 2021), the UniRef50 release ESM-2 was trained on (2.06% of residues).
+`run_atlas.py --exclude-acc` leaves them out of the stream, for held-out prediction tests.
 
 ## Layout
 
 - `atlas/core.py` - Atlas: streaming state, both paths, seeds and verification, merges, checkpoint/merge
 - `atlas/filter_triton.py` - fused compaction kernel (early exit on empty tiles; tuned tile 8x512)
+- `atlas/stats_triton.py` - subsample statistics kernel and upper-triangle Gram kernel (stats v3)
 - `atlas/reference.py` - offline ground truth, pilot edges, pilot seeds
 - `atlas/data.py`, `atlas/esm.py` - Swiss-Prot batching plan and pilot plan; ESM-2 loading, controls, hooks
 - `scripts/build_swissprot.py` - sequences + coarse residue annotations (UniProt REST)
@@ -92,9 +98,11 @@ path on fp32 copies, also exact products for bf16 inputs. `run.json` records whi
 - `scripts/bench_gram.py` - subsample GEMMs (TF32 vs bf16, int8 enrichment) and the one-pass read floor at the per-layer shape
 - `scripts/compare_atlas.py` - two checkpoints of the same stream: exact fields bitwise, sums by relative difference
 - `atlas/proftrace.py` - per-range attribution from a profiler trace: span vs busy device time, top kernels per range
-- `tests/` - exactness (fp32/bf16, overflow redo, seeded, too-tight seeds), Triton kernel, merge, resume
+- `tests/` - exactness (fp32/bf16, overflow redo, seeded, too-tight seeds, tie-heavy shuffled order),
+  Triton kernels (compaction; statistics and Gram, interpreter or `--cuda`), merge, resume
 - `jobs/` - GPU jobs; each `run.sh` supports `SMOKE=1` (same steps, ESM-2 8M, CPU): `a10_profile`
-  (forward profile, long run), `impl_ab` (stats v1 vs v2, merge loop vs stacked, same seeds and plan)
+  (forward profile, long run), `impl_ab` (stats v1 vs v2, merge loop vs stacked, same seeds and plan),
+  `science_650m` (GPU tests, equivalence gate on real data, full Swiss-Prot pass with the frozen config)
 - `infra/` - Lambda Cloud over HTTPS only (below)
 - `results/` - curated measurement records
 
