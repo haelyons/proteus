@@ -1,0 +1,19 @@
+proteus
+Copyright 2026 the proteus contributors
+
+Licensing
+- Source code: Apache License 2.0 (LICENSE).
+- Measurement records and derived data under results/: Creative Commons Attribution 4.0
+  International (results/LICENSE).
+
+Third-party material used or referenced
+- UniProtKB/Swiss-Prot (The UniProt Consortium), licensed CC BY 4.0
+  (https://www.uniprot.org/help/license). Sequences and residue-level feature annotations are
+  downloaded by scripts/build_swissprot.py; annotation-derived statistics in results/ are derived
+  from UniProtKB release 2026_03. Cite: The UniProt Consortium, "UniProt: the Universal Protein
+  Knowledgebase", Nucleic Acids Research.
+- ESM-2 protein language models (Lin et al., "Evolutionary-scale prediction of atomic-level
+  protein structure with a language model", Science 2023), weights released by Meta under the MIT
+  licence (https://github.com/facebookresearch/esm) and loaded through Hugging Face transformers
+  (Apache 2.0). Model weights are not redistributed here.
+- PyTorch (BSD-3-Clause) and Triton (MIT) are dependencies, not redistributed.

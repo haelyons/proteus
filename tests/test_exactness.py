@@ -30,14 +30,15 @@ def make_stream(L, D, n_seq, seed, dtype):
 
 
 def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, seed=0, verbose=True, device="cpu",
-        seeded=False, seed_c=4.0):
+        seeded=False, seed_c=4.0, stats_impl="v2", merge_impl="stacked"):
     lens, seqs = make_stream(L, D, n_seq, seed, dtype)
     g = torch.Generator().manual_seed(seed + 1)
     ann_full = [torch.randint(-1, n_annot, (n, 3), generator=g) for n in lens.tolist()]
     # pilot from the first 150 sequences (edges then fixed)
     Hp = [torch.cat([s[l] for s in seqs[:150]]) for l in range(L)]
     E = pilot_edges(Hp)
-    cfg = AtlasConfig(K=K, Kr=Kr, rho_res=0.05, rho_sub=0.2, cap_frac=0.05, backend=backend, seed=7)
+    cfg = AtlasConfig(K=K, Kr=Kr, rho_res=0.05, rho_sub=0.2, cap_frac=0.05, backend=backend, seed=7,
+                      stats_impl=stats_impl, merge_impl=merge_impl)
     atlas = Atlas(L, D, E, cfg, n_annot=n_annot, device=device)
     if seeded:  # pilot tokens (first 150 seqs) are streamed below, as in run_atlas
         from atlas.reference import pilot_seeds
@@ -151,7 +152,7 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
     s = got["stats"]
     N = int(lens.sum())
     frac = s["compacted"] / max(1, s["elements"])
-    print(f"[{dtype}, {backend}, {device}] {'OK' if ok else 'FAILED'}  N={N} tokens, L={L}, D={D}, K={K}, Kr={Kr}, "
+    print(f"[{dtype}, {backend}, {device}, stats {stats_impl}, merge {merge_impl}] {'OK' if ok else 'FAILED'}  N={N} tokens, L={L}, D={D}, K={K}, Kr={Kr}, "
           f"{bi} batches, {dt:.2f}s; dense layer-batches={s['dense_layer_batches']}, redo layers={s['redo_layers']}; "
           f"compacted fraction {frac:.2e}")
     return ok
@@ -161,6 +162,9 @@ if __name__ == "__main__":
     ok = run(torch.float32) & run(torch.bfloat16)
     print("-- seeded (top-K from pilot 2K-th, reservoir c=4)")
     ok &= run(torch.bfloat16, seeded=True, verbose=False)
+    print("-- reference implementations (stats v1, merge loop), unseeded and seeded")
+    ok &= run(torch.bfloat16, stats_impl="v1", merge_impl="loop", verbose=False)
+    ok &= run(torch.bfloat16, seeded=True, stats_impl="v1", merge_impl="loop", verbose=False)
     print("-- seeded too tight (c=0.25): verification must flag bins")
     ok &= run(torch.bfloat16, seeded=True, seed_c=0.25, verbose=False)
     sys.exit(0 if ok else 1)

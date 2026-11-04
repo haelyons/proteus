@@ -22,7 +22,7 @@ from pathlib import Path
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from atlas.core import Atlas, AtlasConfig  # noqa: E402
+from atlas.core import Atlas, AtlasConfig, gemm_paths  # noqa: E402
 from atlas.data import SwissProt, shuffled_order  # noqa: E402
 from atlas.esm import attach, flops_per_batch, load, pilot  # noqa: E402
 from atlas.reference import pilot_edges  # noqa: E402
@@ -62,6 +62,8 @@ def main():
     ap.add_argument("--K", type=int, default=64)
     ap.add_argument("--Kr", type=int, default=16)
     ap.add_argument("--backend", default="torch")
+    ap.add_argument("--stats-impl", default="v2", choices=["v2", "v1"], help="subsample statistics (v1 = reference)")
+    ap.add_argument("--merge-impl", default="stacked", choices=["stacked", "loop"], help="reservoir bulk rows (loop = reference)")
     ap.add_argument("--no-reservoir", action="store_true")
     ap.add_argument("--no-subsample", action="store_true")
     ap.add_argument("--no-gram", action="store_true")
@@ -99,7 +101,8 @@ def main():
     t_load = time.time() - t0
 
     cfg = AtlasConfig(K=a.K, Kr=a.Kr, backend=a.backend, seed=a.seed, reservoir=not a.no_reservoir,
-                      subsample=not a.no_subsample, gram=not a.no_gram and not a.no_subsample, naive=a.naive)
+                      subsample=not a.no_subsample, gram=not a.no_gram and not a.no_subsample, naive=a.naive,
+                      stats_impl=a.stats_impl, merge_impl=a.merge_impl)
     ck = latest_ckpt(out / "ckpt") if a.resume else None
     t1 = time.time()
     if ck is not None:
@@ -148,7 +151,8 @@ def main():
     def summary(done: bool, bi: int):
         return {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_batches_plan": len(plan),
                 "next_batch": bi, "complete": done, "seconds": {"load": t_load, "pilot": t_pilot,
-                "stream_this_process": time.time() - t2}, "n_seen": atlas.n_seen, "stats": atlas.stats}
+                "stream_this_process": time.time() - t2}, "n_seen": atlas.n_seen, "stats": atlas.stats,
+                "gemm_paths": gemm_paths()}
 
     logf = open(out / "batches.jsonl", "a")
     ckpt_s, batch_s, last_ckpt_s = 0.0, 0.0, None
@@ -218,6 +222,8 @@ def main():
                    "compacted_frac": (s["compacted"] - before["compacted"]) / elems,
                    "topk_cand_frac": (s["top_cand"] - before["top_cand"]) / elems,
                    "res_cand_frac": (s["res_cand"] - before["res_cand"]) / elems,
+                   "bulk_rows_in": s.get("bulk_rows_in", 0) - before.get("bulk_rows_in", 0),
+                   "bulk_rows_kept": s.get("bulk_rows_kept", 0) - before.get("bulk_rows_kept", 0),
                    "pred_topk_frac_iid": a.K / (n_before + 1) if n_before else None}
             if ties is not None and not redo and n_before:
                 rec["ties_at_tau_frac"] = ties / elems
@@ -257,6 +263,22 @@ def main():
 
 
 def _write_profile(prof, path, dev):
+    """Kernel table (key_averages) plus a per-range attribution from the Chrome trace: span vs
+    busy device time per atlas.* range and the top kernels inside each (atlas/proftrace.py)."""
+    try:
+        import gzip
+        import shutil
+        from atlas.proftrace import attribute, table
+        tp = path.with_suffix(".trace.json")
+        prof.export_chrome_trace(str(tp))
+        res = attribute(tp)
+        path.with_name(path.stem + "_ranges.txt").write_text(table(res, top=10))
+        path.with_name(path.stem + "_ranges.json").write_text(json.dumps(res))
+        with open(tp, "rb") as fi, gzip.open(str(tp) + ".gz", "wb") as fo:
+            shutil.copyfileobj(fi, fo)
+        tp.unlink()
+    except Exception as e:  # noqa: BLE001  (attribution is a diagnostic; never fail the run on it)
+        print(f"[atlas] trace attribution failed: {e!r}", flush=True)
     ka = prof.key_averages()
     for key in (("self_cuda_time_total", "cuda_time_total") if str(dev).startswith("cuda") else ("self_cpu_time_total",)):
         try:

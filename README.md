@@ -1,71 +1,135 @@
 # proteus
 
-Per-neuron atlas of ESM-2 FFN units over Swiss-Prot without materialising activations.
-Claim under test: an exact, monotone-threshold filter turns a ~70 TB problem (168,960 FFN
-neurons x ~2e8 residues, bf16) into a one-GPU, roughly one-hour job. The fused Triton
-compaction kernel is a secondary measurement. Phase-1 measurements: `results/README.md`.
+Per-neuron atlas of ESM-2 FFN units over Swiss-Prot, computed in one streaming pass without
+materialising activations. Claim under test: an exact, monotone-threshold filter turns a ~70 TB
+problem (168,960 FFN units x ~2e8 residues in bf16, for ESM-2 650M) into a one-GPU job of about an
+hour. Measurements so far, each next to its prediction, are in [`results/README.md`](results/README.md).
 
-## What is computed (all exact w.r.t. the stated definition)
+## What is computed
+
+Definitions (each quantity is exact with respect to its definition, for the activations the model
+actually computed):
 
 | quantity | definition | how |
 |---|---|---|
-| top-K | per (layer, pole, neuron) the K largest s = +h / -h over valid tokens | running K-th value tau only rises => filter `s > tau` is exact |
-| reservoir | per (layer, pole, neuron, bin) the K_r tokens with smallest key u(tok) among tokens with s in the bin | bottom-k on a bijective 32-bit hash of the packed token id; same monotone argument; no key ties |
-| subsample stats | sums, sums of squares, bin masses, annotation contingency counts, Gram | exact on the hashed subsample u < rho_sub * 2^32 (estimates of full-data values; Gram is structure, not statistics) |
+| top-K | per (layer, pole, unit) the K largest s = +h / -h over valid tokens | the running K-th value tau only rises, so `s > tau` admits every token that can still enter |
+| reservoir | per (layer, pole, unit, bin) the K_r tokens with the smallest key u(token) among tokens with s in the bin | bottom-k on a bijective 32-bit hash of the packed token id: a uniform, reproducible sample with no key ties; same monotone argument |
+| subsample statistics | sums, sums of squares, bin masses, annotation contingency counts, Gram | exact on the hashed subsample u < rho_sub * 2^32 (estimates of full-data quantities; the Gram is structure, not statistics) |
 
-Bins: lower edges per (layer, pole, neuron) at pilot quantiles (0.5, 0.9, 0.99, 0.999, 0.9999)
-of s. Hook point: `encoder.layer[i].intermediate.dense` output (pre-GELU). Both poles kept; the
-negative pole is barely transmitted by GELU (min ~ -0.17) and is reported as secondary.
+Hook point: `encoder.layer[i].intermediate.dense` output (pre-GELU). Both poles are kept; GELU
+barely transmits the negative pole (min ~ -0.17), so it is reported as secondary. Bins: lower
+edges per (layer, pole, unit) at pilot quantiles (0.5, 0.9, 0.99, 0.999, 0.9999) of s, from a
+pilot of randomly chosen sequences (all lengths). Tokens: id = seq_idx * 1024 + residue position;
+sequences longer than 1022 residues are truncated and coverage is reported (Swiss-Prot 2026_03:
+3.21% of sequences, 5.15% of residues dropped).
 
-Per batch, the hooks do one compare-and-compact pass over H (threshold = min(top-K tau,
-lowest under-filled reservoir edge)) plus row gathers of the hashed subsample. Row-level
-decisions (valid rows, token ids, keys, subsamples) are made on the host before the forward.
-Merges run once after the forward, across all layers. If a layer's candidate buffer overflows
-(warm-up, bursts) the batch is re-run densely for that layer: exact either way.
+### Two paths per batch and layer: filtered and dense
 
-State is small and merges by construction (`Atlas.merge_from`): runs over disjoint data combine
-exactly; `scripts/run_atlas.py` checkpoints atomically and resumes from the batch offset.
+- **Filtered (normal) path.** The forward hook does one compare-and-compact pass over the layer's
+  activations H (fused Triton kernel, or `torch.nonzero`), keeping only elements above
+  min(top-K tau, the lowest edge of any reservoir bin whose key ceiling is still above the
+  bulk-row cutoff). Reservoir bins that are already well filled are served from the hashed bulk
+  rows (key < rho_res * 2^32) instead. Row-level decisions (valid rows, token ids, keys, subsamples)
+  are made on the host before the forward; candidates from all layers are merged once after it.
+- **Dense path.** If a layer's candidates exceed its buffer (0.5% of elements), that layer is
+  re-run for this batch with exact per-column `topk` and per-bin bottom-k, then the stream goes back
+  to the filtered path. Both paths give the same result; the dense one is slower (about 28x a
+  forward pass for the whole model on an A10). It is taken during warm-up and on bursts: in
+  practice early layers (0-1) on the first short-protein batches and on single compositionally
+  extreme proteins (poly-Ser, Gly-rich), where early-layer activations shift far into the tail.
 
-Controls: `--control shuffled` permutes values within every weight and bias tensor (InterPLM's
-control); `--control random` is a fresh init. Tokens: id = seq_idx * 1024 + residue position.
-Sequences longer than 1022 residues are truncated (Swiss-Prot 2026_03: 3.21% of sequences,
-5.15% of residues dropped).
+### Seeded thresholds (`--seed-thresholds`)
+
+- **Top-K** starts at the 2K-th largest pilot value of each unit. The pilot tokens are streamed
+  too, so the final K-th value can only be at or above it: exact by construction (the 2K margin also
+  absorbs last-bit differences between the pilot forward and the streamed forward).
+- **Reservoir** bins get a key ceiling set so that the expected number of keys under it over the
+  whole stream is c * K_r (c = 4), from a lower bound on the bin's pilot mass that accounts for
+  tail tokens clustering within proteins (n_eff = (sum c_i)^2 / sum c_i^2 over pilot proteins).
+  Bottom-k is order-independent, so a bin that ends with at least K_r keys under its ceiling holds
+  exactly the unseeded result; `verify_seeds()` reports every bin that ends short (it then holds all
+  of the bin's keys under the ceiling, a uniform sample, not the bottom K_r).
+- Effect on an A10 (ESM-2 650M): first-120-batch pooled overhead 2.43 -> 0.64; all 1,543,826 seeded
+  bins verified.
+
+### Checkpoint, resume, merge, determinism
+
+- `scripts/run_atlas.py` writes atomic checkpoints every N batches (state, pilot edges, seeds, batch
+  offset; about 1.9 GB for 650M) and stops cleanly before `--deadline`; `--resume` continues from the
+  last checkpoint. The Gram is not checkpointed: it is written once at the end with its row count.
+- `Atlas.merge_from` combines runs over disjoint data exactly (shards must share seeds computed from
+  the global stream size).
+- On GPU the forward pass is bitwise reproducible across repeats (bucketed and heavily padded
+  batches). Multi-threaded CPU SDPA is not, on padded batches; CPU tests that compare two runs pin
+  one thread.
+
+### Statistics implementations
+
+`AtlasConfig.stats_impl = "v2"` (default) computes the subsample statistics without materialising
+[n, D, B] booleans: one transposed copy, bin index by `searchsorted`, counts by integer
+`scatter_add`, enrichment by an exact integer GEMM (`torch._int_mm`), Gram on native-dtype inputs
+with fp32 output. `"v1"` is the reference implementation, kept for A/B measurement.
+`merge_impl = "stacked"` (default) builds reservoir candidates from the bulk rows across all layers
+at once; `"loop"` is the per-layer reference. Both pairs are in the exactness tests; on real data
+the two give bitwise-equal checkpoints (`jobs/impl_ab`, CPU smoke single-threaded). The bf16 Gram
+with fp32 output needs torch >= 2.8 (`mm(out_dtype=)`); older builds take the TF32 path on fp32
+copies, also exact products for bf16 inputs. `run.json` records which GEMM paths were taken.
 
 ## Layout
 
-- `atlas/core.py` - Atlas (streaming state, filter, merges, checkpoint/merge), hashing
-- `atlas/filter_triton.py` - fused compaction kernel (sync-free; count stays on device)
-- `atlas/reference.py` - offline ground truth + pilot edges
-- `atlas/data.py`, `atlas/esm.py` - Swiss-Prot batching plan, ESM-2 loading/controls/hooks
+- `atlas/core.py` - Atlas: streaming state, both paths, seeds and verification, merges, checkpoint/merge
+- `atlas/filter_triton.py` - fused compaction kernel (early exit on empty tiles; tuned tile 8x512)
+- `atlas/reference.py` - offline ground truth, pilot edges, pilot seeds
+- `atlas/data.py`, `atlas/esm.py` - Swiss-Prot batching plan and pilot plan; ESM-2 loading, controls, hooks
 - `scripts/build_swissprot.py` - sequences + coarse residue annotations (UniProt REST)
-- `scripts/run_atlas.py` - end-to-end run (checkpoints, `--resume`, `--deadline` clean stop)
-- `scripts/bench_phase1.py` - forward cost vs naive top-K vs filter (torch / Triton), stage-by-stage output
-- `scripts/diag_candidates.py` - observed vs iid candidate fraction under different stream orders
-- `tests/` - exactness (fp32/bf16, overflow redo), Triton kernel, merge, checkpoint/resume
-- `infra/` - Lambda over HTTPS only (see below)
-- `jobs/phase1/run.sh` - the phase-1 GPU job
+- `scripts/run_atlas.py` - end-to-end run (`--seed-thresholds`, `--pair-forward`, `--profile-at`, `--resume`, `--deadline`)
+- `scripts/profile_forward.py` - forward kernel breakdown, determinism, GEMM microbench, tile sweep
+- `scripts/bench_phase1.py`, `scripts/diag_candidates.py`, `scripts/diag_redo.py`, `scripts/analyze_a10.py` - measurements behind `results/`
+- `scripts/bench_gram.py` - subsample GEMMs (TF32 vs bf16, int8 enrichment) and the one-pass read floor at the per-layer shape
+- `scripts/compare_atlas.py` - two checkpoints of the same stream: exact fields bitwise, sums by relative difference
+- `atlas/proftrace.py` - per-range attribution from a profiler trace: span vs busy device time, top kernels per range
+- `tests/` - exactness (fp32/bf16, overflow redo, seeded, too-tight seeds), Triton kernel, merge, resume
+- `jobs/` - GPU jobs; each `run.sh` supports `SMOKE=1` (same steps, ESM-2 8M, CPU): `a10_profile`
+  (forward profile, long run), `impl_ab` (stats v1 vs v2, merge loop vs stacked, same seeds and plan)
+- `infra/` - Lambda Cloud over HTTPS only (below)
 - `results/` - curated measurement records
 
-## Run (CPU checks)
+## Running
+
+CPU checks:
 
 ```
 python -m tests.test_exactness
 TRITON_INTERPRET=1 python -m tests.test_triton_kernel
 python scripts/build_swissprot.py --out data/swissprot.pt
 python -m tests.test_resume_merge --resume-data data/swissprot.pt
-python scripts/run_atlas.py --model 8M --data data/swissprot.pt --out runs/8M --device cpu --dtype fp32 --max-seqs 500
+```
+
+Policy: nothing launches on a GPU that has not run end to end somewhere. Run the job locally first:
+
+```
+SMOKE=1 JOB=smoke OUT=/tmp/smoke FS=/tmp/fs DEADLINE=$(( $(date +%s) + 3600 )) bash jobs/a10_profile/run.sh
 ```
 
 ## GPU jobs (Lambda Cloud, HTTPS only)
 
-`infra/lambda_job.py` launches an instance with a cloud-init inbox runner, uploads the job and
-inputs through the instance's Jupyter contents API, mirrors job output (written to the
-persistent filesystem) every poll, and terminates on completion, on error, or at `--hard-cap`.
-Arm an external dead-man's switch (tag-scoped terminate) before launching.
+`infra/lambda_job.py` picks the first instance type with capacity from a preference list in any
+allowed region (`--type a,b,c --region any`), creates a per-region filesystem if needed, launches
+with a cloud-init inbox runner, uploads job and inputs through the instance's Jupyter contents API
+(chunked for large files), mirrors job output from the persistent filesystem on every poll, and
+terminates on completion, on error, or at `--hard-cap`. `--dry-run` prints the choice and the
+worst-case cost without launching. Arm a tag-scoped dead-man's switch (an external scheduled
+terminate) before launching. If the controlling machine restarts mid-job, `infra/reattach.py`
+restores supervision (mirroring, termination on completion, the original cap).
 
 ```
 export LAMBDA_SSH_KEY_NAME=<a key registered in your Lambda account>
-python infra/lambda_job.py --run <run-id> --job-dir jobs/phase1 --include atlas scripts tests \
-  --type gpu_1x_a10 --region us-east-1 --hard-cap 5400 \
-  --upload data/swissprot_2026_03.pt cache/swissprot_2026_03.pt --mirror phase1.jsonl
+python infra/lambda_job.py --run <run-id> --job-dir jobs/a10_profile --include atlas scripts tests \
+  --type gpu_1x_h100_sxm5,gpu_1x_a100_sxm4,gpu_1x_a10 --region any --hard-cap 5400 \
+  --upload data/swissprot_2026_03.pt cache/swissprot_2026_03.pt --mirror long/batches.jsonl --dry-run
 ```
+
+## Licence
+
+Code: Apache License 2.0 (`LICENSE`). Measurement records and derived data in `results/`: CC BY 4.0
+(`results/LICENSE`). Third-party data and models (UniProtKB/Swiss-Prot, ESM-2): see `NOTICE`.

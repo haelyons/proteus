@@ -25,8 +25,37 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import lambda_api as L  # noqa: E402
 
-FS_MOUNT = "/lambda/nfs/esm-atlas-results"
-FS_JUP = "esm-atlas-results"  # the same filesystem as seen from the Jupyter root
+FS_DEFAULT = {"us-east-1": "esm-atlas-results"}  # existing filesystem; other regions: esm-atlas-<region>
+
+
+def fs_name_for(region: str) -> str:
+    return FS_DEFAULT.get(region, f"esm-atlas-{region}")
+
+
+def choose(types: list[str], regions: list[str] | None):
+    """First (type, region) with capacity, in the given preference order. Returns (type, region,
+    $/h, gpu description) or None. regions=None means any region."""
+    data = L.api("GET", "/instance-types")["data"]
+    for t in types:
+        v = data.get(t)
+        if not v:
+            continue
+        for r in v["regions_with_capacity_available"]:
+            if regions is None or r["name"] in regions:
+                it = v["instance_type"]
+                return t, r["name"], it["price_cents_per_hour"] / 100, it.get("gpu_description", "")
+    return None
+
+
+def ensure_fs(region: str, log) -> str:
+    name = fs_name_for(region)
+    have = [f for f in L.api("GET", "/file-systems")["data"] if f["name"] == name]
+    if have:
+        assert have[0]["region"]["name"] == region, (name, have[0]["region"])
+        return name
+    L.api("POST", "/filesystems", {"name": name, "region": region})
+    log("filesystem_created", name=name, region=region)
+    return name
 
 RUNNER = r"""#!/bin/bash
 # inbox runner (as ubuntu): runs ~/jobs/inbox/<job>.tar.gz once <job>.ready exists.
@@ -59,9 +88,9 @@ echo "boot done $(date -u +%FT%T.%NZ)"
 """
 
 
-def user_data(run: str) -> str:
+def user_data(run: str, fs_name: str = "esm-atlas-results") -> str:
     def block(sh):
-        return "\n".join("      " + ln for ln in sh.replace("__FS__", FS_MOUNT).splitlines())
+        return "\n".join("      " + ln for ln in sh.replace("__FS__", f"/lambda/nfs/{fs_name}").splitlines())
     return ("#cloud-config\nwrite_files:\n"
             "  - path: /usr/local/bin/atlas_runner.sh\n    permissions: '0755'\n    content: |\n" + block(RUNNER) + "\n"
             "  - path: /usr/local/bin/atlas_boot.sh\n    permissions: '0755'\n    content: |\n" + block(BOOT.replace("__RUN__", run)) + "\n"
@@ -91,19 +120,30 @@ def main():
     ap.add_argument("--run", required=True)
     ap.add_argument("--job-dir", required=True)
     ap.add_argument("--include", nargs="*", default=[])
-    ap.add_argument("--type", default="gpu_1x_a10")
-    ap.add_argument("--region", default="us-east-1")
+    ap.add_argument("--type", default="gpu_1x_a10",
+                    help="instance type, or a comma-separated preference list (first with capacity wins)")
+    ap.add_argument("--region", default="us-east-1", help="region, comma-separated list, or 'any'")
+    ap.add_argument("--dry-run", action="store_true", help="print the (type, region, price) that would be launched, then exit")
     ap.add_argument("--ssh-key", default=os.environ.get("LAMBDA_SSH_KEY_NAME"),
                     help="name of an SSH key registered in the Lambda account (or set LAMBDA_SSH_KEY_NAME); "
                          "Lambda requires exactly one at launch")
-    ap.add_argument("--fs", default="esm-atlas-results")
+    ap.add_argument("--fs", default=None, help="filesystem name (default: per-region esm-atlas filesystem, created if missing)")
     ap.add_argument("--hard-cap", type=float, required=True, help="seconds after launch")
     ap.add_argument("--upload", nargs=2, action="append", default=[], metavar=("LOCAL", "REMOTE_UNDER_FS"),
                     help="chunked-upload LOCAL to <fs>/REMOTE if absent (e.g. cache/swissprot.pt)")
     ap.add_argument("--mirror", nargs="*", default=[], help="files under runs/<job>/ to mirror locally each poll")
     a = ap.parse_args()
-    if not a.ssh_key:
+    if not a.ssh_key and not a.dry_run:
         ap.error("--ssh-key or LAMBDA_SSH_KEY_NAME is required")
+    pick = choose(a.type.split(","), None if a.region == "any" else a.region.split(","))
+    if pick is None:
+        print(f"[launcher] no capacity for types {a.type} in regions {a.region}; nothing launched", flush=True)
+        sys.exit(4)
+    a.type, a.region, price, gpu = pick
+    print(f"[launcher] chosen {a.type} ({gpu}) in {a.region} at ${price:.2f}/h; hard cap {a.hard_cap / 3600:.2f} h "
+          f"=> at most ${price * a.hard_cap / 3600:.2f} billed (billing starts at health check)", flush=True)
+    if a.dry_run:
+        return
     out = Path(__file__).parent / "runs" / a.run
     out.mkdir(parents=True, exist_ok=True)
     tl = {"run": a.run, "type": a.type, "region": a.region, "events": []}
@@ -115,9 +155,12 @@ def main():
 
     iid, job = None, a.run
     try:
+        fs = a.fs or ensure_fs(a.region, lambda n, **kw: ev(n, **kw))
+        FS_JUP = fs
+        ev("target", type=a.type, region=a.region, price_per_h=price, fs=fs)
         t_launch = L.now()
         iid = L.launch(region_name=a.region, instance_type_name=a.type, ssh_key_names=[a.ssh_key],
-                       file_system_names=[a.fs], name=a.run, user_data=user_data(a.run),
+                       file_system_names=[fs], name=a.run, user_data=user_data(a.run, fs),
                        tags=[{"key": "atlas-run", "value": a.run}])
         ev("launched", instance_id=iid)
         cap_at = t_launch + a.hard_cap

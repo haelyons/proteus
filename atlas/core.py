@@ -109,6 +109,8 @@ class AtlasConfig:
     gram: bool = True
     cap_frac: float = 0.005     # candidate buffer per layer = cap_frac * T * D (overflow -> dense redo, exact)
     backend: str = "torch"      # "torch" | "triton"
+    stats_impl: str = "v2"      # hashed-subsample statistics: "v2" (searchsorted bins, int GEMM) | "v1" (reference)
+    merge_impl: str = "stacked" # reservoir bulk-bin candidates: "stacked" across layers | "loop" (per layer and pole)
     seed_c: float = 4.0         # reservoir seed: expected keys under the seed over the stream = seed_c * Kr
     seed_z: float = 2.0         # ...computed from a z-sigma lower bound on the pilot bin mass
     seed: int = 0
@@ -128,6 +130,7 @@ class BatchCtx:
     sub_idx: torch.Tensor        # [n_s] indices into valid set with key < rho_sub (device)
     res_in_sub: torch.Tensor     # [n_r] indices into sub_idx with key < rho_res (device)
     ann_sub: torch.Tensor | None = None  # [n_s, n_a] float multi-hot (device) or None
+    ann_sub_i8: torch.Tensor | None = None  # same, int8, padded to multiples of 8 for torch._int_mm
     n_v: int = 0
     n_s: int = 0
     n_r: int = 0
@@ -198,9 +201,15 @@ class Atlas:
             r, c = torch.nonzero(a >= 0, as_tuple=True)
             ann_sub[r, a[r, c]] = 1.0
         d = self.dev
+        ann_i8 = None
+        if ann_sub is not None:
+            r8, c8 = -(-ann_sub.shape[0] // 8) * 8, -(-ann_sub.shape[1] // 8) * 8
+            ann_i8 = torch.zeros(r8, c8, dtype=torch.int8)
+            ann_i8[: ann_sub.shape[0], : ann_sub.shape[1]] = ann_sub.to(torch.int8)
+            ann_i8 = ann_i8.to(d)
         return BatchCtx(T=T, valid_rows=valid_rows.to(d), tok=tok.to(d), key=key.to(d),
                         rowmap=rowmap.to(d), sub_idx=sub.to(d), res_in_sub=res_in_sub.to(d),
-                        ann_sub=None if ann_sub is None else ann_sub.to(d),
+                        ann_sub=None if ann_sub is None else ann_sub.to(d), ann_sub_i8=ann_i8,
                         n_v=valid_rows.numel(), n_s=sub.numel(), n_r=res_in_sub.numel())
 
     def begin_batch(self, ctx: BatchCtx, redo_layers: list[int] | None = None):
@@ -251,39 +260,83 @@ class Atlas:
         R = None
         if self.cfg.subsample or self.cfg.reservoir:
             with _rf("atlas.subsample"):
-                Hs = H.index_select(0, ctx.valid_rows.index_select(0, ctx.sub_idx)).float()  # [n_s, D]
+                Hn = H.index_select(0, ctx.valid_rows.index_select(0, ctx.sub_idx))  # [n_s, D] native dtype
+                Hs = Hn.float()
                 if self.cfg.subsample and l not in self._sub_done:
-                    self._subsample_stats(l, Hs)
+                    self._subsample_stats(l, Hs, Hn)
                 R = Hs.index_select(0, ctx.res_in_sub) if self.cfg.reservoir else None
         self._pending[l] = (vals, rows, cols, cnt, R)
 
     def _cap(self, ctx):
         return max(4096, int(self.cfg.cap_frac * ctx.n_v * self.D))
 
-    def _subsample_stats(self, l, Hs):
+    def _subsample_stats(self, l, Hs, Hs_native=None):
+        if self.cfg.stats_impl == "v2":
+            return self._subsample_stats_v2(l, Hs, Hs_native)
         self._sub_done.add(l)
         if Hs.shape[0] == 0:
             return
         # fp32 within the batch (n_s ~ 1.6k rows), fp64 only for the [D] running sums
-        self.sub_sum[l] += Hs.sum(0).double()
-        self.sub_sq[l] += (Hs * Hs).sum(0).double()
+        with _rf("atlas.sub.moments"):
+            self.sub_sum[l] += Hs.sum(0).double()
+            self.sub_sq[l] += (Hs * Hs).sum(0).double()
         levels = list(self.cfg.enrich_levels)
-        for p, sgn in ((0, 1.0), (1, -1.0)):
-            s = Hs * sgn
-            ge = s.unsqueeze(-1) >= self.E[l, p]           # [n_s, D, B] cumulative thresholds
-            cnt_ge = ge.sum(0)                              # [D, B] int64, no atomics
-            nxt = torch.cat((cnt_ge[:, 1:], torch.zeros_like(cnt_ge[:, :1])), 1)
-            self.sub_bin[l, p] += cnt_ge - nxt              # exact bin counts
-            if self.n_a and self.ctx.ann_sub is not None:
-                m = ge[:, :, levels].permute(0, 2, 1).reshape(Hs.shape[0], -1).float()  # [n_s, nl*D]
-                with _tf32():  # 0/1 inputs are exact in TF32; per-batch counts < 2^24
-                    c = m.T @ self.ctx.ann_sub              # [nl*D, n_a]
-                self.enr[l, p] += c.view(len(levels), self.D, -1).round().to(torch.int64)
+        with _rf("atlas.sub.bins_enrich"):
+            for p, sgn in ((0, 1.0), (1, -1.0)):
+                s = Hs * sgn
+                ge = s.unsqueeze(-1) >= self.E[l, p]           # [n_s, D, B] cumulative thresholds
+                cnt_ge = ge.sum(0)                              # [D, B] int64, no atomics
+                nxt = torch.cat((cnt_ge[:, 1:], torch.zeros_like(cnt_ge[:, :1])), 1)
+                self.sub_bin[l, p] += cnt_ge - nxt              # exact bin counts
+                if self.n_a and self.ctx.ann_sub is not None:
+                    m = ge[:, :, levels].permute(0, 2, 1).reshape(Hs.shape[0], -1).float()  # [n_s, nl*D]
+                    with _tf32():  # 0/1 inputs are exact in TF32; per-batch counts < 2^24
+                        c = m.T @ self.ctx.ann_sub              # [nl*D, n_a]
+                    self.enr[l, p] += c.view(len(levels), self.D, -1).round().to(torch.int64)
         if self.gram is not None:
-            with _tf32():
-                self.gram[l] += Hs.T @ Hs
-            if l == 0:
-                self.gram_rows += Hs.shape[0]
+            with _rf("atlas.sub.gram"):
+                with _tf32():
+                    self.gram[l] += Hs.T @ Hs
+                if l == 0:
+                    self.gram_rows += Hs.shape[0]
+
+    def _subsample_stats_v2(self, l, Hs, Hs_native=None):
+        """Same quantities as v1, without materialising [n_s, D, B] booleans or permuted copies:
+        one transposed copy, bin index by searchsorted (negative pole against flipped -E, no
+        negated copy of H), counts by integer scatter_add, enrichment by an exact integer GEMM
+        on masks read off the bin index, Gram on native-dtype inputs with fp32 output."""
+        self._sub_done.add(l)
+        n = Hs.shape[0]
+        if n == 0:
+            return
+        D, B = self.D, self.B
+        with _rf("atlas.sub.moments"):
+            self.sub_sum[l] += Hs.sum(0).double()
+            self.sub_sq[l] += (Hs * Hs).sum(0).double()
+        with _rf("atlas.sub.bins"):
+            HT = Hs.T.contiguous()                                           # [D, n]
+            b0 = torch.searchsorted(self.E[l, 0], HT, right=True) - 1        # #{E0_b <= h} - 1
+            F = torch.flip(-self.E[l, 1], dims=(-1,)).contiguous()          # ascending
+            b1 = B - torch.searchsorted(F, HT, right=False) - 1              # #{-E1_b >= h} - 1
+            base = (torch.arange(D, device=self.dev) * (B + 1))[:, None]
+            acc = torch.zeros(2, D * (B + 1), dtype=torch.int32, device=self.dev)
+            ones = torch.ones(D * n, dtype=torch.int32, device=self.dev)
+            for p, bb in ((0, b0), (1, b1)):
+                acc[p].scatter_add_(0, (base + bb + 1).reshape(-1), ones)    # slot 0 = "not in pole"
+            self.sub_bin[l] += acc.view(2, D, B + 1)[:, :, 1:].to(torch.int64)
+        if self.n_a and self.ctx.ann_sub is not None:
+            with _rf("atlas.sub.enrich"):
+                levels = list(self.cfg.enrich_levels)
+                for p, bb in ((0, b0), (1, b1)):
+                    m = torch.cat([(bb >= lev) for lev in levels], 0)        # [nl*D, n] bool, contiguous
+                    c = _count_mm(m, self.ctx.ann_sub_i8, self.ctx.ann_sub)  # [nl*D, n_a] exact int
+                    self.enr[l, p] += c[:, : self.n_a].view(len(levels), D, self.n_a).to(torch.int64)
+        if self.gram is not None:
+            with _rf("atlas.sub.gram"):
+                X = Hs_native if Hs_native is not None else Hs
+                self.gram[l] += _mm_f32out(X.T, X)
+                if l == 0:
+                    self.gram_rows += n
 
     # ------------------------------------------------------------------ dense path
     def _dense(self, l, H):
@@ -291,7 +344,8 @@ class Atlas:
         ctx = self.ctx
         Hv = H.index_select(0, ctx.valid_rows)  # native dtype (bf16 topk is exact)
         if self.cfg.subsample and l not in self._sub_done:  # once per layer per batch
-            self._subsample_stats(l, Hv.index_select(0, ctx.sub_idx).float())
+            Hn = Hv.index_select(0, ctx.sub_idx)
+            self._subsample_stats(l, Hn.float(), Hn)
         D, B, K, Kr = self.D, self.B, self.cfg.K, self.cfg.Kr
         cols = torch.arange(D, device=self.dev)
         for p, sgn in ((0, 1.0), (1, -1.0)):
@@ -372,21 +426,43 @@ class Atlas:
         res_thr = torch.maximum(self.res_s[:, Kr - 1], self.res_seed)
         top_g, top_v, top_t = [], [], []
         res_g, res_v, res_k, res_t = [], [], [], []
-        for p, sgn in ((0, 1.0), (1, -1.0)):
-            s = vals * sgn
-            g = (lay * 2 + p) * D + cols
-            m = s > top_thr[g]
-            top_g.append(g[m]); top_v.append(s[m]); top_t.append(tok[m])
-            if not self.cfg.reservoir:
-                continue
-            b = bin_of(s, self.E[lay, p, cols])
-            gr = g * B + b.clamp(min=0)
-            m = (b >= 0) & (key >= self.U_res) & (-key > res_thr[gr])
-            res_g.append(gr[m]); res_k.append(key[m]); res_t.append(tok[m]); res_v.append(vals[m])
+        with _rf("atlas.merge.cand"):
+            for p, sgn in ((0, 1.0), (1, -1.0)):
+                s = vals * sgn
+                g = (lay * 2 + p) * D + cols
+                m = s > top_thr[g]
+                top_g.append(g[m]); top_v.append(s[m]); top_t.append(tok[m])
+                if not self.cfg.reservoir:
+                    continue
+                b = bin_of(s, self.E[lay, p, cols])
+                gr = g * B + b.clamp(min=0)
+                m = (b >= 0) & (key >= self.U_res) & (-key > res_thr[gr])
+                res_g.append(gr[m]); res_k.append(key[m]); res_t.append(tok[m]); res_v.append(vals[m])
         # bulk bins: every element of the rows with key < U_res
-        for l, _ in (ok if self.cfg.reservoir else []):
+        if self.cfg.reservoir and self.cfg.merge_impl == "stacked":
+            with _rf("atlas.merge.bulk"):
+                self._bulk_stacked(ok, res_thr, res_g, res_k, res_t, res_v)
+        if self.cfg.reservoir and self.cfg.merge_impl == "loop":
+            with _rf("atlas.merge.bulk"):
+                self._bulk_loop(ok, res_thr, res_g, res_k, res_t, res_v)
+        with _rf("atlas.merge.top"):
+            tg = torch.cat(top_g)
+            self.stats["top_cand"] += tg.numel()
+            grouped_merge(self.top_s, [self.top_t], tg, torch.cat(top_v), [torch.cat(top_t)], K)
+        if not self.cfg.reservoir:
+            return
+        with _rf("atlas.merge.res"):
+            rg = torch.cat(res_g)
+            self.stats["res_cand"] += rg.numel()
+            grouped_merge(self.res_s, [self.res_t, self.res_v], rg, -torch.cat(res_k),
+                          [torch.cat(res_t), torch.cat(res_v)], Kr)
+
+    def _bulk_loop(self, ok, res_thr, res_g, res_k, res_t, res_v):
+        """Reference: reservoir candidates from the rows with key < U_res, per layer and pole."""
+        ctx, D, B, dev = self.ctx, self.D, self.B, self.dev
+        for l, _ in ok:
             R = self._pending[l][4]  # [n_r, D] float
-            if R.shape[0] == 0:
+            if R is None or R.shape[0] == 0:
                 continue
             ridx = ctx.sub_idx.index_select(0, ctx.res_in_sub)  # valid-set indices
             rk, rt = ctx.key[ridx], ctx.tok[ridx]
@@ -398,15 +474,51 @@ class Atlas:
                 m = (b >= 0) & (-rk[:, None] > res_thr[gr])
                 r_i, c_i = torch.nonzero(m, as_tuple=True)
                 res_g.append(gr[r_i, c_i]); res_k.append(rk[r_i]); res_t.append(rt[r_i]); res_v.append(R[r_i, c_i])
-        tg = torch.cat(top_g)
-        self.stats["top_cand"] += tg.numel()
-        grouped_merge(self.top_s, [self.top_t], tg, torch.cat(top_v), [torch.cat(top_t)], K)
-        if not self.cfg.reservoir:
+
+    def _bulk_stacked(self, ok, res_thr, res_g, res_k, res_t, res_v, max_elems: int = 16_000_000):
+        """Reservoir candidates from the rows with key < U_res, stacked across layers: one
+        searchsorted and one nonzero per layer group instead of one per layer and pole. Exact
+        prefilter: a row can only enter a bin whose key ceiling exceeds its key, so rows with key
+        >= the loosest live ceiling (over the layers in this batch) are dropped first."""
+        ctx, D, B, dev = self.ctx, self.D, self.B, self.dev
+        Ls = [l for l, _ in ok if self._pending[l][4] is not None and self._pending[l][4].shape[0] > 0]
+        if not Ls:
             return
-        rg = torch.cat(res_g)
-        self.stats["res_cand"] += rg.numel()
-        grouped_merge(self.res_s, [self.res_t, self.res_v], rg, -torch.cat(res_k),
-                      [torch.cat(res_t), torch.cat(res_v)], Kr)
+        ridx = ctx.sub_idx.index_select(0, ctx.res_in_sub)
+        rk, rt = ctx.key[ridx], ctx.tok[ridx]
+        Lt = torch.tensor(Ls, device=dev)
+        loosest = res_thr.view(self.L, 2 * D * B).index_select(0, Lt).min()
+        if int(loosest) != I64_MIN:  # every bin has a ceiling: keep rows under the loosest one
+            keep = torch.nonzero(-rk > loosest).squeeze(1)
+        else:
+            keep = None
+        if keep is not None and keep.numel() == 0:
+            self.stats["bulk_rows_in"] = self.stats.get("bulk_rows_in", 0) + rk.numel()
+            return
+        rk_k = rk if keep is None else rk[keep]
+        rt_k = rt if keep is None else rt[keep]
+        nk = rk_k.numel()
+        self.stats["bulk_rows_in"] = self.stats.get("bulk_rows_in", 0) + rk.numel()  # prefilter effect
+        self.stats["bulk_rows_kept"] = self.stats.get("bulk_rows_kept", 0) + nk
+        colsD = torch.arange(D, device=dev)
+        per = max(1, max_elems // max(1, D * nk))
+        for g0 in range(0, len(Ls), per):
+            Lg = Ls[g0:g0 + per]
+            Lgt = torch.tensor(Lg, device=dev)
+            R = torch.stack([self._pending[l][4] for l in Lg])            # [nL, n_r, D]
+            if keep is not None:
+                R = R.index_select(1, keep)
+            HT = R.transpose(1, 2).contiguous()                             # [nL, D, nk]
+            E = self.E.index_select(0, Lgt)                                 # [nL, 2, D, B]
+            b0 = torch.searchsorted(E[:, 0].contiguous(), HT, right=True) - 1
+            F = torch.flip(-E[:, 1], dims=(-1,)).contiguous()
+            b1 = B - torch.searchsorted(F, HT, right=False) - 1
+            for p, bb in ((0, b0), (1, b1)):
+                gbase = ((Lgt[:, None] * 2 + p) * D + colsD[None, :]) * B   # [nL, D]
+                gr = gbase[:, :, None] + bb.clamp(min=0)                    # [nL, D, nk]
+                m = (bb >= 0) & (-rk_k[None, None, :] > res_thr[gr])
+                li, di, ri = torch.nonzero(m, as_tuple=True)
+                res_g.append(gr[li, di, ri]); res_k.append(rk_k[ri]); res_t.append(rt_k[ri]); res_v.append(HT[li, di, ri])
 
     # ------------------------------------------------------------------ outputs
     def flush_gram(self):
@@ -540,6 +652,52 @@ def _nonzero_static(mask, cap):
 
 def _rf(name):
     return torch.profiler.record_function(name)
+
+
+def gemm_paths() -> dict:
+    """Which exact-GEMM and nonzero paths this process actually took (None = not exercised)."""
+    return {"int_mm": dict(_INT_MM), "mm_out_dtype": dict(_MM_OUT_DTYPE), "nonzero_static": dict(NONZERO_STATIC)}
+
+
+_MM_OUT_DTYPE = {"ok": None}
+
+
+def _mm_f32out(a, b):
+    """a @ b with fp32 output. bf16/fp16 inputs: one GEMM with fp32 output if this torch build
+    supports out_dtype (products of bf16 values are exact in fp32), else the TF32 path on fp32
+    copies (also exact products for bf16-origin values). fp32 inputs: TF32 GEMM."""
+    if a.dtype in (torch.bfloat16, torch.float16) and a.is_cuda and _MM_OUT_DTYPE["ok"] is not False:
+        try:
+            out = torch.mm(a, b, out_dtype=torch.float32)
+            _MM_OUT_DTYPE["ok"] = True
+            return out
+        except (TypeError, RuntimeError, NotImplementedError):
+            _MM_OUT_DTYPE["ok"] = False
+    with _tf32():
+        return a.float() @ b.float()
+
+
+_INT_MM = {"ok": None}
+
+
+def _count_mm(mask, ann_i8, ann_f):
+    """Exact co-occurrence counts mask[M, n] (bool) @ ann[n, A] (0/1) -> int [M, A_pad].
+    CUDA: torch._int_mm on int8 (int32 accumulate, exact); else fp32 GEMM (exact below 2^24)."""
+    M, n = mask.shape
+    if mask.is_cuda and _INT_MM["ok"] is not False:
+        try:
+            n8 = ann_i8.shape[0]
+            m8 = -(-M // 8) * 8
+            a = torch.zeros(m8, n8, dtype=torch.int8, device=mask.device)
+            a[:M, :n] = mask.to(torch.int8)
+            out = torch._int_mm(a, ann_i8)[:M]
+            _INT_MM["ok"] = True
+            return out
+        except (RuntimeError, NotImplementedError, AttributeError) as e:
+            _INT_MM["ok"] = False
+            _INT_MM["error"] = str(e)[:200]
+    with _tf32():
+        return (mask.float() @ ann_f).round().to(torch.int32)
 
 
 class _tf32:
