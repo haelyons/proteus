@@ -232,6 +232,23 @@ Notes:
 - Atlas #2 vs #1: exact-field digests are recorded for #2; #1's are not yet computed (asia-south-1 had no
   capacity). Prediction: identical.
 
+Data for the ruler (same job; no coherence computed):
+
+| quantity | predicted | observed |
+|---|---|---|
+| held-out atlas | 4.08M tokens, 2-4 min | 4,080,811 tokens, 130 batches, 11 min (dense warm-up, see above) |
+| top-64 lists, pole 0: median distinct proteins / UniRef50 clusters | clusters 10-25 | **63 / 32** |
+| top-64 lists with < 10 clusters, pole 0 | 25-50% | **6.2%**: layer 0 94% (median 2 clusters), layer 1 24%, layers 2-32 1-5% |
+| reservoir bins q99.999 / q99.99: median clusters; bins < 10 | 25-45, 3-15% / 45-60, 1-5% | **55, 0.0% / 61, 0.0%** |
+| reservoir bins q99.9 and lower: bins < 10 clusters | < 1% | 0.0% (median 63-64 clusters of 64 samples) |
+| AFDB descriptors for the whole build | computed | **not computed**: swissprot_pdb_v6.tar from EBI arrived at ~3.5 MB/s (62,466 of ~550k models in 32 min); the A100 was stopped |
+
+The 2,000-protein sample (`scripts/afdb_descriptors.py`, from here): 3 sequence mismatches against
+2026_03 (0.15%), 68 without an AFDB model (3.4%: 42 viral, 8 with non-standard residues, 18 other);
+pLDDT < 70 for 16.3% of residues, < 50 for 10.2%, 50-70 for 6.1%. UniRef50 mapping of the build
+(UniProt ID mapping): 574,463 of 575,748 accessions mapped, 193,718 clusters
+(`lists/swissprot_2026_03_uniref50.tsv.gz`).
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -240,4 +257,5 @@ failed within 1-3 minutes on job bugs and were terminated by the driver); evenin
 2026-11-04: implementation A/B, ~56 billed minutes, ~$1.20 (us-west-1; new filesystem `esm-atlas-us-west-1`
 holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). Science pass on an A100 40 GB
 (asia-south-1), ~102 billed minutes, ~$3.40 (new filesystem `esm-atlas-asia-south-1`: dataset, HF cache,
-checkpoints, the 10.85 GB atlas). Total ~$7.0.
+checkpoints, the 10.85 GB atlas). Follow-up on an A100 40 GB (us-east-1), 14:29-16:43 UTC, ~$4.4 (atlas copy #2 and the
+held-out atlas on `esm-atlas-results`). Total ~$11.4.
