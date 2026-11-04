@@ -149,6 +149,13 @@ class BatchCtx:
     n_r: int = 0
     sub_rows: torch.Tensor | None = None  # [n_s] rows of H holding the subsample (device)
 
+    def to(self, device, non_blocking: bool = False) -> "BatchCtx":
+        """Copy of this context with every tensor on `device` (sizes are host ints already)."""
+        mv = lambda t: None if t is None else t.to(device, non_blocking=non_blocking)  # noqa: E731
+        return BatchCtx(T=self.T, valid_rows=mv(self.valid_rows), tok=mv(self.tok), key=mv(self.key), rowmap=mv(self.rowmap),
+                        sub_idx=mv(self.sub_idx), res_in_sub=mv(self.res_in_sub), ann_sub=mv(self.ann_sub),
+                        ann_sub_i8=mv(self.ann_sub_i8), n_v=self.n_v, n_s=self.n_s, n_r=self.n_r, sub_rows=mv(self.sub_rows))
+
 
 class Atlas:
     def __init__(self, n_layers: int, D: int, edges: torch.Tensor, cfg: AtlasConfig,
@@ -201,7 +208,7 @@ class Atlas:
 
     # ------------------------------------------------------------------ batch setup
     def make_ctx(self, T: int, valid_rows: torch.Tensor, tok: torch.Tensor,
-                 ann_ids: torch.Tensor | None = None) -> BatchCtx:
+                 ann_ids: torch.Tensor | None = None, device=None) -> BatchCtx:
         """Host tensors in; everything row-level is decided here (no device sync later).
         ann_ids: [n_v, M_a] int64 annotation ids per valid token (-1 padded) or None."""
         assert tok.numel() == 0 or (int(tok.min()) >= 0 and int(tok.max()) < 2**32), "token ids must be in [0, 2^32)"
@@ -216,7 +223,7 @@ class Atlas:
             ann_sub = torch.zeros(sub.numel(), self.n_a)
             r, c = torch.nonzero(a >= 0, as_tuple=True)
             ann_sub[r, a[r, c]] = 1.0
-        d = self.dev
+        d = self.dev if device is None else torch.device(device)  # "cpu": host-only (e.g. a prefetch thread), then ctx.to(dev)
         ann_i8 = None
         if ann_sub is not None:
             r8, c8 = -(-ann_sub.shape[0] // 8) * 8, -(-ann_sub.shape[1] // 8) * 8

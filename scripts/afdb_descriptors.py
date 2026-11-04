@@ -18,7 +18,10 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as cf
+import gzip
 import json
+import os
+import re
 import math
 import sys
 import time
@@ -34,10 +37,23 @@ THREE = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C", "GLN": "Q",
 UA = {"User-Agent": "esm-atlas/0.1"}
 
 
-def fetch(acc: str, pdb_dir: Path | None, cache: Path | None) -> str | None:
+def index_dir(pdb_dir: Path) -> dict:
+    """acc -> path of its F1 model (latest version) in a directory of AF-<acc>-F1-model_v<N>.pdb[.gz]."""
+    pat = re.compile(r"AF-(.+)-F1-model_v(\d+)\.pdb(\.gz)?$")
+    best = {}
+    with os.scandir(pdb_dir) as it:
+        for e in it:
+            m = pat.match(e.name)
+            if m and (m.group(1) not in best or int(m.group(2)) > best[m.group(1)][0]):
+                best[m.group(1)] = (int(m.group(2)), e.path)
+    return {k: v[1] for k, v in best.items()}
+
+
+def fetch(acc: str, pdb_dir: Path | None, cache: Path | None, path: str | None = None) -> str | None:
     if pdb_dir is not None:
-        hits = sorted(pdb_dir.glob(f"AF-{acc}-F1-model_v*.pdb"))
-        return hits[-1].read_text() if hits else None
+        if path is None:
+            return None
+        return gzip.open(path, "rt").read() if path.endswith(".gz") else open(path).read()
     if cache is not None and (cache / f"{acc}.pdb").exists():
         return (cache / f"{acc}.pdb").read_text()
     for attempt in range(3):
@@ -113,8 +129,8 @@ def descriptors(bb, cb):
     return np.asarray(ss, dtype=np.int8), contact.astype(np.int16), burial.astype(np.int16), phi, psi
 
 
-def one(acc, seq_ref, pdb_dir, cache):
-    text = fetch(acc, pdb_dir, cache)
+def one(acc, seq_ref, pdb_dir, cache, path=None):
+    text = fetch(acc, pdb_dir, cache, path)
     if text is None:
         return acc, "missing", None
     seq, bb, cb, plddt = parse(text)
@@ -131,7 +147,8 @@ def main():
     ap.add_argument("--acc-file", default=None)
     ap.add_argument("--pdb-dir", default=None, help="read AF-<acc>-F1-model_v*.pdb from here instead of downloading")
     ap.add_argument("--cache", default=None, help="keep downloaded models here")
-    ap.add_argument("--threads", type=int, default=8)
+    ap.add_argument("--threads", type=int, default=8, help="download threads (API mode)")
+    ap.add_argument("--procs", type=int, default=0, help="worker processes (local files: parsing and DSSP are CPU-bound)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
@@ -150,14 +167,18 @@ def main():
         cache.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     status, recs = {}, {}
-    with cf.ThreadPoolExecutor(a.threads) as ex:
-        futs = [ex.submit(one, acc, d["seq"][idx[acc]], pdb_dir, cache) for acc in accs]
+    paths = index_dir(pdb_dir) if pdb_dir is not None else {}
+    if pdb_dir is not None:
+        print(f"indexed {len(paths)} F1 models in {pdb_dir}", flush=True)
+    pool = cf.ProcessPoolExecutor(a.procs) if a.procs else cf.ThreadPoolExecutor(a.threads)
+    with pool as ex:
+        futs = [ex.submit(one, acc, d["seq"][idx[acc]], pdb_dir, cache, paths.get(acc)) for acc in accs]
         for k, f in enumerate(cf.as_completed(futs)):
             acc, st, rec = f.result()
             status[acc] = st
             if rec is not None:
                 recs[acc] = rec
-            if (k + 1) % 100 == 0:
+            if (k + 1) % (100 if len(accs) < 20000 else 20000) == 0:
                 print(f"{k + 1}/{len(accs)} done, {sum(v == 'ok' for v in status.values())} ok, {time.time() - t0:.0f}s", flush=True)
     keep = [acc for acc in accs if acc in recs]
     lens = [len(recs[acc]["ss3"]) for acc in keep]

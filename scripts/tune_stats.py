@@ -37,6 +37,7 @@ def main():
     ap.add_argument("--D", type=int, default=5120)
     ap.add_argument("--B", type=int, default=6)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--rows-only", action="store_true", help="sweep only the row split R of the stats kernel (default tiles), no Gram")
     a = ap.parse_args()
     dev = "cuda"
     g = torch.Generator(device=dev).manual_seed(0)
@@ -46,7 +47,9 @@ def main():
     E1 = (-X.float()).sort(0).values[(q * (a.n - 1)).long()].T.contiguous()
     res = {"device": torch.cuda.get_device_name(), "torch": torch.__version__, "shape": vars(a), "stats": [], "gram": []}
     ref = sub_stats(X, E0, E1, (2, 3, 4))
-    for BN, BD, R, nw in itertools.product((8, 16, 32), (16, 32, 64), (1, 2, 4, 8, 0), (2, 4, 8)):
+    grid = [(16, 64, R, 4) for R in (1, 2, 4, 6, 8, 16, 0)] if a.rows_only else \
+        itertools.product((8, 16, 32), (16, 32, 64), (1, 2, 4, 8, 0), (2, 4, 8))
+    for BN, BD, R, nw in grid:
         try:
             out = sub_stats(X, E0, E1, (2, 3, 4), BLOCK_N=BN, BLOCK_D=BD, R=R, num_warps=nw)
             same = torch.equal(out[2], ref[2]) and torch.equal(out[3], ref[3])
@@ -56,7 +59,11 @@ def main():
             res["stats"].append({"BLOCK_N": BN, "BLOCK_D": BD, "R": R, "num_warps": nw, "error": str(e)[:120]})
     ok = sorted([r for r in res["stats"] if "ms" in r and r["same"]], key=lambda r: r["ms"])
     print("stats kernel, best 5:", json.dumps(ok[:5]), flush=True)
-    print("stats kernel, current default:", [r for r in res["stats"] if (r.get("BLOCK_N"), r.get("BLOCK_D"), r.get("R"), r.get("num_warps")) == (16, 64, 1, 4)], flush=True)
+    print("stats kernel, by R (default tiles):", [(r["R"], round(r["ms"], 3)) for r in res["stats"] if "ms" in r and (r["BLOCK_N"], r["BLOCK_D"], r["num_warps"]) == (16, 64, 4)], flush=True)
+    if a.rows_only:
+        if a.out:
+            Path(a.out).write_text(json.dumps(res, indent=1))
+        return
     C = torch.zeros(a.D, a.D, device=dev)
     for BM, BK, nw, ns in itertools.product((64, 128), (32, 64), (4, 8), (2, 3, 4, 5)):
         try:

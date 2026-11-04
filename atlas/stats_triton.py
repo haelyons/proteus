@@ -69,7 +69,7 @@ def _sub_stats_kernel(X_ptr, n, n8, D, stride_x, chunk,
     tl.store(cnt_ptr + (pr * 2 * D + D + d[:, None]) * B + bi[None, :], c1, mask=em)
 
 
-STATS_TILE = {"BLOCK_N": 16, "BLOCK_D": 64, "num_warps": 4, "R": 1}  # R=0: enough row splits for ~4 programs per SM
+STATS_TILE = {"BLOCK_N": 16, "BLOCK_D": 64, "num_warps": 4, "R": 0}  # R=0: enough row splits for ~4 programs per SM
 _LEV: dict = {}
 _NSM: dict = {}
 

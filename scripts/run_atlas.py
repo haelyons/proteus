@@ -13,7 +13,10 @@ the K-th largest of N earlier ones with probability K/(N+1).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import queue
+import threading
 import os
 import sys
 import time
@@ -81,6 +84,11 @@ def main():
                     help="exact-preserving start thresholds from the pilot (top-K: 2K-th pilot value; reservoir: key ceilings)")
     ap.add_argument("--pair-forward", action="store_true", help="time a hook-free forward of each batch first (overhead per batch)")
     ap.add_argument("--pair-every", type=int, default=0, help="as --pair-forward, but only on every N-th batch (overhead on a sample)")
+    ap.add_argument("--prefetch", type=int, default=2,
+                    help="batches (and their host-side contexts) built ahead on a thread; 0 builds them inline")
+    ap.add_argument("--only-acc", default=None, help="file of accessions: stream only these (e.g. the held-out set)")
+    ap.add_argument("--edges-from", default=None,
+                    help="atlas.pt or checkpoint whose bin edges to reuse (no pilot edges; no seeds unless --seed-thresholds)")
     ap.add_argument("--exclude-acc", default=None,
                     help="file of UniProt accessions (first column; header line 'Entry' skipped) left out of the stream, e.g. a held-out set")
     ap.add_argument("--edge-q", type=float, nargs="+", default=[0.5, 0.9, 0.99, 0.999, 0.9999],
@@ -99,8 +107,14 @@ def main():
     ds = SwissProt(a.data)
     order = shuffled_order(len(ds), a.seed)
     n_excluded = 0
+    def acc_set(path):
+        return {ln.split("\t")[0].split(",")[0].strip() for ln in open(path) if ln.strip() and not ln.startswith("Entry")}
+    if a.only_acc:
+        inc = acc_set(a.only_acc)
+        order = order[torch.tensor([ds.d["acc"][i] in inc for i in order.tolist()], dtype=torch.bool)]
+        print(f"[atlas] streaming only {len(order)} of {len(inc)} listed accessions ({a.only_acc})", flush=True)
     if a.exclude_acc:
-        ex = {ln.split("\t")[0].split(",")[0].strip() for ln in open(a.exclude_acc) if ln.strip() and not ln.startswith("Entry")}
+        ex = acc_set(a.exclude_acc)
         drop = torch.tensor([acc in ex for acc in ds.d["acc"]], dtype=torch.bool)
         keep = ~drop[order]
         n_excluded = int((~keep).sum())
@@ -128,10 +142,20 @@ def main():
         E = st["atlas"]["E"]
         start = st["next_batch"]
     else:
-        pplan = ds.pilot_plan(plan, a.pilot_tokens, a.tokens_per_batch, a.seed)  # random sequences, all lengths
-        Hp, n_pilot = pilot(model, ds.batches(vocab, order, a.tokens_per_batch, plan=pplan), dev, 1 << 40)
-        E = torch.cat([pilot_edges([h.to(dev)], probs=tuple(a.edge_q)).cpu() for h in Hp])  # one layer on device at a time
         seeds = None
+        if a.edges_from and not a.seed_thresholds:
+            src = torch.load(a.edges_from, map_location="cpu", weights_only=False)
+            E = src["edges"] if "edges" in src else src["atlas"]["E"]
+            Hp = None
+            print(f"[atlas] bin edges from {a.edges_from} {tuple(E.shape)}; no pilot", flush=True)
+        else:
+            pplan = ds.pilot_plan(plan, a.pilot_tokens, a.tokens_per_batch, a.seed)  # random sequences, all lengths
+            Hp, n_pilot = pilot(model, ds.batches(vocab, order, a.tokens_per_batch, plan=pplan), dev, 1 << 40)
+            if a.edges_from:
+                src = torch.load(a.edges_from, map_location="cpu", weights_only=False)
+                E = src["edges"] if "edges" in src else src["atlas"]["E"]
+            else:
+                E = torch.cat([pilot_edges([h.to(dev)], probs=tuple(a.edge_q)).cpu() for h in Hp])  # one layer on device at a time
         if a.seed_thresholds:
             from atlas.reference import pilot_seeds
             prot = pilot.last_tok // 1024  # protein of each pilot row: tails cluster within proteins
@@ -190,7 +214,12 @@ def main():
     n_done = 0
     bi = start
     with torch.no_grad():
-        for bi, b in enumerate(ds.batches(vocab, order, a.tokens_per_batch, plan=plan, start=start), start=start):
+        src_iter = ds.batches(vocab, order, a.tokens_per_batch, plan=plan, start=start)
+        if a.prefetch > 0:  # batch building and host-side contexts off the critical path
+            src_iter = _prefetch(((b, atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann, device="cpu")) for b in src_iter), a.prefetch)
+        else:
+            src_iter = ((b, None) for b in src_iter)
+        for bi, (b, ctx_host) in enumerate(src_iter, start=start):
             tb = time.time()
             ids, am = b.input_ids.to(dev, non_blocking=True), b.attention_mask.to(dev, non_blocking=True)
             fwd_s = None
@@ -208,7 +237,7 @@ def main():
                 prof = torch.profiler.profile(activities=acts)
                 prof.__enter__()
             ta0 = time.time()
-            ctx = atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann)
+            ctx = ctx_host.to(dev) if ctx_host is not None else atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann)
             t_ctx = time.time() - ta0
             before = dict(atlas.stats)
             n_before = atlas.n_seen
@@ -270,8 +299,10 @@ def main():
     tf = time.time()
     atomic_save(res, out / "atlas.pt")
     final_s = time.time() - tf
+    digests = {k: hashlib.sha256(res[k].contiguous().numpy().tobytes()).hexdigest()
+               for k in ("top_val", "top_tok", "res_tok", "res_val", "res_key", "sub_bin", "enr", "ann_tot", "edges") if k in res}
     sm = summary(True, len(plan))
-    sm.update({"final_save_s": final_s, "atlas_pt_GB": (out / "atlas.pt").stat().st_size / 1e9,
+    sm.update({"digests": digests, "final_save_s": final_s, "atlas_pt_GB": (out / "atlas.pt").stat().st_size / 1e9,
                "gram_rows": res.get("gram_rows"), "res_seeded_bins": res["res_seeded_bins"],
                "res_seed_limited_bins": res["res_seed_limited_bins"], "top_seed_short_groups": res["top_seed_short_groups"]})
     (out / "run.json").write_text(json.dumps(sm, indent=1))
@@ -279,6 +310,27 @@ def main():
           f"{res['res_seed_limited_bins']} of {res['res_seeded_bins']} seeded bins short, top-K groups short {res['top_seed_short_groups']}", flush=True)
     print(json.dumps({k: v for k, v in summary(True, len(plan)).items() if k in ("model", "coverage", "seconds", "n_seen")}, indent=1))
     print("stats", atlas.stats)
+
+
+def _prefetch(it, n):
+    """Run the iterator on a daemon thread, n items ahead; errors are re-raised in the consumer."""
+    q, end = queue.Queue(maxsize=n), object()
+
+    def work():
+        try:
+            for x in it:
+                q.put(x)
+        except BaseException as e:  # noqa: BLE001
+            q.put(e)
+        q.put(end)
+    threading.Thread(target=work, daemon=True).start()
+    while True:
+        x = q.get()
+        if x is end:
+            return
+        if isinstance(x, BaseException):
+            raise x
+        yield x
 
 
 def _write_profile(prof, path, dev):
@@ -311,7 +363,7 @@ def _write_profile(prof, path, dev):
 def _args_key(a) -> dict:
     keep = ["model", "control", "data", "dtype", "max_seqs", "tokens_per_batch", "window", "sorted_batches",
             "pilot_tokens", "K", "Kr", "no_reservoir", "no_subsample", "no_gram", "naive", "seed",
-            "seed_thresholds", "max_batches", "exclude_acc", "edge_q"]
+            "seed_thresholds", "max_batches", "exclude_acc", "edge_q", "only_acc", "edges_from"]
     return {k: getattr(a, k) for k in keep}
 
 
