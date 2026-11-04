@@ -249,6 +249,29 @@ pLDDT < 70 for 16.3% of residues, < 50 for 10.2%, 50-70 for 6.1%. UniRef50 mappi
 (UniProt ID mapping): 574,463 of 575,748 accessions mapped, 193,718 clusters
 (`lists/swissprot_2026_03_uniref50.tsv.gz`).
 
+## 2026-11-04 (night) - AlphaFold DB descriptors for the whole build; checksums of committed results
+
+`descriptors_20261104/`: whole-build summary, job log, and a sha256 manifest of every run file on the
+us-east-1 filesystem. The descriptor file (`descriptors_swissprot_2026_03.pt`: ss3, contacts, burial,
+pLDDT, phi/psi, C-beta coordinates, per residue) is on `esm-atlas-results` (us-east-1), next to atlas
+copy #2. Instance: gpu_1x_a10, us-east-1, 21:31-22:15 UTC.
+
+| quantity | predicted | observed |
+|---|---|---|
+| archive (swissprot_pdb_v6.tar) | - | 28.58 GB; 24 ranged connections, 26 MB/s average (one connection: ~3.5 MB/s) |
+| F1 models | - | 550,122, extracted in 36 s |
+| accessions with descriptors | 95-97% | 95.47% (549,655 of 575,748); 194.8M residues; 21 min on 28 processes |
+| sequence mismatch vs 2026_03 | 0.1-0.3% | **0.074%** (426) |
+| no AFDB model | 3-4% | 4.46% (25,667) |
+| residues pLDDT < 70 / < 50 / 50-70 / >= 90 | 15-18% / 9-12% | 16.06% / 10.07% / 6.00% / 64.6% |
+| held-out set: entries with a model; residues < 70 / < 50 | - | **7,208 of 10,010 (72%)**; 22.3% / 14.4% (more disordered than the rest: 16.0% / 10.0%) |
+| 3-state among pLDDT >= 70 (loop / helix / strand) | - | 35.1% / 45.4% / 19.6% |
+
+Checksums: every committed copy of a us-east-1 run file matches its filesystem original byte for byte
+(phase 1, A10 profile, follow-up), except the follow-up's `ps.log` and `smi.csv`, which were snapshots
+taken while the instance was still running (both kept growing for 35 more minutes). Runs on
+asia-south-1 (science pass) and us-west-1 (impl_ab) are not yet checked.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -258,4 +281,4 @@ failed within 1-3 minutes on job bugs and were terminated by the driver); evenin
 holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). Science pass on an A100 40 GB
 (asia-south-1), ~102 billed minutes, ~$3.40 (new filesystem `esm-atlas-asia-south-1`: dataset, HF cache,
 checkpoints, the 10.85 GB atlas). Follow-up on an A100 40 GB (us-east-1), 14:29-16:43 UTC, ~$4.4 (atlas copy #2 and the
-held-out atlas on `esm-atlas-results`). Total ~$11.4.
+held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 billed minutes, ~$0.95. Total ~$12.4.

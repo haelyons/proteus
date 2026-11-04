@@ -1,0 +1,64 @@
+{
+ "run": "atlas-desc-20261104-2130",
+ "type": "gpu_1x_a10",
+ "region": "us-east-1",
+ "events": [
+  {
+   "t": 1793827674.4696436,
+   "event": "target",
+   "type": "gpu_1x_a10",
+   "region": "us-east-1",
+   "price_per_h": 1.29,
+   "fs": "esm-atlas-results"
+  },
+  {
+   "t": 1793827676.40071,
+   "event": "launched",
+   "instance_id": "53bd03be2c76477681712fe570319ab1"
+  },
+  {
+   "t": 1793827676.6945403,
+   "event": "status",
+   "status": "booting",
+   "first_healthy": null
+  },
+  {
+   "t": 1793827897.2177355,
+   "event": "status",
+   "status": "active",
+   "first_healthy": "2026-11-04T21:31:27.764783Z"
+  },
+  {
+   "t": 1793827902.8229942,
+   "event": "runner_alive"
+  },
+  {
+   "t": 1793827903.0553818,
+   "event": "upload_skipped_exists",
+   "remote": "esm-atlas-results/cache/swissprot_2026_03.pt",
+   "size": 324894837
+  },
+  {
+   "t": 1793827904.545233,
+   "event": "submitted",
+   "bytes": 133287,
+   "job_deadline": 1793838174.4713519
+  },
+  {
+   "t": 1793830382.5484877,
+   "event": "job_done",
+   "rc": 0,
+   "end": 1793830366.2225714
+  },
+  {
+   "t": 1793830383.4488406,
+   "event": "terminate_called",
+   "prior_status": "active"
+  },
+  {
+   "t": 1793830490.0425553,
+   "event": "final_status",
+   "status": "terminated"
+  }
+ ]
+}
