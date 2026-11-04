@@ -8,6 +8,7 @@ its sequence against our Swiss-Prot sequence, and compute per residue:
   plddt   - AlphaFold per-residue confidence (B-factor column)
   phi/psi - backbone dihedrals (degrees; NaN at chain ends); with a +-5 window they are the local
             backbone fragment descriptor
+  cb      - C-beta coordinates (C-alpha for Gly), float16, for spatial relations between positions
 Output: one .pt with concatenated per-residue arrays, per-protein offsets, and a status per
 accession (ok / missing / fragmented / sequence-mismatch).
 
@@ -41,11 +42,11 @@ def index_dir(pdb_dir: Path) -> dict:
     """acc -> path of its F1 model (latest version) in a directory of AF-<acc>-F1-model_v<N>.pdb[.gz]."""
     pat = re.compile(r"AF-(.+)-F1-model_v(\d+)\.pdb(\.gz)?$")
     best = {}
-    with os.scandir(pdb_dir) as it:
-        for e in it:
-            m = pat.match(e.name)
+    for root, _, files in os.walk(pdb_dir):  # archives may or may not nest the models in a directory
+        for name in files:
+            m = pat.match(name)
             if m and (m.group(1) not in best or int(m.group(2)) > best[m.group(1)][0]):
-                best[m.group(1)] = (int(m.group(2)), e.path)
+                best[m.group(1)] = (int(m.group(2)), os.path.join(root, name))
     return {k: v[1] for k, v in best.items()}
 
 
@@ -137,7 +138,8 @@ def one(acc, seq_ref, pdb_dir, cache, path=None):
     if seq != seq_ref:
         return acc, "sequence-mismatch", None
     ss, contact, burial, phi, psi = descriptors(bb, cb)
-    return acc, "ok", {"ss3": ss, "contact": contact, "burial": burial, "plddt": plddt, "phi": phi, "psi": psi}
+    return acc, "ok", {"ss3": ss, "contact": contact, "burial": burial, "plddt": plddt, "phi": phi, "psi": psi,
+                       "cb": cb.astype(np.float16)}
 
 
 def main():
@@ -183,7 +185,7 @@ def main():
     keep = [acc for acc in accs if acc in recs]
     lens = [len(recs[acc]["ss3"]) for acc in keep]
     out = {"acc": keep, "seq_idx": torch.tensor([idx[acc] for acc in keep]), "offset": torch.tensor([0] + list(np.cumsum(lens))),
-           "status": status, "source": "AlphaFold DB (latest model version via the API)", "fields": ["ss3", "contact", "burial", "plddt", "phi", "psi"]}
+           "status": status, "source": "AlphaFold DB (latest model version via the API)", "fields": ["ss3", "contact", "burial", "plddt", "phi", "psi", "cb"]}
     for k in out["fields"]:
         out[k] = torch.from_numpy(np.concatenate([recs[acc][k] for acc in keep])) if keep else torch.empty(0)
     torch.save(out, a.out)
