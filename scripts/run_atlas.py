@@ -62,6 +62,8 @@ def main():
     ap.add_argument("--K", type=int, default=64)
     ap.add_argument("--Kr", type=int, default=16)
     ap.add_argument("--backend", default="torch")
+    ap.add_argument("--cap-frac-early", type=float, default=0.0,
+                    help="candidate buffer fraction for layers 0-1 (default: same as the others, 0.005)")
     ap.add_argument("--stats-impl", default="v3", choices=["v3", "v2", "v1"], help="subsample statistics: v3 Triton kernels (CUDA), v1 reference")
     ap.add_argument("--merge-impl", default="stacked", choices=["stacked", "loop"], help="reservoir bulk rows (loop = reference)")
     ap.add_argument("--no-reservoir", action="store_true")
@@ -117,7 +119,7 @@ def main():
 
     cfg = AtlasConfig(K=a.K, Kr=a.Kr, backend=a.backend, seed=a.seed, reservoir=not a.no_reservoir,
                       subsample=not a.no_subsample, gram=not a.no_gram and not a.no_subsample, naive=a.naive,
-                      stats_impl=a.stats_impl, merge_impl=a.merge_impl)
+                      stats_impl=a.stats_impl, merge_impl=a.merge_impl, cap_frac_early=a.cap_frac_early)
     ck = latest_ckpt(out / "ckpt") if a.resume else None
     t1 = time.time()
     if ck is not None:

@@ -32,7 +32,7 @@ def make_stream(L, D, n_seq, seed, dtype, grid=0.0):
 
 
 def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, seed=0, verbose=True, device="cpu",
-        seeded=False, seed_c=4.0, stats_impl="v3", merge_impl="stacked", grid=0.0, shuffle_order=False):
+        seeded=False, seed_c=4.0, stats_impl="v3", merge_impl="stacked", grid=0.0, shuffle_order=False, cap_frac_early=0.0):
     lens, seqs = make_stream(L, D, n_seq, seed, dtype, grid)
     g = torch.Generator().manual_seed(seed + 1)
     ann_full = [torch.randint(-1, n_annot, (n, 3), generator=g) for n in lens.tolist()]
@@ -40,7 +40,7 @@ def run(dtype, backend="torch", n_seq=1200, L=3, D=96, K=8, Kr=4, n_annot=7, see
     Hp = [torch.cat([s[l] for s in seqs[:150]]) for l in range(L)]
     E = pilot_edges(Hp)
     cfg = AtlasConfig(K=K, Kr=Kr, rho_res=0.05, rho_sub=0.2, cap_frac=0.05, backend=backend, seed=7,
-                      stats_impl=stats_impl, merge_impl=merge_impl)
+                      stats_impl=stats_impl, merge_impl=merge_impl, cap_frac_early=cap_frac_early)
     atlas = Atlas(L, D, E, cfg, n_annot=n_annot, device=device)
     if seeded:  # pilot tokens (first 150 seqs) are streamed below, as in run_atlas
         from atlas.reference import pilot_seeds
@@ -177,6 +177,8 @@ if __name__ == "__main__":
     print("-- tie-heavy values (grid 0.5), shuffled arrival order: ids still exact")
     ok &= run(torch.bfloat16, grid=0.5, shuffle_order=True, verbose=False)
     ok &= run(torch.bfloat16, grid=0.5, shuffle_order=True, seeded=True, verbose=False)
+    print("-- larger candidate buffer for layers 0-1 (fewer dense redos there)")
+    ok &= run(torch.bfloat16, cap_frac_early=0.5, verbose=False)
     print("-- seeded too tight (c=0.25): verification must flag bins")
     ok &= run(torch.bfloat16, seeded=True, seed_c=0.25, verbose=False)
     sys.exit(0 if ok else 1)

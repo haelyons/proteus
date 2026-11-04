@@ -119,6 +119,8 @@ class AtlasConfig:
     enrich_levels: tuple = (2, 3, 4)  # bin indices used as cumulative thresholds s >= E_b
     gram: bool = True
     cap_frac: float = 0.005     # candidate buffer per layer = cap_frac * T * D (overflow -> dense redo, exact)
+    cap_frac_early: float = 0.0 # if > 0: buffer for layers < early_layers (layer 0 overflows on single extreme proteins)
+    early_layers: int = 2
     backend: str = "torch"      # "torch" | "triton"
     stats_impl: str = "v3"      # subsample statistics: "v3" Triton kernels (CUDA; CPU falls back to v1) | "v2" | "v1" (reference)
     merge_impl: str = "stacked" # reservoir bulk-bin candidates: "stacked" across layers | "loop" (per layer and pole)
@@ -264,7 +266,7 @@ class Atlas:
         with _rf("atlas.compact"):
             if self._kernel is not None:
                 vals, rows, cols, cnt = self._kernel(H, ctx.rowmap, self.thr[l, 0], self.thr[l, 1],
-                                                     self._cap(ctx))
+                                                     self._cap(ctx, l))
             else:  # plain nonzero: one sync, but faster than nonzero_static on CUDA (phase 1)
                 valid = ctx.rowmap >= 0
                 mask = ((H > self.thr[l, 0]) | (H < -self.thr[l, 1])) & valid[:, None]
@@ -283,8 +285,11 @@ class Atlas:
                 R = Hn.index_select(0, ctx.res_in_sub).float() if self.cfg.reservoir else None
         self._pending[l] = (vals, rows, cols, cnt, R)
 
-    def _cap(self, ctx):
-        return max(4096, int(self.cfg.cap_frac * ctx.n_v * self.D))
+    def _cap(self, ctx, l=None):
+        f = self.cfg.cap_frac
+        if self.cfg.cap_frac_early > 0 and l is not None and l < self.cfg.early_layers:
+            f = self.cfg.cap_frac_early
+        return max(4096, int(f * ctx.n_v * self.D))
 
     def _subsample_stats(self, l, Hn):
         """Hn [n_s, D]: the subsample rows in the hook's dtype."""
@@ -445,9 +450,8 @@ class Atlas:
             dev_cnt = [l for l in filt if torch.is_tensor(self._pending[l][3])]
             got = dict(zip(dev_cnt, torch.stack([self._pending[l][3].reshape(()) for l in dev_cnt]).tolist())) if dev_cnt else {}
             cnts = [got.get(l, self._pending[l][3]) for l in filt]  # sync #1 (Triton counts)
-            cap = self._cap(ctx)
-            redo = [l for l, c in zip(filt, cnts) if c > cap]
-            ok = [(l, c) for l, c in zip(filt, cnts) if c <= cap]
+            redo = [l for l, c in zip(filt, cnts) if c > self._cap(ctx, l)]
+            ok = [(l, c) for l, c in zip(filt, cnts) if c <= self._cap(ctx, l)]
             if ok:
                 self._merge_filtered(ok)
         dense_done = [l for l, v in self._pending.items() if v is None]
