@@ -72,7 +72,9 @@ for X in ("A", "B"):
         if not rr: continue
         o = [r["overhead_vs_fwd"] for r in rr]
         pooled = sum(r["atlas_pass_s"] for r in rr) / sum(r["fwd_only_s"] for r in rr) - 1
+        q = [r["overhead_vs_fwd"] for r in rr if not (r["redo_layers"] or r["profiled"] or r.get("gram_flushed"))]
         print(f"{X} batches {lo}-{hi}: n={len(rr)} overhead mean {st.mean(o):.3f} median {st.median(o):.3f} pooled {pooled:.3f}; "
+              f"excl. redo/profiled/gram-flush: n={len(q)} mean {st.mean(q) if q else float('nan'):.3f}; "
               f"fwd {st.mean(r['fwd_only_s'] for r in rr):.3f}s; redo batches {sum(1 for r in rr if r['redo_layers'])}; "
               f"bulk rows kept {sum(r.get('bulk_rows_kept', 0) for r in rr)}/{sum(r.get('bulk_rows_in', 0) for r in rr)}")
 EOF

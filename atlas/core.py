@@ -522,8 +522,11 @@ class Atlas:
 
     # ------------------------------------------------------------------ outputs
     def flush_gram(self):
+        """Move the fp32 device Gram into the fp64 host accumulator. Copies fp32 (half the bytes
+        of widening on the device first) and widens on the host; a full flush moves L*D^2*4 bytes
+        (3.5 GB for 650M), so callers flush rarely (run_atlas: --gram-flush-every)."""
         if self.gram is not None:
-            self.gram64 += self.gram.double().cpu()
+            self.gram64 += self.gram.cpu().double()
             self.gram.zero_()
 
     # ------------------------------------------------------------------ checkpoint / merge

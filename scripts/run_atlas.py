@@ -71,6 +71,8 @@ def main():
     ap.add_argument("--count-ties", action="store_true", help="diagnostic: count elements equal to tau (extra pass)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--ckpt-every", type=int, default=500)
+    ap.add_argument("--gram-flush-every", type=int, default=500,
+                    help="batches between fp32 device Gram -> fp64 host flushes (each moves L*D^2*4 bytes)")
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--stop-after", type=int, default=0, help="testing: stop after this many batches (simulated cap)")
     ap.add_argument("--seed-thresholds", action="store_true",
@@ -204,7 +206,8 @@ def main():
                 atlas.begin_batch(ctx, redo_layers=redo)
                 model(input_ids=ids, attention_mask=am)
                 assert atlas.end_batch() == []
-            if bi % 100 == 99:
+            gram_flushed = bi % a.gram_flush_every == a.gram_flush_every - 1
+            if gram_flushed:
                 atlas.flush_gram()
             sync(dev)
             atlas_s = time.time() - ta0
@@ -218,6 +221,7 @@ def main():
                    "Lmax": int(b.input_ids.shape[1]), "seconds": time.time() - tb, "t_start": tb, "t_end": time.time(),
                    "fwd_only_s": fwd_s, "atlas_pass_s": atlas_s, "make_ctx_s": t_ctx,
                    "overhead_vs_fwd": (atlas_s / fwd_s - 1) if fwd_s else None, "profiled": prof is not None,
+                   "gram_flushed": gram_flushed,
                    "flops": flops_per_batch(info, b.n_rows, b.input_ids.shape[1]), "redo_layers": redo,
                    "compacted_frac": (s["compacted"] - before["compacted"]) / elems,
                    "topk_cand_frac": (s["top_cand"] - before["top_cand"]) / elems,
