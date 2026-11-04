@@ -1,0 +1,91 @@
+{
+ "args": {
+  "model": "650M",
+  "control": "none",
+  "data": "/lambda/nfs/esm-atlas-us-west-1/cache/swissprot_2026_03.pt",
+  "out": "/lambda/nfs/esm-atlas-us-west-1/runs/atlas-implab-20261104-1000/B",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 131072,
+  "K": 64,
+  "Kr": 16,
+  "backend": "triton",
+  "stats_impl": "v2",
+  "merge_impl": "stacked",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 160,
+  "gram_flush_every": 500,
+  "resume": true,
+  "stop_after": 0,
+  "seed_thresholds": true,
+  "pair_forward": true,
+  "profile_at": [
+   600
+  ],
+  "max_batches": 620,
+  "deadline": 1793790943.0
+ },
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981
+ },
+ "coverage": {
+  "n_seq": 575748,
+  "n_res_full": 209017843,
+  "n_res_used": 198257936,
+  "n_truncated": 18483,
+  "frac_seq_truncated": 0.03210258483886719,
+  "frac_res_dropped": 0.051478415727615356
+ },
+ "n_batches_plan": 620,
+ "next_batch": 620,
+ "complete": true,
+ "seconds": {
+  "load": 18.838268280029297,
+  "pilot": 1.279526710510254,
+  "stream_this_process": 1626.831698179245
+ },
+ "n_seen": 19602128,
+ "stats": {
+  "batches": 620,
+  "dense_layer_batches": 11,
+  "redo_layers": 11,
+  "compacted": 657358816,
+  "elements": 6623951093760,
+  "top_cand": 161210193,
+  "res_cand": 85061829,
+  "bulk_rows_in": 196794,
+  "bulk_rows_kept": 196794
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": true
+  },
+  "mm_out_dtype": {
+   "ok": false
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ },
+ "final_save_s": 111.3069474697113,
+ "atlas_pt_GB": 8.788971865,
+ "gram_rows": 729147,
+ "res_seeded_bins": 1590947,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

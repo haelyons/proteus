@@ -1,0 +1,83 @@
+{
+ "args": {
+  "model": "650M",
+  "control": "none",
+  "data": "/lambda/nfs/esm-atlas-us-west-1/cache/swissprot_2026_03.pt",
+  "out": "/lambda/nfs/esm-atlas-us-west-1/runs/atlas-implab-20261104-1000/A",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 131072,
+  "K": 64,
+  "Kr": 16,
+  "backend": "triton",
+  "stats_impl": "v1",
+  "merge_impl": "loop",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 160,
+  "gram_flush_every": 500,
+  "resume": false,
+  "stop_after": 160,
+  "seed_thresholds": true,
+  "pair_forward": true,
+  "profile_at": [
+   150
+  ],
+  "max_batches": 620,
+  "deadline": 1793790943.0
+ },
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981
+ },
+ "coverage": {
+  "n_seq": 575748,
+  "n_res_full": 209017843,
+  "n_res_used": 198257936,
+  "n_truncated": 18483,
+  "frac_seq_truncated": 0.03210258483886719,
+  "frac_res_dropped": 0.051478415727615356
+ },
+ "n_batches_plan": 620,
+ "next_batch": 160,
+ "complete": false,
+ "seconds": {
+  "load": 71.3488392829895,
+  "pilot": 101.26293325424194,
+  "stream_this_process": 565.6139667034149
+ },
+ "n_seen": 5047300,
+ "stats": {
+  "batches": 160,
+  "dense_layer_batches": 11,
+  "redo_layers": 11,
+  "compacted": 370355634,
+  "elements": 1705583616000,
+  "top_cand": 132225051,
+  "res_cand": 49749267
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": null
+  },
+  "mm_out_dtype": {
+   "ok": null
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ }
+}

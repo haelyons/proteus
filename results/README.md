@@ -87,9 +87,59 @@ Whole-atlas overhead vs paired forward (median per segment):
 - Checkpoint without Gram: 1.87 GB in 24-26 s; final save with fp64 Gram: 8.79 GB in 114-118 s (~77 MB/s to the
   network filesystem).
 
+## 2026-11-04 - Implementation A/B on one A10 (ESM-2 650M, bf16, seeded, 620-batch plan)
+
+`impl_ab_20261104/`: per-batch JSONL for A and B, kernel tables and per-range trace attributions at
+batches 150 (A, B) and 600 (B), `bench_gram.json`, `compare_A_B.json`, `job.log`, launcher log and
+timeline. Predictions were committed before launch: `impl_ab_predictions.md` (bf03e11). A = stats v1 +
+merge loop, B = stats v2 + merge stacked, same seeds and batches; B resumed from its batch-160
+checkpoint to 620. us-west-1 (the us-east-1 A10 had gone), torch 2.7.0, power-capped at 150 W.
+
+| quantity | predicted | observed |
+|---|---|---|
+| GPU tests (CUDA exactness, both backends) | pass | pass; `_int_mm` used, `mm(out_dtype=)` unavailable (torch 2.7) |
+| A vs B at batch 160: top-K values, reservoirs, bin masses, enrichment, sums | bitwise equal | bitwise equal |
+| A vs B: top-K token ids | bitwise equal | **1,126,406 of 21.6M differ**, all at identical values (ties; see below) |
+| subsample, A (v1), ms/batch | 322 (290-350) | 332.9 |
+| subsample, B (v2) | 155 (120-200) | **340.0** |
+| v2 bins / enrich | 35-70 / 10-20 | **120.7 / 90.9** |
+| Gram (both) | 72 | **99.7 / 107.3** (GEMM 78.2 + `+=` 21.5; v2 also 7.6 of casts) |
+| 66-call reduce (43.7 ms at batch 600) | subsample (central) or merge | subsample: v1 `ge.sum(0)`, 44.7 ms |
+| merge bulk, loop vs stacked | 45-100 vs 15-30 | 60.8 vs 28.8 |
+| idle inside bulk (sync gaps), loop vs stacked | 7-15 vs < 5 | 8.5 vs 0.9 |
+| merge total, batch 150 (A / B) | 125-160 / 70-115 | **~77 / ~45** (sum of sub-ranges) |
+| merge total, B batch 600 | 60-100 | **34.6** |
+| overhead batches 100-160, A median / mean | 0.33-0.35 / 0.35-0.40 | 0.327 / 0.352 |
+| same, B | 0.17-0.21 / 0.19-0.24 | **0.309 / 0.334** |
+| overhead batches 500-620, B median / mean | 0.15-0.20 / median + < 0.015 | **0.288** / 0.287 |
+| Gram flush (every 500 now) | 1.5-2.5 s | ~2.5 s (batch 499, overhead 2.12) |
+| redo batches | 19, 27, 32, 33, 37, 45, 111, 113 | 1, 2, 7, 19, 27, 32, 33, 37, 45, 113 in both A and B; none after 113 |
+| bench: Gram TF32 / bf16, n=1600, D=5120 | ~2.2 / 1.1-1.3 ms | 2.30 (incl. cast) / 0.96 ms (87 TFLOP/s) |
+| bench: enrichment GEMM int8 vs TF32 | - | 0.52 vs 0.63 ms (~7 TOPS at N=144) |
+| seed verification at 620 | 0 short | 0 of 1,590,947 seeded bins short; 0 top-K groups short |
+| wall, billed | ~56 min, $1.20 | ~56 min, ~$1.20 |
+
+Notes and open items:
+- Subsample v2 failed: it replaced [n, D, B] booleans with int64 [D, n] passes (8.2M elements, 65 MB each,
+  ~0.27 ms per pass on the A10): `searchsorted` output, -1 / B- arithmetic, base+index, compares for three
+  enrichment levels, padded int8 copies. Same bytes, same time. The prediction undercounted the cost of
+  int64 passes. The materialisation hypothesis stands; removing it needs a kernel that never writes them.
+- The Gram's `gram[l] += A @ B` is a separate read-modify-write of the 5120^2 fp32 accumulator: 21.5 ms
+  per batch in both implementations (accumulate in the GEMM instead).
+- Top-K token ids under ties depend on arrival order: the Triton compaction reserves output slots with
+  atomics, so candidate order varies run to run, and `s > tau` keeps the first tied token. Values are
+  exact; ids are one valid choice among equal values. CPU (torch.nonzero, fixed order) was bitwise equal.
+  A deterministic definition needs a (value, smallest token id) key and `s >= tau` admission.
+- Steady-state mean - median gap: 0.026 on 2026-11-03 (Gram flush every 100), -0.001 here (every 500).
+- Merge at batch 600 is 34.6 ms in B; the 122 ms measured on 2026-11-03 (unseeded, loop, other instance)
+  is not reproduced by the loop at batch 150 here (~77 ms). Unexplained (batch position, seeding or instance).
+- `smi.csv` mirror stopped 3 min into the job, as on 2026-11-03; the file on the filesystem was not checked.
+  Mirror read errors are swallowed; unexplained.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
 failed within 1-3 minutes on job bugs and were terminated by the driver); evening profiling job ~58 minutes, ~$1.25
 (the controlling container restarted mid-run; supervision was re-attached and the instance terminated on completion).
-Total ~$2.39.
+2026-11-04: implementation A/B, ~56 billed minutes, ~$1.20 (us-west-1; new filesystem `esm-atlas-us-west-1`
+holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). Total ~$3.59.

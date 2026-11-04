@@ -1,0 +1,91 @@
+{
+ "run": "atlas-implab-20261104-1000",
+ "type": "gpu_1x_a10",
+ "region": "us-west-1",
+ "events": [
+  {
+   "t": 1793786142.6403382,
+   "event": "target",
+   "type": "gpu_1x_a10",
+   "region": "us-west-1",
+   "price_per_h": 1.29,
+   "fs": "esm-atlas-us-west-1"
+  },
+  {
+   "t": 1793786144.2742217,
+   "event": "launched",
+   "instance_id": "8155dbdcaced44d4b21385124674b86f"
+  },
+  {
+   "t": 1793786144.5471506,
+   "event": "status",
+   "status": "booting",
+   "first_healthy": null
+  },
+  {
+   "t": 1793786378.5024512,
+   "event": "status",
+   "status": "active",
+   "first_healthy": "2026-11-04T09:59:29.280640Z"
+  },
+  {
+   "t": 1793786389.6522057,
+   "event": "runner_alive"
+  },
+  {
+   "t": 1793786406.5541744,
+   "event": "upload_progress",
+   "msg": "upload esm-atlas-us-west-1/cache/swissprot_2026_03.pt: 8/39 chunks, 4.1 MB/s"
+  },
+  {
+   "t": 1793786422.419922,
+   "event": "upload_progress",
+   "msg": "upload esm-atlas-us-west-1/cache/swissprot_2026_03.pt: 16/39 chunks, 4.1 MB/s"
+  },
+  {
+   "t": 1793786437.197042,
+   "event": "upload_progress",
+   "msg": "upload esm-atlas-us-west-1/cache/swissprot_2026_03.pt: 24/39 chunks, 4.3 MB/s"
+  },
+  {
+   "t": 1793786452.1144114,
+   "event": "upload_progress",
+   "msg": "upload esm-atlas-us-west-1/cache/swissprot_2026_03.pt: 32/39 chunks, 4.3 MB/s"
+  },
+  {
+   "t": 1793786464.6055593,
+   "event": "upload_progress",
+   "msg": "upload esm-atlas-us-west-1/cache/swissprot_2026_03.pt: 39/39 chunks, 4.4 MB/s"
+  },
+  {
+   "t": 1793786464.8287597,
+   "event": "uploaded",
+   "remote": "esm-atlas-us-west-1/cache/swissprot_2026_03.pt",
+   "bytes": 324894837,
+   "seconds": 74.8,
+   "MBps": 4.3
+  },
+  {
+   "t": 1793786465.9334881,
+   "event": "submitted",
+   "bytes": 52943,
+   "job_deadline": 1793790942.6418731
+  },
+  {
+   "t": 1793789622.593363,
+   "event": "job_done",
+   "rc": 0,
+   "end": 1793789597.3346665
+  },
+  {
+   "t": 1793789623.4399517,
+   "event": "terminate_called",
+   "prior_status": "active"
+  },
+  {
+   "t": 1793789751.183822,
+   "event": "final_status",
+   "status": "terminated"
+  }
+ ]
+}

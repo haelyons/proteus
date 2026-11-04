@@ -70,10 +70,14 @@ sequences longer than 1022 residues are truncated and coverage is reported (Swis
 `scatter_add`, enrichment by an exact integer GEMM (`torch._int_mm`), Gram on native-dtype inputs
 with fp32 output. `"v1"` is the reference implementation, kept for A/B measurement.
 `merge_impl = "stacked"` (default) builds reservoir candidates from the bulk rows across all layers
-at once; `"loop"` is the per-layer reference. Both pairs are in the exactness tests; on real data
-the two give bitwise-equal checkpoints (`jobs/impl_ab`, CPU smoke single-threaded). The bf16 Gram
-with fp32 output needs torch >= 2.8 (`mm(out_dtype=)`); older builds take the TF32 path on fp32
-copies, also exact products for bf16 inputs. `run.json` records which GEMM paths were taken.
+at once; `"loop"` is the per-layer reference. Both pairs are in the exactness tests. On real data
+(`results/impl_ab_20261104`, A10) they give bitwise-equal top-K values, reservoirs, bin masses,
+enrichment counts and sums; top-K token ids differ only among tied values, because the Triton
+compaction's atomic slot order varies between runs and `s > tau` keeps the first tied token (the CPU
+path, fixed order, is bitwise equal). Measured cost on the A10: stacked merge saves ~32 ms per batch;
+stats v2 is no faster than v1 (340 vs 333 ms per batch: int64 [D, n] passes replace the booleans).
+The bf16 Gram with fp32 output needs torch >= 2.8 (`mm(out_dtype=)`); older builds take the TF32
+path on fp32 copies, also exact products for bf16 inputs. `run.json` records which GEMM paths were taken.
 
 ## Layout
 

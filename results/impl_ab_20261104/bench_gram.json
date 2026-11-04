@@ -1,0 +1,62 @@
+{
+ "device": "NVIDIA A10",
+ "torch": "2.7.0",
+ "shape": {
+  "n": 1600,
+  "D": 5120,
+  "A": 144
+ },
+ "ops": {
+  "gram_tf32_fp32_inputs": {
+   "median_ms": 1.8462719917297363,
+   "min_ms": 1.760256052017212,
+   "TFLOPS": 45.4353856721884
+  },
+  "gram_cast_plus_tf32": {
+   "median_ms": 2.3009440898895264,
+   "min_ms": 2.2814719676971436,
+   "TFLOPS": 36.45724394982043
+  },
+  "gram_bf16_out_bf16 (proxy)": {
+   "median_ms": 0.9605119824409485,
+   "min_ms": 0.9482240080833435,
+   "TFLOPS": 87.33475639400183
+  },
+  "gram_bf16_out_fp32 (out_dtype)": {
+   "unavailable": "mm() got an unexpected keyword argument 'out_dtype'"
+  },
+  "enrich_tf32 [3D,n]@[n,A]": {
+   "median_ms": 0.6307839751243591,
+   "min_ms": 0.6225919723510742
+  },
+  "enrich_int8 _int_mm": {
+   "median_ms": 0.516543984413147,
+   "min_ms": 0.5099520087242126
+  },
+  "read floor: Hs_bf16.sum(0)": {
+   "median_ms": 0.052640000358223915,
+   "min_ms": 0.04492799937725067,
+   "GBps": 311.2461984898208
+  },
+  "read floor: Hs_fp32.sum(0)": {
+   "median_ms": 0.08396799862384796,
+   "min_ms": 0.07577600330114365,
+   "GBps": 390.2439088347341
+  },
+  "moments v1/v2: sum + sq": {
+   "median_ms": 0.2978399991989136,
+   "min_ms": 0.2877439856529236,
+   "GBps": 440.0752093491078
+  },
+  "transpose copy [n,D]->[D,n]": {
+   "median_ms": 0.1955839991569519,
+   "min_ms": 0.187391996383667,
+   "GBps": 335.078535475741
+  },
+  "searchsorted [D,6] x [D,n]": {
+   "median_ms": 0.21172799915075302,
+   "min_ms": 0.20582400262355804,
+   "GBps": 773.8230213158716
+  }
+ }
+}

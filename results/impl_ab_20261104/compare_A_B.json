@@ -1,0 +1,69 @@
+{
+ "a": "/lambda/nfs/esm-atlas-us-west-1/runs/atlas-implab-20261104-1000/A/ckpt/ckpt_160.pt",
+ "b": "/lambda/nfs/esm-atlas-us-west-1/runs/atlas-implab-20261104-1000/B/ckpt/ckpt_160.pt",
+ "fields": {
+  "top_s": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_t": {
+   "exact": false,
+   "n_diff": 1126406
+  },
+  "res_s": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_t": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_v": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_bin": {
+   "exact": true,
+   "n_diff": null
+  },
+  "enr": {
+   "exact": true,
+   "n_diff": null
+  },
+  "ann_tot": {
+   "exact": true,
+   "n_diff": null
+  },
+  "E": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_seed": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_seed": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_sum": {
+   "bitwise": true,
+   "max_rel_diff": 0.0
+  },
+  "sub_sq": {
+   "bitwise": true,
+   "max_rel_diff": 0.0
+  },
+  "n_seen": {
+   "a": 5047300,
+   "b": 5047300,
+   "equal": true
+  },
+  "n_sub": {
+   "a": 253254,
+   "b": 253254,
+   "equal": true
+  }
+ },
+ "ok": false
+}
