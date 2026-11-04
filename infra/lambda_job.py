@@ -243,6 +243,8 @@ def main():
                 time.sleep(10)
             ev("final_status", status=st)
         (out / "timeline.json").write_text(json.dumps(tl, indent=1))
+    if iid is None:  # nothing was launched (e.g. capacity gone between the check and the request)
+        sys.exit(5)
 
 
 if __name__ == "__main__":
