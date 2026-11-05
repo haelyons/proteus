@@ -842,22 +842,35 @@ to its own.
 |---|---|---|---|
 | A, K_r 64 (old challenges) | G-x-G-x-x-G **0 / 5**; hydro_win **4 / 12** | 84 / 86 (helix 28/28, ordered 23/23, conj. exposed strand 12/12, buried 6/6, two_job 6/6, narrow 5/5, lys_helix 4/6) | 3 |
 | E, K_r 256 (fresh challenges, seed 9) | hp_i34 0 / 10; kxxxe 1 / 6; pxxp 0 / 9; G-x-G-x-x-G 0 / 3; hydro_win **2 / 4** | strand_buried 12/12; helix_exposed 12/12; helix 4/4 | 0 |
-| A, K_r 256 | pending | pending | pending |
+| A, K_r 256 (same noise as A) | G-x-G-x-x-G **4 / 8**; hydro_win **6 / 12**; N-x-[ST] 0 / 1 | 88 / 88 | 3 |
 
-**Against the criteria fixed beforehand** (sequence-only "unexplained" <= 1 per set; structural >= 80%):
-- *Repaired:*
-  - the motif failure (v0 called all 5 G-x-G-x-x-G calls "beyond the window"; v1 none);
-  - the new sequence-only types (1 of 25);
-  - power on structural columns (97-100%).
-- *Not repaired:* hydro_win, the extreme of an additive +-3 hydropathy score, is "unexplained" in 4 of 12 and
-  2 of 4. Its function is representable by the MLP, so this is an estimation failure at the extreme tail (ESS
-  median 534-556), not an expressiveness one. Both sets therefore fail the <= 1 criterion.
-- *Consequence for real units:*
-  - "unexplained by this fitted window model" is evidence against a sequence-only account only for columns whose
-    peak is not an extreme of an additive hydrophobicity-like window score;
-  - for hydrophobic, TM-like or amphipathic columns, the verdict does not exclude sequence-only;
-  - every structural or context call on a real unit below keeps **sequence-only not excluded**, and the cases test
-    sequence against context directly, by intervention.
+**Against the criteria fixed beforehand** (sequence-only "unexplained" <= 1 per set; structural >= 80%), **v1
+fails.** Sequence-only "unexplained" calls number 4 (A, K_r 64), 10 (A, K_r 256) and 3 (E, K_r 256).
+- *Repaired at K_r 64 only:*
+  - the motif failure (v0 called all 5 G-x-G-x-x-G calls "beyond the window"; v1 none at K_r 64);
+  - the new sequence-only types at K_r 256 (1 of 25).
+  - Power on structural columns is 97-100% throughout.
+- *Not repaired:*
+  - hydro_win, the extreme of an additive +-3 hydropathy score, is "unexplained" in 4 / 12, 6 / 12 and 2 / 4.
+    The MLP can represent it, so the failure is in estimation at the extreme tail (ESS median 534-600), not in
+    expressiveness.
+  - With four times the peak samples (K_r 256, the real atlas's setting), G-x-G-x-x-G regresses to 4 / 8. A test
+    of exact fit gains power with n, and the fitted window distribution is not calibrated well enough at the
+    peak to survive it.
+  - An effect-size floor would not rescue it: the largest |log2 observed / window| of sequence-only calls reaches
+    4.1, while structural calls go as low as 0.7.
+- *By-product (ruler v1.2 at K_r 256 on set A):* 2 of 240 null columns called (0.8%, CI 0.1-3.0%); false
+  discovery proportion 1.3% (CI 0.2-4.7%). No interval lies entirely above 2%, but this is the first set with false
+  calls at all.
+- *Consequence for real units:* the baseline does not support any "beyond the +-5 window" statement at K_r
+  256. Every structural or context call on a real unit keeps **sequence-only not excluded**. Where it mattered,
+  the cases below test sequence against context directly, by intervention: transplants, shuffles, insertion,
+  chimeras and neighbour mutations. None of that depends on the baseline.
+- *What a further repair would need* (not attempted; no new development cycle without a request):
+  - calibration of the window distribution at the peak itself, for example a conformal or held-out-fold
+    calibration of the density ratio;
+  - and an equivalence-style decision (beyond-window effect larger than a stated margin), then a fresh
+    challenge set.
 
 ## 2026-11-05 (round 2) - The pair's balance: an unsuccessful explanation
 
