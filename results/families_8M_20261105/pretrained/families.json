@@ -1,0 +1,169 @@
+{
+ "atlas": "/tmp/claude-0/-home-user-proteus/e2ef4f9f-70bb-5a08-8300-c4da6fe62bad/scratchpad/a8/a8_pre.slim.pt",
+ "control": "none",
+ "control_seed": 0,
+ "tail_bins": [
+  3,
+  4,
+  5
+ ],
+ "k": 256,
+ "layers": {
+  "0": {
+   "spearman": {
+    "coact~input": 0.6120894340500747,
+    "coact~output": 0.004124865893893532,
+    "coact~tail": 0.42226269354221774,
+    "input~output": 0.006950886885784316,
+    "input~tail": 0.3105609970955944,
+    "output~tail": 0.006041448853131182
+   },
+   "top5_agreement_median": {
+    "coact~input": 0.4000000059604645,
+    "coact~output": 0.0,
+    "coact~tail": 0.20000000298023224,
+    "input~output": 0.0,
+    "input~tail": 0.20000000298023224,
+    "output~tail": 0.0
+   },
+   "pairs": 818560,
+   "pairs_tail_ge_0.5": 3,
+   "pairs_tail_gt_0": 157332,
+   "coact_quantiles": [
+    -0.448,
+    0.01,
+    0.5
+   ]
+  },
+  "1": {
+   "spearman": {
+    "coact~input": 0.6298986630923659,
+    "coact~output": 0.004502855437340114,
+    "coact~tail": 0.3462965984416628,
+    "input~output": 0.0062082258111774225,
+    "input~tail": 0.25492604777160416,
+    "output~tail": 0.019134543291115157
+   },
+   "top5_agreement_median": {
+    "coact~input": 0.4000000059604645,
+    "coact~output": 0.0,
+    "coact~tail": 0.20000000298023224,
+    "input~output": 0.0,
+    "input~tail": 0.20000000298023224,
+    "output~tail": 0.0
+   },
+   "pairs": 818560,
+   "pairs_tail_ge_0.5": 1,
+   "pairs_tail_gt_0": 108293,
+   "coact_quantiles": [
+    -0.31,
+    0.002,
+    0.338
+   ]
+  },
+  "2": {
+   "spearman": {
+    "coact~input": 0.6234764689608943,
+    "coact~output": 0.037469557981112754,
+    "coact~tail": 0.2679565154919297,
+    "input~output": 0.04184321443124134,
+    "input~tail": 0.2014339855314084,
+    "output~tail": 0.015237958474846287
+   },
+   "top5_agreement_median": {
+    "coact~input": 0.4000000059604645,
+    "coact~output": 0.0,
+    "coact~tail": 0.0,
+    "input~output": 0.0,
+    "input~tail": 0.0,
+    "output~tail": 0.0
+   },
+   "pairs": 818560,
+   "pairs_tail_ge_0.5": 2,
+   "pairs_tail_gt_0": 171679,
+   "coact_quantiles": [
+    -0.314,
+    0.003,
+    0.331
+   ]
+  },
+  "3": {
+   "spearman": {
+    "coact~input": 0.607099519565643,
+    "coact~output": 0.015005462846476308,
+    "coact~tail": 0.21058768399308916,
+    "input~output": 0.012888930562189347,
+    "input~tail": 0.22956745308496077,
+    "output~tail": 0.005021972713391193
+   },
+   "top5_agreement_median": {
+    "coact~input": 0.20000000298023224,
+    "coact~output": 0.0,
+    "coact~tail": 0.0,
+    "input~output": 0.0,
+    "input~tail": 0.0,
+    "output~tail": 0.0
+   },
+   "pairs": 818560,
+   "pairs_tail_ge_0.5": 3,
+   "pairs_tail_gt_0": 320556,
+   "coact_quantiles": [
+    -0.327,
+    0.014,
+    0.391
+   ]
+  },
+  "4": {
+   "spearman": {
+    "coact~input": 0.6526155060635014,
+    "coact~output": -0.008949501899283199,
+    "coact~tail": 0.3409836786554577,
+    "input~output": -0.007420878098889236,
+    "input~tail": 0.2934913390919442,
+    "output~tail": -0.00795065589924696
+   },
+   "top5_agreement_median": {
+    "coact~input": 0.20000000298023224,
+    "coact~output": 0.0,
+    "coact~tail": 0.0,
+    "input~output": 0.0,
+    "input~tail": 0.0,
+    "output~tail": 0.0
+   },
+   "pairs": 818560,
+   "pairs_tail_ge_0.5": 8,
+   "pairs_tail_gt_0": 246642,
+   "coact_quantiles": [
+    -0.293,
+    0.018,
+    0.347
+   ]
+  },
+  "5": {
+   "spearman": {
+    "coact~input": 0.6175134800036702,
+    "coact~output": -0.010266950571627511,
+    "coact~tail": 0.3095969440641314,
+    "input~output": -0.014611576494685969,
+    "input~tail": 0.2752689649035842,
+    "output~tail": -0.001908288734595773
+   },
+   "top5_agreement_median": {
+    "coact~input": 0.20000000298023224,
+    "coact~output": 0.0,
+    "coact~tail": 0.0,
+    "input~output": 0.0,
+    "input~tail": 0.0,
+    "output~tail": 0.0
+   },
+   "pairs": 818560,
+   "pairs_tail_ge_0.5": 0,
+   "pairs_tail_gt_0": 255738,
+   "coact_quantiles": [
+    -0.271,
+    0.024,
+    0.35
+   ]
+  }
+ }
+}

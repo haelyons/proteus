@@ -465,6 +465,44 @@ fitness (the three differing positions are themselves near-neutral in yeast), an
 moves with the condition. A comparison should use positions stable across conditions, or name the
 condition; "the DMS says this position matters" is not one statement here.
 
+## 2026-11-05 - Measurement #4: four relations between units (8M, CPU on the new 8M atlases)
+
+`families_8M_20261105/` (`scripts/families.py`; predictions `measurement_4_predictions.md`). Atlases: job
+`atlas-batch-20261105-0258` (A10, us-east-1): ESM-2 8M over the full non-held-out stream (194,177,125
+residues), K 64, K_r 256, bf16, seeds verified (0 of 73,763 seeded bins short); controls: weights permuted
+within every tensor, same stream, hashes and plan. Per layer, positive pole, all 818,560 unit pairs.
+Co-activation = Pearson r of pre-GELU h on the hashed 5% subsample (Gram); input / output = cosine of
+W_in rows / W_out columns; tail = Jaccard of the token sets above q99.9, estimated from the bottom-256
+reservoir sketches (keys recomputed from token ids; checked equal to the stored keys).
+
+| Spearman over pairs, by layer 0-5 | trained | shuffled (seed 2) | predicted |
+|---|---|---|---|
+| co-activation ~ input weights | 0.61 / 0.63 / 0.62 / 0.61 / 0.65 / 0.62 | 0.22 at every layer | 0.3-0.7, trained and control alike |
+| co-activation ~ tail | 0.42 / 0.35 / 0.27 / 0.21 / 0.34 / 0.31 | 0.26-0.35 | 0.05-0.3 |
+| input ~ tail | 0.31 / 0.25 / 0.20 / 0.23 / 0.29 / 0.28 | 0.10-0.13 | - |
+| input ~ output, co-activation ~ output, output ~ tail | -0.01 to 0.04 | 0.00 | -0.1 to 0.2 |
+
+Top-5 neighbour agreement (median over units): co-activation vs input 0.4 (layers 0-2), 0.2 (3-5);
+co-activation vs tail and input vs tail 0.2 in layers 0-1, 0 later; anything vs output 0 (predicted
+10-40%, 5-25%, < 5%). Near-duplicate tails (Jaccard >= 0.5): 3, 1, 2, 3, 8, 0 pairs per layer (predicted
+0.01-0.5% of pairs, i.e. 80-4,000, in layers 0-1); 0 in the control.
+
+What this says:
+- Co-activation tracks input weights three times more strongly in the trained model (0.62) than in the
+  control (0.22). I predicted the two would match, as any two linear read-outs of a shared input should; the
+  difference means training aligned the input weights with the directions the residual stream varies along.
+- What a unit writes is unrelated, by cosine, to what it reads, when it fires and which tokens drive it,
+  in the trained model as in the control: a family defined by inputs or firing is not a family by output.
+- Three concrete disagreements (trained, `pretrained/disagreements.jsonl`):
+  1. same tokens, opposed writes: layer 1 units 86 and 1200, both valine units (top-64: V53 / V43),
+     co-activation 0.91, input cosine 0.81, tail Jaccard 0.50, output cosine **-0.66**; layer 0 units 922 and
+     1134, both all-Cys top-64 lists, tail 0.52, output -0.29;
+  2. correlated bulk, disjoint extremes: layer 0 units 797 (top-64 all Asn) and 1191 (K59 R4): co-activation
+     0.75, tail Jaccard 0; a co-activation family would merge an Asn unit with a Lys/Arg unit;
+  3. near-identical input weights with different tails: none (no pair with input cosine >= 0.8 and tail
+     <= 0.05); where input weights nearly coincide, tails overlap (0.5-0.6).
+- Not yet: the other two control seeds (job 2, running) and how stable these numbers are across them.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
