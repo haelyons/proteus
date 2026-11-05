@@ -1,0 +1,14 @@
+{
+ "reference": "UniRef50 release 2021_04 (27-Oct-2021), representative sequences, from https://ftp.uniprot.org/pub/databases/uniprot/previous_releases/release-2021_04/uniref/uniref2021_04.tar.gz",
+ "archive_md5": "444f0a7062a65a988ba1d5949d1d6419",
+ "sequences": 49874565,
+ "mmseqs": "13-45111+ds-2",
+ "search": {
+  "sensitivity_s": 5.7,
+  "evalue": "1e-3",
+  "max_seqs": 1000,
+  "alignment_mode": 3,
+  "coverage_filter_in_search": "none (cov-mode 0, c 0); criteria applied afterwards"
+ },
+ "fields": "query,target,fident,alnlen,qcov,tcov,evalue,bits,qlen,tlen"
+}

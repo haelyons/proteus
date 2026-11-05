@@ -1,0 +1,46 @@
+{
+ "queries": 10010,
+ "queries_with_any_hit": 9726,
+ "survivors (no hit meeting the criterion)": {
+  "id50_tcov80": 451,
+  "id50_qcov80": 559,
+  "id40_cov50": 301,
+  "id30_cov50": 287,
+  "any_hit": 284
+ },
+ "criteria": {
+  "id50_tcov80": {
+   "min_identity": 0.5,
+   "coverage": "tcov",
+   "min_coverage": 0.8
+  },
+  "id50_qcov80": {
+   "min_identity": 0.5,
+   "coverage": "qcov",
+   "min_coverage": 0.8
+  },
+  "id40_cov50": {
+   "min_identity": 0.4,
+   "coverage": "either",
+   "min_coverage": 0.5
+  },
+  "id30_cov50": {
+   "min_identity": 0.3,
+   "coverage": "either",
+   "min_coverage": 0.5
+  },
+  "any_hit": {
+   "min_identity": 0.0,
+   "coverage": "either",
+   "min_coverage": 0.0
+  }
+ },
+ "survivors_with_descriptors": {
+  "id50_tcov80": 231,
+  "id50_qcov80": 289,
+  "id40_cov50": 122,
+  "id30_cov50": 111,
+  "any_hit": 109
+ },
+ "queries_with_descriptors": 7208
+}

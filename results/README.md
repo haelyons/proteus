@@ -749,6 +749,42 @@ magnitude rather than unit identity: a control unit writing as much at the same 
 (1.0-1.4x except layer 1), in the masked task too. For interventions: where a unit fires is not where most of
 its effect lands, but that is a property of large writes in early layers, not evidence about this unit.
 
+## 2026-11-05 - Measurement #5: strict held-out set (A10, us-east-1)
+
+`strict_heldout_20261105/` (job `jobs/strict_heldout`; predictions `measurement_5_predictions.md`, with an
+addendum written between the two attempts). Two attempts: the first (11:07-11:29) downloaded the archive and
+stopped by design when `uniref50.tar` turned out to hold XML only; the second (11:35-12:17) streamed it to FASTA.
+
+**Reference.** UniRef50 release 2021_04 (27 Oct 2021), from `uniref2021_04.tar.gz` (169,188,630,923 bytes; MD5
+444f0a7062a65a988ba1d5949d1d6419 matched in both attempts; 1,044 MB/s over 16 ranges in the second). Members of
+`uniref50.tar`: README, uniref50.release_note, uniref50.xml.gz (25.1 GB), uniref.xsd. Converted: **49,874,565**
+entries -> 49,874,565 representative sequences (as the release note says), of which **40,179,930 (80.6%)** are
+their cluster's seed (predicted 30-70%). FASTA kept on `esm-atlas-results/cache/uniref50_2021_04/` (9.0 GB).
+**Targets:** representative sequences only. **Queries:** the 10,010 Swiss-Prot 2026_03 entries created after
+2021-11-17, full length. **Search:** MMseqs2 13-45111 (Ubuntu 22.04 package), `search -s 5.7 -e 1e-3
+--max-seqs 1000 --alignment-mode 3`, no coverage filter in the search; 5,456,806 hits in 639 s.
+
+| criterion (no hit meeting it) | survivors | predicted | with descriptors (AFDB model) |
+|---|---|---|---|
+| >= 50% identity over >= 80% of the representative (UniRef50's own rule, applied to the representative) | **451** (4.5%) | 5-20% | **231** |
+| >= 50% over >= 80% of the query | 559 | - | 289 |
+| >= 40% over >= 50% of either | 301 | - | 122 |
+| >= 30% over >= 50% of either | **287** (2.9%) | 1-5% | **111** |
+| any hit at E <= 1e-3 | **284** (2.8%) | 0.5-3% | **109** |
+
+Of the 10,010, 9,726 have some hit; 7,208 have descriptors (predicted share of survivors with descriptors
+40-70%: 51% at the 50% criterion, 38-39% at the stricter ones; the most novel entries are the least likely to
+have a model).
+
+**What a negative result establishes.** No *representative* of a 2021_04 UniRef50 cluster within the
+criterion. UniRef50 membership is defined against the cluster's seed; here 80.6% of representatives are seeds,
+so for about one cluster in five the sequence that defines membership was not searched. Members are only
+>= 50% identical to their seed, and ESM-2 sampled UniRef90 members inside clusters, so "no hit >= 50% to any
+representative" does not exclude a >= 50%-identical training member. The 30% / no-hit sets (287 / 284,
+109-111 with descriptors) are the defensible "strict" held-out sets; even they are a statement about
+sequence search at this sensitivity (-s 5.7), not proof that nothing related was in training. Searching
+UniRef90 2021_04 (in the same archive) would close the member gap at several times the cost.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -761,4 +797,6 @@ checkpoints, the 10.85 GB atlas). Follow-up on an A100 40 GB (us-east-1), 14:29-
 held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 billed minutes, ~$0.95.
 2026-11-05: workload comparison on an A100 40 GB (us-east-1), 01:44-02:45 UTC, ~$2.0; batch job on an A10 (us-east-1),
 03:03-04:11 UTC incl. the rerun of two controls, ~$1.5; K sweep on an A100 (us-east-1), 04:00-04:23 UTC, ~$0.8.
-Total ~$16.7. No instance is running.
+Total ~$16.7.
+2026-11-05 (later): strict held-out on an A10 (us-east-1), two attempts, 11:07-11:29 and 11:35-12:17 UTC, ~$1.4.
+Total ~$18.1. No instance is running.

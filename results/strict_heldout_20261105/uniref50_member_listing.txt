@@ -1,0 +1,4 @@
+-rw-r--r-- trembl_ftpadmin/services 6971 2021-11-17 16:49 README
+-rw-r--r-- trembl_ftpadmin/services  311 2021-11-17 16:49 uniref50.release_note
+-rw-r--r-- trembl_ftpadmin/services 25107210941 2021-11-17 16:49 uniref50.xml.gz
+-rw-r--r-- trembl_ftpadmin/services        4422 2021-11-17 16:49 uniref.xsd
