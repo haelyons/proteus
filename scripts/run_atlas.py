@@ -84,6 +84,8 @@ def main():
                     help="exact-preserving start thresholds from the pilot (top-K: 2K-th pilot value; reservoir: key ceilings)")
     ap.add_argument("--pair-forward", action="store_true", help="time a hook-free forward of each batch first (overhead per batch)")
     ap.add_argument("--pair-every", type=int, default=0, help="as --pair-forward, but only on every N-th batch (overhead on a sample)")
+    ap.add_argument("--plan-offset", type=int, default=0,
+                    help="start streaming at this batch of the plan with fresh state (timing comparisons of stateless paths)")
     ap.add_argument("--prefetch", type=int, default=2,
                     help="batches (and their host-side contexts) built ahead on a thread; 0 builds them inline")
     ap.add_argument("--only-acc", default=None, help="file of accessions: stream only these (e.g. the held-out set)")
@@ -163,7 +165,7 @@ def main():
                      for li, h in enumerate(Hp)]
             seeds = (torch.cat([p_[0] for p_ in parts]), torch.cat([p_[1] for p_ in parts]))
         del Hp
-        start = 0
+        start = a.plan_offset
     t_pilot = time.time() - t1
     atlas = Atlas(L, D, E, cfg, n_annot=len(ds.vocab) if cfg.subsample else 0, device=dev)
     if ck is not None:
