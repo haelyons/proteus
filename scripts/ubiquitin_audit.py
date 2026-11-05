@@ -64,13 +64,15 @@ def main():
     exact = [h for h in hits if h[2] == len(UBQ)]
     prot = sorted({h[0] for h in hits})
     # token mask over copies (positions inside the model's window only)
-    toks = set()
+    toks, toks_train = set(), set()
     for si, st, _ in hits:
         for p in range(st, min(st + len(UBQ), a.max_res)):
             toks.add(si * SEQ_STRIDE + p)
+            if accs[si] not in held:
+                toks_train.add(si * SEQ_STRIDE + p)
     res = {"min_identity": f"{a.min_id}/76", "copies": len(hits), "exact_copies": len(exact), "proteins": len(prot),
            "proteins_with_exact": len({h[0] for h in exact}), "held_out_proteins": sum(accs[i] in held for i in prot),
-           "residues_in_copies": len(toks),
+           "residues_in_copies": len(toks), "residues_in_copies_not_held_out": len(toks_train),
            "identity_histogram": {str(k): sum(1 for h in hits if h[2] == k) for k in range(a.min_id, len(UBQ) + 1)}}
     (out / "copies.tsv").write_text("acc\tseq_idx\tstart0\tidentity\theld_out\n" + "".join(
         f"{accs[si]}\t{si}\t{st}\t{idn}\t{int(accs[si] in held)}\n" for si, st, idn in hits))
@@ -91,11 +93,14 @@ def main():
                                  "units_top_all": int((f == 1).sum()), "mean_top_frac": float(f.mean()),
                                  "res_bins_ge_0.5": int((frac_res[l] >= 0.5).sum()),
                                  "mean_res_frac_by_bin": [round(float(x), 6) for x in frac_res[l].mean((0, 1))]}
-        stream_frac = len(toks) / max(int(at.get("n_seen", 0)), 1)
-        res.update({"atlas": a.atlas, "stream_fraction_in_copies": stream_frac, "per_layer": per_layer})
+        stream_frac = len(toks_train) / max(int(at.get("n_seen", 0)), 1)   # meaningful for an atlas of the non-held-out stream
+        tot = {k: sum(v[k] for v in per_layer.values()) for k in ("units_any_top", "units_top_ge_0.5", "units_top_all", "res_bins_ge_0.5")}
+        res.update({"atlas": a.atlas, "stream_fraction_in_copies": stream_frac, "columns": int(frac_top.numel()),
+                    "totals": tot, "per_layer": per_layer})
         torch.save({"frac_top": frac_top.half(), "frac_res": frac_res.half()}, out / "ubq_fractions.pt")
     (out / "summary.json").write_text(json.dumps(res, indent=1))
-    print(json.dumps({k: v for k, v in res.items() if k != "per_layer"}))
+    keys = ("columns", "totals", "stream_fraction_in_copies") if a.atlas else ("copies", "exact_copies", "proteins", "residues_in_copies")
+    print(json.dumps({k: res[k] for k in keys}))
 
 
 if __name__ == "__main__":
