@@ -1,0 +1,94 @@
+{
+ "ubiquitin H68": -1.3364808559417725,
+ "ubiquitin: top 3 positions (1-based, value)": [
+  [
+   41,
+   "Q",
+   0.755
+  ],
+  [
+   40,
+   "Q",
+   0.435
+  ],
+  [
+   43,
+   "L",
+   0.261
+  ]
+ ],
+ "NEDD8 H (LHLVL)": -1.4423179626464844,
+ "transplant 61-75 into 10 proteins, at H (values)": [
+  -2.485,
+  -1.726,
+  -2.831,
+  -1.65,
+  -1.385,
+  -2.638,
+  -2.219,
+  -3.084,
+  -0.821,
+  -2.521
+ ],
+ "transplant median / isolated": 1.7595129305354442,
+ "residues 1-50 shuffled (10), at H68": [
+  -1.539,
+  -1.553,
+  -1.471,
+  -1.524,
+  -1.348,
+  -1.315,
+  -1.728,
+  -1.441,
+  -1.376,
+  -1.367
+ ],
+ "distal shuffle median / isolated": 1.0894038772250711,
+ "mutant L8A, at 68": -1.346024751663208,
+ "mutant I44A, at 68": -1.2828859090805054,
+ "mutant V70A, at 68": -1.276031494140625,
+ "mutant L67A, at 68": -1.4342103004455566,
+ "mutant L69A, at 68": -1.5833317041397095,
+ "mutant H68A, at 68": -1.9589807987213135,
+ "Parkin UBL H (VHIV)": -1.5396220684051514,
+ "SUMO1: max over sequence (pos, residue, value)": [
+  64,
+  "F",
+  0.97
+ ],
+ "SUMO1: max at any His": -1.562,
+ "RAD23A UBL: max over sequence (pos, residue, value)": [
+  46,
+  "Q",
+  1.202
+ ],
+ "RAD23A UBL: max at any His": null,
+ "ISG15: max over sequence (pos, residue, value)": [
+  122,
+  "F",
+  0.572
+ ],
+ "ISG15: max at any His": -0.726,
+ "ubiquitin shuffles (20): max at His": [
+  -0.772,
+  -1.579,
+  -1.806,
+  -2.49,
+  -1.529,
+  -1.752,
+  -2.238,
+  -1.761,
+  -1.448,
+  -2.292,
+  -2.404,
+  -2.017,
+  -1.109,
+  -2.885,
+  -0.692,
+  -1.63,
+  -1.973,
+  -1.354,
+  -1.279,
+  -1.944
+ ]
+}

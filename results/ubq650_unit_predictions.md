@@ -39,3 +39,31 @@ Selected by the frozen rule (`cases_round2_plan.md` section 1: largest ubiquitin
 less than 10%. The unit is then a local His-window detector whose best match is ubiquitin's beta5 window: family
 "recognition" only in the sense that the family shares that window. If A or C holds instead, the unit reads more
 than the local sequence.
+
+## Result of the pre-registered probes (run 17:25 UTC): all three explanations fail the first probe
+
+Isolated human ubiquitin, H68: **-1.34** pre-GELU (between this unit's q50 -2.02 and q90 -0.96). A, B and C all
+predicted high (~6.7). NEDD8 H: -1.44. Transplants: median -2.3. Distal shuffles: -1.3 to -1.7. Mutants:
+-1.28 to -1.96 (H68A -1.96). Parkin H: -1.54. Composition shuffles: max at His -0.7 to -2.9. The highest value
+in isolated ubiquitin is 0.76, at Q41. Values are fp32 on CPU; the atlas used bf16 on GPU, but a gap of 8 units
+is not numerics.
+
+## Post-hoc hypothesis D, written after seeing that result and before testing it
+
+The top-64 (6.66-6.91) all come from ubiquitin copies inside polyubiquitin precursors and fusions. D: the unit's
+extreme response to H68 needs **ubiquitin repeated in tandem within the same protein**. It would then respond to
+"this window has already occurred earlier in the sequence", with ubiquitin as the best-represented case, not to
+ubiquitin as such.
+
+| probe | D predicts |
+|---|---|
+| human UBC (P0CG48, 9 tandem copies): H68 of each copy | copy 1 low (< q90 -0.96); copies 2-9 high (> q99.99, 3.53) |
+| UBB (3 copies) | copy 1 low; copies 2-3 high |
+| UBA52, RPS27A (one copy fused to a ribosomal protein) | low |
+| synthetic ubiquitin + ubiquitin (2 copies) | copy 2 high, copy 1 low |
+| synthetic ubiquitin + 40 unrelated residues + ubiquitin | copy 2 high (lower than adjacent copies allowed) |
+| synthetic SUMO1 + SUMO1, and an unrelated 80-residue domain twice | at the second copy, the unit rises at some positions to well above its value in the first copy (> q99.9, 2.19, somewhere), if "repeat" rather than "ubiquitin repeat" is what it reads |
+| peak-bin (q99.999) samples outside ubiquitin (H 31, P 21 of 64) | mostly from proteins with internal repeats of their window |
+
+If copies 2+ of UBC are not high, D fails too, and the atlas values remain unexplained (numerics or batch
+context would then be the next suspects).
