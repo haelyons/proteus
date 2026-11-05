@@ -57,3 +57,11 @@ near-identical activations, so a unit that reaches into ubiquitin at all should 
 
 The shuffled column is the point: if shuffled weights also put ubiquitin copies at the top, top-K
 concentration on ubiquitin reflects redundancy in the stream, not something the trained model computes.
+
+## Addendum before launch (02:57 UTC)
+
+No A100 or H100 capacity in any region at 02:55; an A10 (24 GB) is free in us-east-1, where atlas #2 is. This
+launch runs parts A, C and D (`parts.txt`); B (the K sweep) waits for an A100 so its timings stay comparable
+with the A100 references above. A's outputs and D's do not depend on the GPU. C's times were predicted for an
+A100: on the A10 the 8M forward and statistics are ~2-3x slower, so pretrained 10-20 min and the three
+controls 12-25 min together, unless the host side still dominates, in which case the A100 numbers stand.

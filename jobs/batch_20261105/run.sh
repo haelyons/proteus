@@ -11,6 +11,8 @@
 # Env: JOB OUT FS DEADLINE; SMOKE=1: 8M on CPU, a few batches per part.
 set -uo pipefail
 SMOKE=${SMOKE:-0}
+PARTS=${PARTS:-$(cat parts.txt 2>/dev/null || echo ABCD)}   # which parts run (parts.txt in the job dir)
+on() { [[ $PARTS == *$1* ]]; }
 HELD=heldout_created_after_2021-11-17.tsv
 EDGES="0.5 0.9 0.99 0.999 0.9999 0.99999"
 if [ "$SMOKE" = 1 ]; then
@@ -23,7 +25,7 @@ else
   DATA=$FS/cache/swissprot_2026_03.pt; ATLAS650=$FS/runs/atlas-fu650-20261104-1425/full/atlas.pt
   LIM8=""
 fi
-echo "[atlas] start $(date -u +%FT%TZ) job=$JOB smoke=$SMOKE ($(( DEADLINE - $(date +%s) ))s left)"
+echo "[atlas] start $(date -u +%FT%TZ) job=$JOB smoke=$SMOKE parts=$PARTS ($(( DEADLINE - $(date +%s) ))s left)"
 export PYTHONUNBUFFERED=1 PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 if [ "$SMOKE" != 1 ]; then
   export HF_HOME=$FS/cache/hf
@@ -47,18 +49,23 @@ PY
 }
 C650="--model $M650 --data $DATA --device $DEV --dtype bf16 --backend $BACKEND --tokens-per-batch $TPB --edge-q $EDGES --exclude-acc $HELD --deadline $DEADLINE --pair-every 1 --ckpt-every 100000"
 
+if on A; then
 echo "[atlas] A: tie audit, $M650, first $NB batches"
 python3 scripts/run_atlas.py $C650 --K 64 --Kr 64 --pilot-tokens $PTK --max-batches $NB --seed-thresholds --no-reservoir --no-subsample --out $OUT/tie_ours > $OUT/tie_ours.log 2>&1 || echo "[atlas] tie_ours rc=$?"
 python3 scripts/topk_baseline.py --model $M650 --data $DATA --device $DEV --dtype bf16 --tokens-per-batch $TPB --exclude-acc $HELD --max-batches $NB --K 64 \
   --compare $OUT/tie_ours/atlas.pt --out $OUT/tie_baukit 2>&1 | tail -1 | sed 's/^/[atlas] tie audit: /'
 rm -f $OUT/tie_ours/atlas.pt
+fi
 
+if on B; then
 echo "[atlas] B: K sweep ($KS), complete workload, first $NK batches, full-stream seeds"
 for K in $KS; do
   python3 scripts/run_atlas.py $C650 --K $K --Kr 64 --pilot-tokens $PT --seed-thresholds --stop-after $NK --out $OUT/k$K > $OUT/k$K.log 2>&1 || echo "[atlas] k$K rc=$?"
 done
 summ $(for K in $KS; do echo $OUT/k$K; done)
+fi
 
+if on C; then
 echo "[atlas] C: 8M atlases (K 64, Kr 256)"
 C8="--model 8M --data $DATA --device $DEV --dtype bf16 --backend $BACKEND --tokens-per-batch $TPB --K 64 --Kr 256 --edge-q $EDGES --deadline $DEADLINE --ckpt-every 2000 $LIM8"
 python3 scripts/run_atlas.py $C8 --exclude-acc $HELD --pilot-tokens $PT --seed-thresholds --pair-every 50 --out $OUT/a8_pre > $OUT/a8_pre.log 2>&1 || echo "[atlas] a8_pre rc=$?"
@@ -88,7 +95,9 @@ torch.save(s, sys.argv[2])
 print(round(os.path.getsize(sys.argv[2]) / 1e9, 3), "GB")
 EOF
 done
+fi
 
+if on D; then
 echo "[atlas] D: ubiquitin share of samples"
 python3 scripts/ubiquitin_audit.py --data $DATA --atlas $OUT/a8_pre/atlas.pt --exclude-acc $HELD --out $OUT/ubq_8m 2>&1 | tail -1 | cut -c1-400 | sed 's/^/[atlas]   8M: /'
 for s in 1 2 3; do
@@ -98,6 +107,7 @@ if [ -n "$ATLAS650" ] && [ -f "$ATLAS650" ]; then
   python3 scripts/ubiquitin_audit.py --data $DATA --atlas $ATLAS650 --exclude-acc $HELD --out $OUT/ubq_650m 2>&1 | tail -1 | cut -c1-400 | sed 's/^/[atlas]   650M: /'
 else
   echo "[atlas]   650M atlas not on this filesystem: skipped"
+fi
 fi
 grep -hE "Traceback|Error" $OUT/*.log 2>/dev/null | head -5 | sed 's/^/[atlas] log: /'
 echo "[atlas] end $(date -u +%FT%TZ)"
