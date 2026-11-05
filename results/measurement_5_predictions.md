@@ -36,3 +36,15 @@ absence from training.
 | survivors, id30_cov50 | 1-5% |
 | survivors, no hit at all | 0.5-3% |
 | survivors that also have descriptors (AFDB model; 7,208 of the 10,010 do) | 40-70% of each survivor set (the newest, least-studied entries are both likelier to be novel and likelier to lack a model) |
+
+## Addendum after the first attempt (11:27 UTC), before the second
+
+The first attempt downloaded the archive (169,188,630,923 bytes in 729 s, 231 MB/s) and its MD5 matched; then it
+stopped by design: `uniref50.tar` holds `README`, `uniref50.release_note`, `uniref50.xml.gz` (25,107,210,941
+bytes) and `uniref.xsd`, with no FASTA. The extracted tar was on the instance's local disk and was lost at
+termination (my design: it should have been kept on the filesystem before the check). The second attempt
+streams archive -> nested tar -> XML -> representative FASTA in one pass straight onto the filesystem
+(`jobs/strict_heldout/xml2fasta.awk`; smoke-tested on a nested fake in UniProt's XML layout). The converter also
+counts how many representatives are their cluster's seed (`isSeed` on the representative only), which says how
+often "representative" and "seed" (the sequence UniRef50 membership is defined against) coincide. Predicted:
+49,874,565 entries and sequences; representatives that are seeds: 30-70%. Cap 2 h (first attempt ~$0.55).

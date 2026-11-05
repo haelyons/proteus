@@ -3,8 +3,9 @@
 # representative sequences of UniRef50 release 2021_04 (ESM-2's training clustering) with MMseqs2, and classify
 # each query by its best hit under stated identity / coverage criteria (scripts/strict_heldout.py).
 # The release exists only as one 169 GB archive (uniref2021_04.tar.gz: nested uniref100.tar, uniref90.tar,
-# uniref50.tar); it is fetched over NPART ranged requests to local disk, its MD5 checked against the release
-# metalink while it is decompressed, and only the uniref50 member is kept (its FASTA copied to the filesystem).
+# uniref50.tar, whose only sequence file is uniref50.xml.gz); it is fetched over NPART ranged requests to local disk,
+# its MD5 checked while it is streamed, and the representative sequences are converted to FASTA on the fly
+# (jobs/strict_heldout/xml2fasta.awk) straight onto the filesystem.
 # Env: JOB OUT FS DEADLINE; SMOKE=1: SMOKE_URL (file:// archive), SMOKE_MD5, SMOKE_DESC_ACCS, a few hundred queries.
 set -uo pipefail
 SMOKE=${SMOKE:-0}
@@ -21,7 +22,7 @@ else
   sudo apt-get install -y -q mmseqs2 pigz > $OUT/apt.log 2>&1 || echo "[atlas] apt install failed (see apt.log)"
 fi
 left() { echo $(( DEADLINE - $(date +%s) )); }
-command -v pigz > /dev/null && UNZ="pigz -dc" || UNZ="gzip -dc"
+command -v pigz > /dev/null && { UNZ="pigz -dc"; ZIP="pigz -1 -p 8"; } || { UNZ="gzip -dc"; ZIP="gzip -1"; }
 mkdir -p $W/parts $KEEP
 echo "[atlas] start $(date -u +%FT%TZ) job=$JOB smoke=$SMOKE ($(left)s left); $(nproc) cpus; local disk free $(df -BG --output=avail $W | tail -1); $(mmseqs version 2>/dev/null | head -1 | sed 's/^/mmseqs /')"
 
@@ -46,25 +47,21 @@ else
   echo "[atlas] downloaded $TOT of $SIZE bytes in ${DT}s ($(( TOT / (DT + 1) / 1000000 )) MB/s)"
   [ "$TOT" = "$SIZE" ] || { echo "[atlas] download incomplete: stopping"; exit 4; }
   t1=$(date +%s)
-  # one pass: MD5 of the archive, decompression, and extraction of the uniref50 member only
-  cat $(ls $W/parts/* | sort) | tee >(md5sum | cut -d' ' -f1 > $W/archive.md5) | $UNZ | tar -xf - -C $W --wildcards '*uniref50*'
+  # one pass: MD5 of the archive; outer gunzip -> outer tar -> nested uniref50.tar -> uniref50.xml.gz -> gunzip ->
+  # representative sequences as FASTA, written straight to the filesystem (nothing large kept on local disk)
+  cat $(ls $W/parts/* | sort) | tee >(md5sum | cut -d' ' -f1 > $W/archive.md5) | $UNZ \
+    | tar -xOf - --wildcards '*uniref50.tar' | tar -xOf - --wildcards '*uniref50.xml.gz' | $UNZ \
+    | grep -E '<entry id=|<representativeMember>|</representativeMember>|isSeed|<sequence ' \
+    | awk -f "$(dirname "$0")/xml2fasta.awk" 2> $OUT/xml2fasta_counts.txt | $ZIP > $FASTA.tmp
   for i in $(seq 120); do [ -s $W/archive.md5 ] && break; sleep 1; done; GOT=$(cat $W/archive.md5)
-  echo "[atlas] decompressed and extracted in $(( $(date +%s) - t1 ))s; md5 $GOT (expected $MD5)"
+  echo "[atlas] streamed archive -> FASTA in $(( $(date +%s) - t1 ))s; md5 $GOT (expected $MD5); $(cat $OUT/xml2fasta_counts.txt)"
   [ "$GOT" = "$MD5" ] || { echo "[atlas] MD5 MISMATCH: stopping"; exit 5; }
   rm -rf $W/parts
-  ls -la $W | sed 's/^/[atlas]   /'
-  NESTED=$(find $W -maxdepth 2 -name 'uniref50*.tar' | head -1)
-  if [ -n "$NESTED" ]; then
-    tar -tvf $NESTED > $OUT/uniref50_member_listing.txt
-    tar -xf $NESTED -C $W --wildcards '*fasta.gz' '*release_note' 2>/dev/null
-  fi
-  F=$(find $W -name 'uniref50*fasta.gz' | head -1)
-  [ -n "$F" ] || { echo "[atlas] no uniref50 FASTA in the archive (listing in uniref50_member_listing.txt): stopping"; exit 6; }
-  cp $F $FASTA.tmp && mv $FASTA.tmp $FASTA
-  find $W -name '*release_note' -exec cp {} $KEEP/ \;
+  [ -s $FASTA.tmp ] || { echo "[atlas] empty FASTA: stopping"; exit 6; }
+  mv $FASTA.tmp $FASTA; cp $OUT/xml2fasta_counts.txt $KEEP/
   echo $GOT > $KEEP/archive.md5
 fi
-cp $KEEP/archive.md5 $OUT/ 2>/dev/null; cat $KEEP/*release_note 2>/dev/null | sed 's/^/[atlas]   /' | head -8
+cp $KEEP/archive.md5 $KEEP/xml2fasta_counts.txt $OUT/ 2>/dev/null
 NSEQ=$($UNZ $FASTA | grep -c '^>')
 echo "[atlas] UniRef50 2021_04 FASTA: $NSEQ sequences ($(stat -c %s $FASTA) bytes)"
 
