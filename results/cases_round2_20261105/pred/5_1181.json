@@ -1,0 +1,14 @@
+{
+ "q99.9_discovery": 3.067901134490967,
+ "context": {
+  "kind": "state5",
+  "values": [
+   1
+  ]
+ },
+ "readout_residues": [
+  "R",
+  "T",
+  "V"
+ ]
+}

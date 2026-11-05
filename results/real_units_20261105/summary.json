@@ -1,0 +1,200 @@
+{
+ "pre": {
+  "columns": 7680,
+  "calls": {
+   "context association": 7158,
+   "composition association": 97,
+   "structural association": 408,
+   "insufficient samples": 7,
+   "no association found by this procedure": 10
+  },
+  "by_layer": {
+   "0": {
+    "context association": 1203,
+    "composition association": 57,
+    "structural association": 16,
+    "insufficient samples": 3,
+    "no association found by this procedure": 1
+   },
+   "1": {
+    "context association": 1237,
+    "structural association": 25,
+    "composition association": 16,
+    "no association found by this procedure": 1,
+    "insufficient samples": 1
+   },
+   "2": {
+    "context association": 1186,
+    "structural association": 76,
+    "no association found by this procedure": 3,
+    "composition association": 13,
+    "insufficient samples": 2
+   },
+   "3": {
+    "context association": 1189,
+    "structural association": 85,
+    "composition association": 5,
+    "no association found by this procedure": 1
+   },
+   "4": {
+    "context association": 1144,
+    "structural association": 130,
+    "no association found by this procedure": 3,
+    "composition association": 3
+   },
+   "5": {
+    "context association": 1199,
+    "structural association": 76,
+    "composition association": 3,
+    "no association found by this procedure": 1,
+    "insufficient samples": 1
+   }
+  },
+  "seconds": 250.3
+ },
+ "shuf1": {
+  "columns": 7680,
+  "calls": {
+   "context association": 7527,
+   "composition association": 126,
+   "insufficient samples": 21,
+   "structural association": 4,
+   "no association found by this procedure": 2
+  },
+  "by_layer": {
+   "0": {
+    "context association": 1244,
+    "composition association": 29,
+    "insufficient samples": 7
+   },
+   "1": {
+    "context association": 1256,
+    "composition association": 21,
+    "structural association": 1,
+    "insufficient samples": 2
+   },
+   "2": {
+    "context association": 1259,
+    "composition association": 17,
+    "insufficient samples": 2,
+    "structural association": 2
+   },
+   "3": {
+    "context association": 1254,
+    "composition association": 24,
+    "insufficient samples": 1,
+    "structural association": 1
+   },
+   "4": {
+    "context association": 1257,
+    "composition association": 16,
+    "insufficient samples": 6,
+    "no association found by this procedure": 1
+   },
+   "5": {
+    "context association": 1257,
+    "composition association": 19,
+    "insufficient samples": 3,
+    "no association found by this procedure": 1
+   }
+  },
+  "seconds": 231.3
+ },
+ "shuf2": {
+  "columns": 7680,
+  "calls": {
+   "context association": 7520,
+   "composition association": 115,
+   "insufficient samples": 33,
+   "structural association": 11,
+   "no association found by this procedure": 1
+  },
+  "by_layer": {
+   "0": {
+    "context association": 1251,
+    "composition association": 22,
+    "insufficient samples": 7
+   },
+   "1": {
+    "context association": 1248,
+    "composition association": 26,
+    "insufficient samples": 6
+   },
+   "2": {
+    "context association": 1252,
+    "composition association": 23,
+    "insufficient samples": 3,
+    "structural association": 2
+   },
+   "3": {
+    "context association": 1252,
+    "composition association": 18,
+    "insufficient samples": 8,
+    "structural association": 2
+   },
+   "4": {
+    "context association": 1260,
+    "composition association": 14,
+    "no association found by this procedure": 1,
+    "insufficient samples": 3,
+    "structural association": 2
+   },
+   "5": {
+    "context association": 1257,
+    "structural association": 5,
+    "insufficient samples": 6,
+    "composition association": 12
+   }
+  },
+  "seconds": 230.9
+ },
+ "shuf3": {
+  "columns": 7680,
+  "calls": {
+   "context association": 7507,
+   "composition association": 103,
+   "insufficient samples": 59,
+   "structural association": 9,
+   "no association found by this procedure": 2
+  },
+  "by_layer": {
+   "0": {
+    "context association": 1236,
+    "composition association": 23,
+    "insufficient samples": 20,
+    "structural association": 1
+   },
+   "1": {
+    "context association": 1253,
+    "composition association": 18,
+    "insufficient samples": 9
+   },
+   "2": {
+    "context association": 1252,
+    "composition association": 22,
+    "insufficient samples": 6
+   },
+   "3": {
+    "insufficient samples": 6,
+    "context association": 1256,
+    "composition association": 16,
+    "structural association": 2
+   },
+   "4": {
+    "context association": 1261,
+    "insufficient samples": 7,
+    "composition association": 10,
+    "no association found by this procedure": 1,
+    "structural association": 1
+   },
+   "5": {
+    "context association": 1249,
+    "composition association": 14,
+    "insufficient samples": 11,
+    "structural association": 5,
+    "no association found by this procedure": 1
+   }
+  },
+  "seconds": 231.0
+ }
+}

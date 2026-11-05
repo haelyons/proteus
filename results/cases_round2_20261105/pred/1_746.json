@@ -1,0 +1,18 @@
+{
+ "q99.9_discovery": 1.1863071918487549,
+ "context": {
+  "kind": "residue",
+  "values": [
+   "I",
+   "V",
+   "L",
+   "F",
+   "A"
+  ]
+ },
+ "readout_residues": [
+  "H",
+  "W",
+  "Y"
+ ]
+}
