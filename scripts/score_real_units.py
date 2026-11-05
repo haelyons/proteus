@@ -31,6 +31,22 @@ from atlas.ruler import LEVELS, Tables, calls, score_column  # noqa: E402
 
 G = {}
 
+_quantile = torch.quantile
+
+
+def _quantile_any_size(x, q, *args, **kw):
+    """torch.quantile, exact (linear interpolation) for inputs above older torch's 16,777,216-element limit.
+    atlas/ruler.py stays byte-identical; Tables' tercile cut over the whole stream needs ~170M values."""
+    if x.numel() <= 16_000_000 or args or kw:
+        return _quantile(x, q, *args, **kw)
+    s, _ = torch.sort(x.flatten())
+    pos = q.to(torch.float64) * (s.numel() - 1)
+    lo = pos.floor().long(); hi = pos.ceil().long(); fr = (pos - lo).to(s.dtype)
+    return s[lo] + (s[hi] - s[lo]) * fr
+
+
+torch.quantile = _quantile_any_size
+
 
 def load_proteins(desc, data, uniref, max_res=1022):
     files = [desc] if Path(desc).is_file() else sorted(glob.glob(str(Path(desc) / "part_*.pt")))

@@ -20,9 +20,13 @@ else
   W=$(( $(getconf _NPROCESSORS_ONLN) - 2 )); MAXC=""; B=2000
 fi
 echo "[atlas] start $(date -u +%FT%TZ) job=$JOB smoke=$SMOKE ($(( DEADLINE - $(date +%s) ))s left); $(getconf _NPROCESSORS_ONLN) cpus; $(free -g | awk '/Mem/{print $2}') GB RAM"
+PARTS=$(cat parts.txt 2>/dev/null || echo 12)
+if [[ $PARTS == *1* ]]; then
 echo "[atlas] 1: ruler v1.2 over the 8M atlases"
 timeout $(( DEADLINE - $(date +%s) - 900 )) python3 scripts/score_real_units.py --desc $DESC --data $DATA --uniref $UNIREF \
   --atlas $A_PRE $A_S1 $A_S2 $A_S3 --names pre shuf1 shuf2 shuf3 --out $OUT --workers $W --B $B $MAXC 2>&1 | grep -v Warning | sed 's/^/[atlas]   /' | cut -c1-400
+fi
+if [[ $PARTS == *2* ]]; then
 echo "[atlas] 2: 650M ubiquitin-enriched units"
 python3 - $UBQ $A650 $OUT/ubq650_units.json <<'PY' 2>&1 | sed 's/^/[atlas]   /'
 import json, sys, torch
@@ -42,4 +46,5 @@ for k in keep:
 json.dump(out, open(sys.argv[3], "w"))
 print(len(out), "units exported;", sum(1 for o in out if o["ubq_top_share"] >= 0.5), "with >= half; best", max(o["ubq_top_share"] for o in out))
 PY
+fi
 echo "[atlas] end $(date -u +%FT%TZ)"
