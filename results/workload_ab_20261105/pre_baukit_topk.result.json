@@ -1,0 +1,11 @@
+{
+ "method": "baukit TopK algorithm (re-implemented)",
+ "batches": 60,
+ "overhead_mean": 0.902605622665702,
+ "overhead_median": 0.9177068137711244,
+ "fwd_mean_s": 0.4672102451324463,
+ "values_equal": true,
+ "max_abs_value_diff": 0.0,
+ "ids_differ": 12090302,
+ "ids_total": 21626880
+}

@@ -387,6 +387,57 @@ Against the predictions:
   through attention. For interventions, "what the unit does" is not confined to the position where it
   fires.
 
+## 2026-11-05 - Measurement #1: the complete workload done three ways (A100 40 GB, us-east-1)
+
+`workload_ab_20261105/` (job `jobs/workload_ab`, 01:44-02:45 UTC; predictions `measurements_1_2_predictions.md`
+#1). Same plan, same batches, every batch paired with a hook-free forward (overhead = atlas pass / forward - 1).
+naive = our dense path on every layer of every batch (`--naive`: exact, the correctness reference);
+baukit = baukit's `runningstats.TopK` algorithm re-implemented (installing the package was refused here),
+top-K only. Prefix = batches 0-59 from fresh state; steady = batches 4500-4559 (filtered resumed from the
+follow-up's checkpoint, the others fresh).
+
+**Outputs.** Complete filtered vs complete naive: bitwise equal on every field (top-K values and ids,
+reservoir tokens, values and keys, bin masses, enrichment counts, sums, Gram; n_seen 1,876,042). Top-K
+only, filtered vs naive: equal. baukit vs ours: values equal (max difference 0.0); ids differ at
+12,090,302 of 21,626,880 positions, predicted "hundreds to a few thousand at ties". Cause, shown at 8M on CPU
+(`scripts/topk_baseline.py` now sorts both lists canonically): in bf16, 71% of top-64 slots sit in exact-value
+ties and torch.topk orders ties arbitrarily; after a canonical sort every remaining difference (2.0% of slots)
+is in the tie group at the K-th value, none above it; fp32 has 0. The 650M audit runs in the next job.
+
+**Overhead** (mean / median over 60 batches):
+
+| run | predicted | prefix (0-59) | steady (4500-4559) |
+|---|---|---|---|
+| complete, filtered | 0.28-0.38 / 0.20-0.22 | 12.8 / 3.15 (see below) | **0.207 / 0.208** |
+| complete, naive | 8-20 | 27.4 / 27.7 | 27.1 / 27.6 |
+| top-K only, filtered | 0.05-0.12 | 0.221 / 0.081 (0.077 / 0.070 on 30-59) | - |
+| top-K only, naive | 0.3-0.6 | 1.53 / 1.53 | 1.49 / 1.51 |
+| top-K only, baukit's algorithm | 0.3-0.5 | 0.903 / 0.918 | 0.895 / 0.919 |
+
+Forward 0.465-0.475 s per batch throughout.
+
+**The filtered prefix measured the wrong thing, by my job design.** `--max-batches 60` makes a complete
+60-batch run, and thresholds are seeded for the stream being run (1.9M tokens, not 194M): reservoir bins
+whose whole-stream count is near K_r stay "underfilled" and admit everything above their lower edge, the
+candidate buffer overflows, and the layer is redone densely. 22 of 60 batches redid all 33 layers and 36 redid
+some; the 24 without a redo had 0.632 / 0.482. A real run's first 60 batches are seeded for the full stream:
+the follow-up's gate run on the same batches (same code path, `--stop-after`) had 0.765 / 0.298 with 12 redo
+batches (layer 0), which is what the prediction was built on. Top-K-only seeds do not depend on stream length,
+so that prefix row stands.
+
+**What it shows.**
+- At steady state the complete collection (top-K, reservoirs, subsample statistics, Gram) costs 0.21 of a
+  forward; baukit's top-K alone costs 0.92, our dense top-K alone 1.51. Doing everything with the filter is
+  4.4x cheaper than an unfiltered top-K alone.
+- Complete naive / complete filtered = 133x (median; predicted 40-80x). This is the filter against our own
+  dense path, which is a sync-heavy correctness reference, not a tuned dense implementation, so it bounds the
+  gain from filtering from above. The fair external comparison exists only for top-K: filtered 0.07-0.08 vs
+  baukit 0.92 (12x) vs naive 1.5 (19x); naive and baukit within 2x of each other (1.66x), as predicted.
+- Not separated: how much of the 12x is fewer candidates and how much is the fused Triton compaction; both
+  are part of the filtered path. Not explained (no profile was taken): why our dense path costs 27x a forward
+  for the complete workload (expected 8-20x); per-element key, hash and bin work over 11G elements per batch
+  is the likely cost, unmeasured.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -396,4 +447,5 @@ failed within 1-3 minutes on job bugs and were terminated by the driver); evenin
 holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). Science pass on an A100 40 GB
 (asia-south-1), ~102 billed minutes, ~$3.40 (new filesystem `esm-atlas-asia-south-1`: dataset, HF cache,
 checkpoints, the 10.85 GB atlas). Follow-up on an A100 40 GB (us-east-1), 14:29-16:43 UTC, ~$4.4 (atlas copy #2 and the
-held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 billed minutes, ~$0.95. Total ~$12.4.
+held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 billed minutes, ~$0.95.
+2026-11-05: workload comparison on an A100 40 GB (us-east-1), 01:44-02:45 UTC, ~$2.0. Total ~$14.4.

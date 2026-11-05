@@ -53,6 +53,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="8M")
     ap.add_argument("--control", default="none", choices=["none", "shuffled", "random"])
+    ap.add_argument("--control-seed", type=int, default=None,
+                    help="seed of the weight shuffle / re-init only (default --seed); the stream, hashes and plan keep --seed")
     ap.add_argument("--data", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
@@ -124,7 +126,8 @@ def main():
         print(f"[atlas] excluded {n_excluded} of {len(ex)} listed accessions ({a.exclude_acc})", flush=True)
     if a.max_seqs:
         order = order[: a.max_seqs]
-    model, tok, info = load(a.model, a.control, dtype=dtype, device=dev, seed=a.seed)
+    model, tok, info = load(a.model, a.control, dtype=dtype, device=dev, seed=a.seed if a.control_seed is None else a.control_seed)
+    info["control_seed"] = a.seed if a.control_seed is None else a.control_seed
     vocab = tok.get_vocab()
     L, D = info["n_layers"], info["d_ff"]
     plan = ds.plan(order, a.tokens_per_batch, a.window, a.seed, shuffle_batches=not a.sorted_batches)
@@ -366,7 +369,10 @@ def _args_key(a) -> dict:
     keep = ["model", "control", "data", "dtype", "max_seqs", "tokens_per_batch", "window", "sorted_batches",
             "pilot_tokens", "K", "Kr", "no_reservoir", "no_subsample", "no_gram", "naive", "seed",
             "seed_thresholds", "max_batches", "exclude_acc", "edge_q", "only_acc", "edges_from"]
-    return {k: getattr(a, k) for k in keep}
+    key = {k: getattr(a, k) for k in keep}
+    if getattr(a, "control_seed", None) is not None:   # only when set, so earlier checkpoints still resume
+        key["control_seed"] = a.control_seed
+    return key
 
 
 if __name__ == "__main__":

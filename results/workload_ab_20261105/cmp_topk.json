@@ -1,0 +1,53 @@
+{
+ "a": "/lambda/nfs/esm-atlas-results/runs/atlas-wab-20261105-0140/pre_filtered_topk/atlas.pt",
+ "b": "/lambda/nfs/esm-atlas-results/runs/atlas-wab-20261105-0140/pre_naive_topk/atlas.pt",
+ "fields": {
+  "sub_bin": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_val": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_tok": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_tok": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_val": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_key": {
+   "exact": true,
+   "n_diff": null
+  },
+  "edges": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_sum": {
+   "bitwise": true,
+   "max_rel_diff": 0.0
+  },
+  "sub_sq": {
+   "bitwise": true,
+   "max_rel_diff": 0.0
+  },
+  "n_seen": {
+   "a": 1876042,
+   "b": 1876042,
+   "equal": true
+  },
+  "n_sub": {
+   "a": 93969,
+   "b": 93969,
+   "equal": true
+  }
+ },
+ "ok": true
+}
