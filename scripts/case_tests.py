@@ -179,16 +179,18 @@ def cmd_tm(a, M, d, F):
 
 
 # ---------------------------------------------------------------- shsp (3,1238)
-def mmseqs(queries, targets, tmp):
+def mmseqs(queries, targets, tmp, min_tcov=0.4):
     qf, tf, of = Path(tmp) / "q.fa", Path(tmp) / "t.fa", Path(tmp) / "o.m8"
     qf.write_text("".join(f">{k}\n{v}\n" for k, v in queries.items())); tf.write_text("".join(f">{k}\n{v}\n" for k, v in targets.items()))
     subprocess.run(["mmseqs", "easy-search", str(qf), str(tf), str(of), str(Path(tmp) / "w"), "-e", "1e-3", "-s", "7.5",
                     "--format-output", "query,target,fident,evalue,qcov,tcov", "--threads", "2", "-v", "1"], check=True)
     best = {}
     for line in open(of):
-        q, t, fid, ev = line.split("\t")[:4]
+        q, t, fid, ev, qc, tc = line.strip().split("\t")[:6]
+        if float(tc) < min_tcov:                       # the alignment must cover >= min_tcov of the seed
+            continue
         if q not in best or float(ev) < best[q][2]:
-            best[q] = (t, float(fid), float(ev))
+            best[q] = (t, float(fid), float(ev), float(tc))
     return best
 
 
@@ -205,17 +207,34 @@ def cmd_shsp(a, M, d, F):
     held = {x.split("\t")[0] for x in open(a.held) if not x.startswith("Entry")}
     seeds = {**{f"S|{k}": d["seq"][F.idx[v]] for k, v in SHSP.items()}, **{f"C|{k}": d["seq"][F.idx[v]] for k, v in CS.items()}}
     seed_acc = set(SHSP.values()) | set(CS.values())
+    rng0 = random.Random(2); cand = [i for i, x in enumerate(d["acc"]) if x not in held and x not in seed_acc]
+    smoke_pool = rng0.sample(cand, a.n_family)
     if a.set == "fresh":
-        pool = [i for i, x in enumerate(d["acc"]) if x in held]
+        # family and CS members: every Swiss-Prot protein never inspected for this unit (not in its atlas top-64 or
+        # reservoirs, not among the 600 discovery proteins, not in the discovery smoke's pool, not a seed);
+        # non-family: held-out proteins with no hit (only one held-out protein is an sHSP)
+        from atlas.core import SEQ_STRIDE
+        at = torch.load(a.atlas, map_location="cpu", weights_only=False)
+        toks = at["top_tok"][l, 0, u].tolist() + at["res_tok"][l, 0, u].flatten().tolist()
+        seen = {d["acc"][t_ // SEQ_STRIDE] for t_ in toks if t_ >= 0} | {p["acc"] for p in proteins(a, False, 600, 2)}
+        seen |= {d["acc"][i] for i in smoke_pool} | seed_acc
+        allQ = {x: d["seq"][i][:1022] for i, x in enumerate(d["acc"]) if x not in seen}
+        with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
+            best_s = mmseqs(allQ, {k: v for k, v in seeds.items() if k.startswith("S|")}, tmp)
+        with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
+            best_c = mmseqs(allQ, {k: v for k, v in seeds.items() if k.startswith("C|")}, tmp)
+        fam = set(best_s); cs = {q for q in best_c if q not in fam}
+        Q = {k: allQ[k] for k in fam | cs}
+        Q.update({x: d["seq"][i][:1022] for i, x in enumerate(d["acc"]) if x in held and x not in fam and x not in cs})
+        out0 = {"excluded as inspected": len(seen)}
     else:
-        rng0 = random.Random(2); cand = [i for i, x in enumerate(d["acc"]) if x not in held and x not in seed_acc]
-        pool = rng0.sample(cand, a.n_family)
-    Q = {d["acc"][i]: d["seq"][i][:1022] for i in pool}
-    with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
-        best_s = mmseqs(Q, {k: v for k, v in seeds.items() if k.startswith("S|")}, tmp)
-    with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
-        best_c = mmseqs(Q, {k: v for k, v in seeds.items() if k.startswith("C|")}, tmp)
-    fam = {q for q in best_s}; cs = {q for q in best_c if q not in fam}
+        Q = {d["acc"][i]: d["seq"][i][:1022] for i in smoke_pool}
+        with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
+            best_s = mmseqs(Q, {k: v for k, v in seeds.items() if k.startswith("S|")}, tmp)
+        with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
+            best_c = mmseqs(Q, {k: v for k, v in seeds.items() if k.startswith("C|")}, tmp)
+        fam = {q for q in best_s}; cs = {q for q in best_c if q not in fam}
+        out0 = {}
     fr, mx = {}, {}
     for k, s in Q.items():
         h = unit_h(M, s, l, u); fr[k] = frac(h, thr); mx[k] = float(h.max())
@@ -227,7 +246,7 @@ def cmd_shsp(a, M, d, F):
     med = lambda ks: round(float(torch.tensor([fr[k] for k in ks]).median()), 4) if ks else None  # noqa: E731
     q95 = lambda ks: round(float(torch.quantile(torch.tensor([fr[k] for k in ks]), 0.95)), 4) if ks else None  # noqa: E731
     low = [k for k in fam if best_s[k][1] < 0.35]
-    out = {"proteins": len(Q), "family (hit to a canonical sHSP, e <= 1e-3)": len(fam), "CS-domain only": len(cs), "thr": thr,
+    out = {**out0, "proteins": len(Q), "family (hit to a canonical sHSP, e <= 1e-3, seed coverage >= 0.4)": len(fam), "CS-domain only": len(cs), "thr": thr,
            "family: median fraction above thr": med(fam), "non-family: median / q95 fraction": [med(non), q95(non)],
            "AUROC fraction (family vs non-family)": round(auroc(list(fam), non), 4) if fam else None,
            "family with best identity < 0.35": len(low), "low-identity family: median fraction": med(low),
@@ -236,7 +255,7 @@ def cmd_shsp(a, M, d, F):
            "non-family with fraction >= 0.05": sorted(((k, round(fr[k], 3)) for k in non if fr[k] >= 0.05), key=lambda x: -x[1])[:20]}
     # perturbations on family members (up to 30, longest first so both parts have room)
     rng = random.Random(1)
-    fm = sorted(fam, key=lambda k: -len(Q[k]))[:30]
+    fm = sorted(fam, key=lambda k: -len(Q[k]))[:30] if a.set == "discovery" else rng.sample(sorted(k for k in fam if len(Q[k]) >= 120), min(30, sum(len(Q[k]) >= 120 for k in fam)))
     hosts = [k for k in non if 150 <= len(Q[k]) <= 500]
     bro, trans, shuf = [], [], []
     for k in fm:
@@ -259,6 +278,8 @@ def cmd_shsp(a, M, d, F):
     out["window transplants (+-10 around the family member's maximum, 5 hosts each)"] = {
         "n": len(trans), "share >= thr": round(sum(v >= thr for v in trans) / max(len(trans), 1), 3),
         "median value": round(float(torch.tensor(trans).median()), 3) if trans else None}
+    lo_i = [k for k in fam if best_s[k][1] < 0.35]; hi_i = [k for k in fam if best_s[k][1] >= 0.5]
+    out["family by best identity to a seed: median fraction (n)"] = {"< 0.35": [med(lo_i), len(lo_i)], "0.35-0.5": [med([k for k in fam if 0.35 <= best_s[k][1] < 0.5]), sum(0.35 <= best_s[k][1] < 0.5 for k in fam)], ">= 0.5": [med(hi_i), len(hi_i)]}
     out["composition shuffles (3 per member)"] = {"n": len(shuf), "median fraction": round(float(torch.tensor(shuf).median()), 4) if shuf else None,
                                                    "max fraction": round(max(shuf), 4) if shuf else None}
     return out
@@ -469,6 +490,19 @@ def cmd_tok(a, M, d, F):
         md = lambda xs: round(float(torch.tensor(xs).median()), 3) if xs else None  # noqa: E731
         out["C with >= 4 S/T among +-3: median h disordered / ordered (n)"] = [md(dis), md(ordd), len(dis), len(ordd)]
         out["C above thr with +-3 -> A: share still above thr, median h"] = [round(sum(x >= thr for x in mut) / max(len(mut), 1), 3), md(mut), len(mut)]
+        lone, clus, rise = [], [], []
+        for p, h in zip(prot, allh):
+            s = p["seq"]
+            for i, c in enumerate(s[:len(h)]):
+                if c != "C":
+                    continue
+                nb = [x for x in range(max(0, i - 3), min(len(s), i + 4)) if x != i and s[x] == "C"]
+                (clus if nb else lone).append(float(h[i]))
+                if nb and len(rise) < 80:
+                    new = "".join("A" if x in nb else ch for x, ch in enumerate(s))
+                    rise.append(float(unit_h(M, new, l, u)[i]) - float(h[i]))
+        out["C: median h with no other C in +-3 / with >= 1 (n)"] = [md(lone), md(clus), len(lone), len(clus)]
+        out["C with a C neighbour: neighbouring C -> A, median change in h (n)"] = [md(rise), len(rise)]
     return out
 
 
@@ -480,7 +514,7 @@ def main():
     ap.add_argument("--data", required=True); ap.add_argument("--desc-dir", required=True); ap.add_argument("--uniref", required=True)
     ap.add_argument("--held", default="lists/heldout_created_after_2021-11-17.tsv"); ap.add_argument("--exclude-json", default=None)
     ap.add_argument("--n", type=int, default=600); ap.add_argument("--n-family", type=int, default=10010)
-    ap.add_argument("--tmp", default="/tmp"); ap.add_argument("--out", required=True)
+    ap.add_argument("--tmp", default="/tmp"); ap.add_argument("--out", required=True); ap.add_argument("--atlas", default=None)
     a = ap.parse_args()
     torch.set_grad_enabled(False)
     d = torch.load(a.data, weights_only=False); F = Feats(d); M = Model()

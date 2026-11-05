@@ -640,6 +640,9 @@ reweighting collapses onto a handful of G-rich windows (effective sample size me
 elsewhere); for hydro_win (ESS 328) an independent-sites model approximates a window mean too loosely.
 
 **Verdict against the criteria fixed beforehand.**
+- *Wording (round 2):* the challenges **found no failure of v1.2 under the tested conditions**. That is not
+  independent validation. The sets share their noise, and the error rate where most columns carry signal is
+  bounded only loosely (upper 95% bound 12.3% at 80% signal, 43 null columns).
 - *No necessary correction to v1.2.* Error control held in every set, noise model and transformation (no
   95% interval lies above 2%), and no call asserted something false in its own terms: N and G composition
   calls are true, and the exposed-strand association is real.
@@ -784,6 +787,30 @@ representative" does not exclude a >= 50%-identical training member. The 30% / n
 109-111 with descriptors) are the defensible "strict" held-out sets; even they are a statement about
 sequence search at this sensitivity (-s 5.7), not proof that nothing related was in training. Searching
 UniRef90 2021_04 (in the same archive) would close the member gap at several times the cost.
+
+## 2026-11-05 (round 2) - Ruler v1.2 over the real 8M atlas and its three shuffled-weight controls
+
+`real_units_20261105/` (`scripts/score_real_units.py` on an A10, us-east-1; calls per column `calls_*.json.gz`;
+`summary.json`). These are positive-pole columns, 7,680 per atlas (6 layers x 1,280 units), K_r 256, rule v1.2
+unchanged.
+
+| atlas | context | structural | composition | none | insufficient |
+|---|---|---|---|---|---|
+| trained | 7,158 (93.2%) | **408** (5.3%) | 97 | 10 | 7 |
+| shuffled 1 | 7,527 (98.0%) | 4 | 126 | 2 | 21 |
+| shuffled 2 | 7,520 | 11 | 115 | 1 | 33 |
+| shuffled 3 | 7,507 | 9 | 103 | 2 | 59 |
+
+- *Context* (residue mode plus structural excess) is the default call for trained and untrained units alike. It
+  does not separate them: the residue identity at the peak, plus the structure that residue brings beyond the
+  composition-matched null, is enough to be called context. Every context call is "sequence-only not excluded",
+  because the window baseline is not repaired (below).
+- *Structural* calls (a structural descriptor with no residue mode) separate trained from untrained: 408 against
+  4-11, about 50x. Their primary descriptors are state5 319, rama4 51, burial3 38. By layer: 16, 25, 76, 85, 130,
+  76 (layers 0-5).
+- *No association* is rare in both (10 against 1-2), so the procedure almost always finds something. A "none" call
+  is a statement about this ruler's vocabulary, not about the unit (see the cases below: one "none" unit reads
+  whole-protein composition, another reads signal peptides).
 
 ## 2026-11-05 (round 2) - The pair's balance: an unsuccessful explanation
 
