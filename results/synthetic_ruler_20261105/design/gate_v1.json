@@ -1,0 +1,209 @@
+{
+ "min_alpha": 1.0,
+ "gate": {
+  "buried": "12/12",
+  "helix": "12/12",
+  "hydro_win": "12/12",
+  "lys_helix": "9/12",
+  "narrow": "8/12",
+  "noise + every alpha = 0": "40/42",
+  "ordered": "5/12",
+  "trp": "9/12",
+  "two_job": "9/12"
+ },
+ "detected_below_gate": {
+  "buried": "3/3",
+  "helix": "3/3",
+  "hydro_win": "1/3",
+  "lys_helix": "0/3",
+  "narrow": "0/3",
+  "ordered": "3/3",
+  "trp": "0/3",
+  "two_job": "3/3"
+ },
+ "calls_by_type_alpha": {
+  "buried alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "buried alpha=0.5": {
+   "structural association / burial3 one mode to q90": 3
+  },
+  "buried alpha=1.0": {
+   "structural association / burial3 one mode to q90": 3
+  },
+  "buried alpha=2.0": {
+   "structural association / burial3 one mode to q90": 3
+  },
+  "buried alpha=3.0": {
+   "structural association / burial3 one mode to q90": 3
+  },
+  "buried alpha=4.0": {
+   "structural association / burial3 one mode to q90": 3
+  },
+  "helix alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "helix alpha=0.5": {
+   "structural association / state5 one mode peak only": 1,
+   "structural association / state5 one mode to q90": 2
+  },
+  "helix alpha=1.0": {
+   "structural association / state5 one mode to q90": 3
+  },
+  "helix alpha=2.0": {
+   "structural association / state5 one mode to q90": 3
+  },
+  "helix alpha=3.0": {
+   "structural association / state5 one mode to q90": 3
+  },
+  "helix alpha=4.0": {
+   "structural association / state5 one mode to q90": 3
+  },
+  "hydro_win alpha=0.0": {
+   "no association found by this procedure": 2,
+   "structural association / state5 one mode peak only": 1
+  },
+  "hydro_win alpha=0.5": {
+   "structural association / state5 one mode peak only": 1,
+   "no association found by this procedure": 2
+  },
+  "hydro_win alpha=1.0": {
+   "structural association / state5 one mode to q99": 2,
+   "structural association / state5 one mode peak only": 1
+  },
+  "hydro_win alpha=2.0": {
+   "structural association / rama4 one mode to q99": 1,
+   "structural association / state5 one mode to q99": 2
+  },
+  "hydro_win alpha=3.0": {
+   "structural association / rama4 one mode to q99": 2,
+   "structural association / state5 one mode to q99": 1
+  },
+  "hydro_win alpha=4.0": {
+   "structural association / state5 one mode to q99": 2,
+   "context association / state5 one mode to q99": 1
+  },
+  "lys_helix alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "lys_helix alpha=0.5": {
+   "no association found by this procedure": 3
+  },
+  "lys_helix alpha=1.0": {
+   "structural association / state5 one mode peak only": 3
+  },
+  "lys_helix alpha=2.0": {
+   "context association / state5 one mode to q99": 3
+  },
+  "lys_helix alpha=3.0": {
+   "context association / state5 one mode to q99": 3
+  },
+  "lys_helix alpha=4.0": {
+   "context association / state5 one mode to q99": 3
+  },
+  "narrow alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "narrow alpha=0.5": {
+   "no association found by this procedure": 3
+  },
+  "narrow alpha=1.0": {
+   "structural association / state5 one mode peak only": 2,
+   "context association / state5 one mode peak only": 1
+  },
+  "narrow alpha=2.0": {
+   "context association / state5 one mode peak only": 3
+  },
+  "narrow alpha=3.0": {
+   "context association / state5 one mode to q99": 1,
+   "context association / state5 one mode peak only": 2
+  },
+  "narrow alpha=4.0": {
+   "context association / state5 one mode to q99": 3
+  },
+  "noise alpha=0.0": {
+   "no association found by this procedure": 2,
+   "structural association / state5 one mode peak only": 1
+  },
+  "noise alpha=0.5": {
+   "no association found by this procedure": 3
+  },
+  "noise alpha=1.0": {
+   "no association found by this procedure": 3
+  },
+  "noise alpha=2.0": {
+   "no association found by this procedure": 3
+  },
+  "noise alpha=3.0": {
+   "no association found by this procedure": 3
+  },
+  "noise alpha=4.0": {
+   "no association found by this procedure": 3
+  },
+  "ordered alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "ordered alpha=0.5": {
+   "structural association / state5 one mode to q90": 3
+  },
+  "ordered alpha=1.0": {
+   "structural association / state5 several modes peak only": 2,
+   "structural association / state5 one mode to q90": 1
+  },
+  "ordered alpha=2.0": {
+   "structural association / state5 several modes to q90": 1,
+   "structural association / state5 one mode to q90": 1,
+   "structural association / state5 several modes to q99": 1
+  },
+  "ordered alpha=3.0": {
+   "structural association / state5 one mode to q90": 3
+  },
+  "ordered alpha=4.0": {
+   "structural association / state5 one mode to q90": 2,
+   "structural association / state5 several modes peak only": 1
+  },
+  "trp alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "trp alpha=0.5": {
+   "no association found by this procedure": 3
+  },
+  "trp alpha=1.0": {
+   "no association found by this procedure": 3
+  },
+  "trp alpha=2.0": {
+   "composition association": 3
+  },
+  "trp alpha=3.0": {
+   "composition association": 3
+  },
+  "trp alpha=4.0": {
+   "composition association": 3
+  },
+  "two_job alpha=0.0": {
+   "no association found by this procedure": 3
+  },
+  "two_job alpha=0.5": {
+   "structural association / burial3 one mode peak only": 1,
+   "structural association / state5 one mode peak only": 1,
+   "structural association / state5 one mode to q99": 1
+  },
+  "two_job alpha=1.0": {
+   "structural association / state5 several modes to q90": 2,
+   "structural association / state5 one mode to q90": 1
+  },
+  "two_job alpha=2.0": {
+   "structural association / state5 several modes peak only": 1,
+   "structural association / state5 several modes to q90": 1,
+   "structural association / state5 one mode to q90": 1
+  },
+  "two_job alpha=3.0": {
+   "structural association / state5 several modes to q90": 2,
+   "structural association / state5 one mode to q90": 1
+  },
+  "two_job alpha=4.0": {
+   "structural association / state5 several modes to q99": 2,
+   "structural association / state5 several modes to q90": 1
+  }
+ }
+}

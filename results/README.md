@@ -272,6 +272,80 @@ Checksums: every committed copy of a us-east-1 run file matches its filesystem o
 taken while the instance was still running (both kept growing for 35 more minutes). Runs on
 asia-south-1 (science pass) and us-west-1 (impl_ab) are not yet checked.
 
+## 2026-11-05 - Measurement #2: synthetic columns through the atlas and the ruler (CPU, this container)
+
+`synthetic_ruler_20261105/`: per draw, the column table, the synthetic atlas (Atlas code as for model units,
+K = K_r = 64, six edges to q99.999), blind calls per rule and the unblinded gate (`scripts/eval_synthetic.py`).
+Proteins: the 60,000 non-held-out entries of the descriptor subset exported by job `atlas-wab-20261105-0140`
+(67,208 proteins; on `esm-atlas-results` under `runs/atlas-wab-20261105-0140/desc_subset`), cropped to 1,022
+residues as the model streams are: 20,557,222 residues, 162 columns (9 types x alpha {0, 0.5, 1, 2, 3, 4} x 3).
+Generator ~90 s, ruler ~30 s per rule. Predictions: `measurements_1_2_predictions.md` (#2, #2b, #2c).
+
+**Defects found before reading anything.** (1) 1,705 of the 60,000 proteins are longer than 1,024 residues;
+token ids pack (protein, position) with stride 1,024, so their positions >= 1,024 (658,620 tokens, 3.1%)
+aliased onto the next protein's ids and the ruler mapped them to wrong rows. Real runs crop at 1,022 and never
+produce these ids. Fixed by cropping in `load_subset` and a stride/length-checked row map in the ruler; the
+uncropped calls are kept (`design_uncropped_defect/`): the gate moved by at most one column per type. (2) The
+gate script counted alpha = 0.5 columns as noise; alpha = 0 and noise are now one bucket (42 columns, not the
+72 my prediction table said) and alpha = 0.5 is reported separately as "any association".
+
+**Gate (alpha >= 1, 12 columns per type; noise = the 42 pure-noise columns).** Pre-registered cells in bold.
+
+| column | predicted (v1) | v1 design | v1 draw 1 | v1 draw 2 | predicted (v1.1) | v1.1 draw 1 | v1.1 draw 2 | predicted (v1.2) | v1.2 draw 2 | v1.2 design / draw 1 (in-sample) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| helix | 12 | **12** | 12 | 12 | 12 | **12** | 12 | 12 | **12** | 12 / 12 |
+| buried | 9-12 | **12** | 12 | 12 | 10-12 | **1** | 0 | 9-12 | **12** | 12 / 12 |
+| trp | 12 | **9** | 8 | 9 | 12 | **11** | 12 | 11-12 | **12** | 12 / 11 |
+| lys_helix | 12 | **9** | 9 | 10 | 12 | **12** | 12 | 12 | **12** | 12 / 12 |
+| two_job | 10-12 | **9** | 7 | 7 | 11-12 | **12** | 12 | 11-12 | **12** | 12 / 12 |
+| ordered | 10-12 | **5** | 8 | 4 | 11-12 | **12** | 12 | 11-12 | **12** | 12 / 12 |
+| narrow ("peak only") | 6-9 | **8** | 10 | 9 | 7-10 | **10** | 9 | 7-10 | **9** | 8 / 10 |
+| hydro_win | 12 | **12** | 11 | 12 | 12 | **12** | 12 | 12 | **12** | 12 / 11 |
+| noise (of 42) | ">= 69/72" | **40** | 42 | 39 | >= 41 | **42** | 42 | >= 41 | **42** | 42 / 42 |
+
+narrow was associated in 12/12 under every rule and draw. hydro_win, a sequence-only column (mean hydropathy of
+the +-3 window), is called structural under v1 (primary state5 or rama4, persistent to q99) and context under
+v1.1/v1.2: as predicted, the ruler cannot tell a window-composition column from a structural one; that needs
+the +-3 window baseline, not a better null.
+
+**v1 failed its gate** on trp, lys_helix, two_job and ordered, and the failures repeat on two fresh draws, so
+they are the rule, not the draw:
+- composition: "residue-specific" required an effective number of residues <= 4, which measures dominance, not
+  enrichment: Trp at alpha = 1 is 33-47% of the peak (25-36x its 1.3% background) and was "no association";
+  lys_helix at alpha = 1 (K 59-63%, effective number 4.8-5.1) was "structural" instead of "context";
+- several modes: a fixed log2 >= 0.5 per state on the marginal penalises mixtures (a sample split between two
+  modes dilutes each); the secondary mode sat at log2 0.13-0.44 in the misses;
+- false positives: the primary descriptor's p is the smallest of three and went into BH uncorrected; 5 of 126
+  pure-noise columns across the three draws were called structural (0 of 126 under v1.1/v1.2).
+
+**v1.1** (each change traced to one failure; pre-registered on draw 1): primary p x 3; residues tested against
+P(residue | state on the primary descriptor) with residue modes (p < 0.01, log2 >= 1); second mode tested
+among the samples outside the top mode. It fixed all four and **broke buried (1/12, predicted 10-12)**:
+11 buried columns became "context" with residue modes G, A, S, P. The burial descriptor is a C-beta count
+within 10 A (C-alpha for Gly); its extreme is Gly/Ala-rich, and the tercile does not absorb that. I named the
+risk and underestimated it by a factor of ten.
+**v1.2** (pre-registered on draw 2): residues conditioned on the descriptor's finest value (the raw count) and
+tested with the largest standardised residue excess instead of the 19-df G (lys_helix at alpha 0.5 had a K mode
+in 3/3 but passed the G in 1/3). Draw 2: every gate cell inside its prediction.
+
+**Null calibration** (pure-noise columns): v1 descriptor tests, 630 per draw at all five levels: p <= 0.01 in
+1.3% / 1.6% / 0.3%, p <= 0.05 in 4.8% / 4.4% / 5.2% (design uncropped / design / draw 1). v1.2's residue max
+statistic, 378 tests over three draws: 0% at <= 0.01, 2.6% at <= 0.05, 43% at <= 0.5 (conservative: small
+counts are lumpy). Conditional second-mode test: only 23 null cases (it runs only after a top mode); none <= 0.05.
+
+**alpha = 0.5 (descriptive, "any association", 3 per type), v1.2 draw 2 vs prediction:** trp 3/3 (1-2),
+lys_helix 1/3 (1-3), narrow 2/3 (0-1), hydro_win 2/3 (1-3), helix, buried, ordered, two_job 3/3 (3/3). Under v1,
+trp at 0.5 was missed "by design" in all three draws; that design was the effective-number rule.
+
+**Unexplained.** One trp column (draw 1, alpha 2, 97% W) is called context with a state5 mode under v1.1 and
+v1.2: a W-only sample should match P(state | W). One in 36 trp/alpha >= 1 columns across draws; consistent with
+chance at the per-column rate BH allows, but not shown to be chance.
+
+**What this does and does not license.** v1.2 passed a pre-registered gate on a fresh noise draw. The fresh draw
+protects against fitting the noise, not against fitting the nine column types: two of v1.2's three changes were
+written after seeing how these types fail. The next check is column types the rule was not designed on (ideally
+written by someone other than me), then the decision-rule sign-off; no real column has been scored.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
