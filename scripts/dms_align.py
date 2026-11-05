@@ -102,8 +102,14 @@ def main():
             continue
         mbar = sum(wi * mi for wi, mi in zip(w, m)) / sum(w)
         Q = sum(wi * (mi - mbar) ** 2 for wi, mi in zip(w, m))
-        het[p] = {"Q": Q, "p": float(torch.exp(torch.tensor(-Q / 2)) * (1 + Q / 2)), "range": max(m) - min(m)}
+        se = [1.0 / wi ** 0.5 for wi in w]
+        het[p] = {"Q": Q, "p": float(torch.exp(torch.tensor(-Q / 2)) * (1 + Q / 2)), "range": max(m) - min(m),
+                  "dev": [mi - mbar for mi in m], "se": se}
     nt = len(het)
+    # equivalence (two one-sided tests, 90% intervals): every condition's calibrated deviation from the pooled
+    # mean inside +-margin. SE of a deviation approximated by the condition's own SE (slightly conservative).
+    equiv = {str(mg): sorted(p for p, h in het.items() if all(abs(dv) + 1.645 * se <= mg for dv, se in zip(h["dev"], h["se"])))
+             for mg in (0.1, 0.05)}
     sig = sorted(p for p, h in het.items() if h["p"] < 0.01 / max(nt, 1))   # Bonferroni over positions
     res = {"source": "github.com/fraser-lab/pubs2014 (Mavor et al. 2016, eLife 15802)", "sha256": sha,
            "scan_wild_type": yeast, "differences_from_human": [f"{h}{p}{y}" for p, h, y in diff],
@@ -113,7 +119,9 @@ def main():
            "positions_mean_range_gt_0.1": sorted(p for p, r in moved.items() if r > 0.1),
            "calibration_to_DMSO": {c: {"offset": round(v[0], 4), "slope": round(v[1], 4)} for c, v in cal.items()},
            "positions_tested": nt, "positions_condition_dependent_bonferroni_0.01": sig,
-           "positions_condition_stable_p_gt_0.1": sorted(p for p, h in het.items() if h["p"] > 0.1),
+           "positions_no_detected_condition_dependence_p_gt_0.1": sorted(p for p, h in het.items() if h["p"] > 0.1),
+           "positions_equivalent_across_conditions": equiv,
+           "conditions": {"primary": "DMSO", "others": [c for c in CONDS if c != "DMSO"]},
            "mean_range_by_position": {p: round(r, 3) for p, r in moved.items()}}
     (out / "dms_alignment.json").write_text(json.dumps(res, indent=1))
     print(json.dumps({k: v for k, v in res.items() if k not in ("mean_range_by_position", "sha256")}))

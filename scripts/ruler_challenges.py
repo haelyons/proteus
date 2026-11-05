@@ -178,7 +178,9 @@ def main():
             break
         Z = column_block(p); pilot.append(Z); n_tok += Z.shape[0]
     xor_sel.update(n=0, state5=torch.zeros(5), burial3=torch.zeros(4))   # count the stream only
-    E = pilot_edges([torch.cat(pilot)], probs=(0.5, 0.9, 0.99, 0.999, 0.9999, 0.99999))
+    Hp = torch.cat(pilot); del pilot
+    E = pilot_edges([Hp], probs=(0.5, 0.9, 0.99, 0.999, 0.9999, 0.99999), chunk=32)   # 32 columns per sort: 15 GB container
+    del Hp
     at = Atlas(1, C, E, AtlasConfig(K=64, Kr=64, backend="torch", seed=a.seed, gram=False, cap_frac=0.02), n_annot=0)
     blocks, toks, cur, nb = [], [], 0, 0
 
