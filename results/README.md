@@ -438,6 +438,33 @@ so that prefix row stands.
   for the complete workload (expected 8-20x); per-element key, hash and bin work over 11G elements per batch
   is the likely cost, unmeasured.
 
+## 2026-11-05 - Measurement #7, part 2: aligning the ubiquitin deep mutational scan (CPU)
+
+`dms_alignment_20261105/` (`scripts/dms_align.py`; predictions `measurement_7_predictions.md`). Source: the
+per-condition fitness CSVs of Mavor et al. 2016 (eLife 15802) in github.com/fraser-lab/pubs2014 (commit in
+`source_commit.txt`, sha256 of each CSV in the JSON; the CSVs are not copied here, the repository has no
+licence; its pickles were not loaded).
+
+| quantity | predicted | observed |
+|---|---|---|
+| scan wild type vs human | yeast; differs at 19, 24, 28 | yeast; P19S, E24D, A28S, nothing else |
+| rows; missense scored (DMSO) | 1,596; >= 90% of 1,444 | 1,596; 1,298 (89.9%); other conditions 1,218-1,256 |
+| humanising substitutions S19P / D24E / S28A (DMSO) | > -0.1 (stop ~ -0.5) | +0.021 / -0.012 / -0.006 |
+| allele fitness, Pearson with DMSO | 0.6-0.9 | caffeine 0.84, DTT 0.81, HU 0.87, MG132 0.91 |
+| positions whose condition means differ by > 0.1 | 5-20 of 76 | 45 (raw ranges; replicate SDs are 0.08-0.27 per allele) |
+
+Corrected for noise and for condition-wide effects (each condition mapped onto DMSO by an affine fit over all
+alleles: MG132 slope 0.81, DTT offset -0.078; then Cochran's Q over the five calibrated position means, SE from
+the replicate SDs of each position's alleles), 43 of 70 testable positions still differ between conditions at
+Bonferroni p < 0.01, and 7 are stable at p > 0.1 (8, 13, 33, 42, 44, 54, 67). That rests on three-replicate SDs
+being honest errors; if they understate the noise by 2x, Q is 4x too large. Either way the prediction (5-20)
+was too low.
+
+What it decides: a unit-level check against this scan compares human-sequence activations with yeast
+fitness (the three differing positions are themselves near-neutral in yeast), and most positions' tolerance
+moves with the condition. A comparison should use positions stable across conditions, or name the
+condition; "the DMS says this position matters" is not one statement here.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
