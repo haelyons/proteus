@@ -48,6 +48,22 @@ for p in sys.argv[1:]:
 PY
 }
 C650="--model $M650 --data $DATA --device $DEV --dtype bf16 --backend $BACKEND --tokens-per-batch $TPB --edge-q $EDGES --exclude-acc $HELD --deadline $DEADLINE --pair-every 1 --ckpt-every 100000"
+C8="--model 8M --data $DATA --device $DEV --dtype bf16 --backend $BACKEND --tokens-per-batch $TPB --K 64 --Kr 256 --edge-q $EDGES --deadline $DEADLINE --ckpt-every 2000 $LIM8"
+ESEEDS=$(cat eseeds.txt 2>/dev/null || echo "1 2 3")   # part E: control seeds, one at a time
+# concurrent 8M pilots need 6-9 GB each (A10 run of 2026-11-05: two of three hit CUDA OOM on 22 GB)
+if [ "$SMOKE" != 1 ]; then GMEM=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1); [ "${GMEM:-0}" -lt 40000 ] && PAR=1; fi
+slim() {   # slim copy for download (~0.21 GB): token ids int32, reservoir values fp16, no reservoir keys, Gram fp32
+  python3 - $OUT/$1/atlas.pt $OUT/$1/slim.pt <<'EOF' 2>&1 | sed "s/^/[atlas]   slim $1: /"
+import os, sys, torch
+a = torch.load(sys.argv[1], map_location="cpu", weights_only=False)
+cast = {"top_tok": torch.int32, "res_tok": torch.int32, "res_val": torch.float16, "enr": torch.int32, "gram": torch.float32}
+assert int(a["res_tok"].max()) < 2 ** 31 and int(a["top_tok"].max()) < 2 ** 31
+s = {k: (v.to(cast[k]) if k in cast else v) for k, v in a.items() if k != "res_key"}
+torch.save(s, sys.argv[2])
+print(round(os.path.getsize(sys.argv[2]) / 1e9, 3), "GB")
+EOF
+}
+runinfo() { python3 -c "import json; r=json.load(open('$OUT/$1/run.json')); s=r.get('seconds', {}); print('[atlas]   $1: complete', r.get('complete'), 'n_seen', r.get('n_seen'), 'stream_s', round(s.get('stream_this_process', 0), 1), 'GB', round(r.get('atlas_pt_GB', 0), 3))" 2>&1 | cut -c1-300; }
 
 if on A; then
 echo "[atlas] A: tie audit, $M650, first $NB batches"
@@ -66,8 +82,7 @@ summ $(for K in $KS; do echo $OUT/k$K; done)
 fi
 
 if on C; then
-echo "[atlas] C: 8M atlases (K 64, Kr 256)"
-C8="--model 8M --data $DATA --device $DEV --dtype bf16 --backend $BACKEND --tokens-per-batch $TPB --K 64 --Kr 256 --edge-q $EDGES --deadline $DEADLINE --ckpt-every 2000 $LIM8"
+echo "[atlas] C: 8M atlases (K 64, Kr 256), controls $PAR at a time"
 python3 scripts/run_atlas.py $C8 --exclude-acc $HELD --pilot-tokens $PT --seed-thresholds --pair-every 50 --out $OUT/a8_pre > $OUT/a8_pre.log 2>&1 || echo "[atlas] a8_pre rc=$?"
 grep -h "done:\|seeded" $OUT/a8_pre.log | sed 's/^/[atlas]   /' | cut -c1-300
 python3 scripts/run_atlas.py --model 8M --data $DATA --device $DEV --dtype bf16 --backend $BACKEND --tokens-per-batch $TPB --K 64 --Kr 256 --deadline $DEADLINE \
@@ -79,21 +94,17 @@ for s in 1 2 3; do
   [ ${#pids[@]} -ge $PAR ] && { wait ${pids[0]}; pids=("${pids[@]:1}"); }
 done
 wait
-for d in a8_pre a8_held a8_shuf1 a8_shuf2 a8_shuf3; do
-  python3 -c "import json; r=json.load(open('$OUT/$d/run.json')); s=r.get('seconds', {}); print('[atlas]   $d: complete', r.get('complete'), 'n_seen', r.get('n_seen'), 'stream_s', round(s.get('stream_this_process', 0), 1), 'GB', round(r.get('atlas_pt_GB', 0), 3))" 2>&1 | cut -c1-300
-done
+for d in a8_pre a8_held a8_shuf1 a8_shuf2 a8_shuf3; do runinfo $d; done
 summ $OUT/a8_pre
-# slim copies for download (~0.21 GB each): token ids int32, reservoir values fp16, no reservoir keys, Gram fp32
-for d in a8_pre a8_held a8_shuf1 a8_shuf2 a8_shuf3; do
-  python3 - $OUT/$d/atlas.pt $OUT/$d/slim.pt <<'EOF' 2>&1 | sed "s/^/[atlas]   slim $d: /"
-import os, sys, torch
-a = torch.load(sys.argv[1], map_location="cpu", weights_only=False)
-cast = {"top_tok": torch.int32, "res_tok": torch.int32, "res_val": torch.float16, "enr": torch.int32, "gram": torch.float32}
-assert int(a["res_tok"].max()) < 2 ** 31 and int(a["top_tok"].max()) < 2 ** 31
-s = {k: (v.to(cast[k]) if k in cast else v) for k, v in a.items() if k != "res_key"}
-torch.save(s, sys.argv[2])
-print(round(os.path.getsize(sys.argv[2]) / 1e9, 3), "GB")
-EOF
+for d in a8_pre a8_held a8_shuf1 a8_shuf2 a8_shuf3; do slim $d; done
+fi
+
+if on E; then
+echo "[atlas] E: shuffled controls, seeds $ESEEDS, one at a time"
+for s in $ESEEDS; do
+  python3 scripts/run_atlas.py $C8 --exclude-acc $HELD --control shuffled --control-seed $s --pilot-tokens $PT --seed-thresholds --out $OUT/a8_shuf$s > $OUT/a8_shuf$s.log 2>&1 || echo "[atlas] a8_shuf$s rc=$?"
+  runinfo a8_shuf$s; slim a8_shuf$s
+  python3 scripts/ubiquitin_audit.py --data $DATA --atlas $OUT/a8_shuf$s/atlas.pt --exclude-acc $HELD --out $OUT/ubq_8m_shuf$s 2>&1 | tail -1 | cut -c1-200 | sed "s/^/[atlas]   8M shuffled $s: /"
 done
 fi
 
