@@ -67,3 +67,31 @@ ubiquitin as such.
 
 If copies 2+ of UBC are not high, D fails too, and the atlas values remain unexplained (numerics or batch
 context would then be the next suspects).
+
+## Result for D (run 17:3x UTC) and a dose-response test written before running it
+
+Observed:
+- UBC copies 1-9 at H68: 6.67, 6.72, 6.69, 6.67, 6.62, 6.61, 6.60, 6.59, 5.72;
+- UBB copies 1-3: 3.82, 3.83, 3.35;
+- UBA52 and RPS27A (one copy): -1.40 and -1.38;
+- synthetic Ub+Ub: 2.14 / 2.22; Ub+40+Ub: 1.84 / 2.37;
+- SUMO1 x2: max 2.58 / 2.43 against 0.97 single; an unrelated 80-mer (lysozyme 19-98) x2: 2.90 / 2.28 against 1.12 single;
+- 19 of 61 non-ubiquitin peak samples sit in proteins that repeat their exact +-5 window; others look like
+  approximate repeats (C2H2 zinc-finger linkers THQRIHTGEKP; HQCGLP / HRCGLP).
+
+D's repeat dependence holds and generalises beyond ubiquitin. Its direction ("already occurred earlier") is
+wrong: copy 1 is as high as later copies, since the model reads both ways.
+
+Revised proposal (D'): the unit's value grows with the number of (near-)identical copies of the local sequence
+in the protein; ubiquitin fills its top-64 because polyubiquitin precursors carry the most identical tandem
+copies in Swiss-Prot.
+
+Dose-response predictions (synthetic tandem copies, 650M, H68 of copy 1 and the median over copies):
+
+| copies of ubiquitin | 1 | 2 | 3 | 4 | 6 | 9 |
+|---|---|---|---|---|---|---|
+| D' predicts | ~ -1.3 | ~ 2 | rising | rising | rising | ~ 6.5 (UBC) |
+
+Monotone increase in copy number, copy 1 and later copies alike. For 5 random held-out protein fragments (80
+residues, none containing ubiquitin): the maximum over the construct rises from 1 to 2 to 4 copies in >= 4 of 5.
+If it does not, D' is wrong.

@@ -1,0 +1,87 @@
+{
+ "UBC (9 copies)": [
+  6.672,
+  6.721,
+  6.692,
+  6.67,
+  6.622,
+  6.612,
+  6.604,
+  6.589,
+  5.717
+ ],
+ "UBB (3 copies)": [
+  3.821,
+  3.833,
+  3.345
+ ],
+ "UBA52 (1 copy + L40)": [
+  -1.396
+ ],
+ "RPS27A (1 copy + S27a)": [
+  -1.382
+ ],
+ "Ub+Ub": [
+  2.144,
+  2.223
+ ],
+ "Ub+40+Ub": [
+  1.837,
+  2.368
+ ],
+ "SUMO1 x2: max over copy 1 / copy 2 / single SUMO1": [
+  2.58,
+  2.433,
+  0.97
+ ],
+ "unrelated 80-mer x2 (lysozyme 19-98): max copy 1 / copy 2 / single": [
+  2.898,
+  2.276,
+  1.123
+ ],
+ "peak-bin samples outside ubiquitin: window occurs more than once in its protein": "19 / 61",
+ "examples (acc, pos, residue, window, occurrences)": [
+  [
+   "Q5RDX1",
+   484,
+   "H",
+   "THQRIHTGEKP",
+   2
+  ],
+  [
+   "Q92I74",
+   100,
+   "N",
+   "KVILINLGKED",
+   1
+  ],
+  [
+   "P08968",
+   386,
+   "P",
+   "DELAVPLHVAR",
+   1
+  ],
+  [
+   "Q8S8Y0",
+   398,
+   "P",
+   "HRCGLPREIAI",
+   1
+  ],
+  [
+   "B1XBZ0",
+   369,
+   "P",
+   "HQCGLPKKMAL",
+   1
+  ],
+  [
+   "W6RTA4",
+   910,
+   "Q",
+   "VSSEQQEEDRS",
+   2
+  ]
+ ]
+}
