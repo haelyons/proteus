@@ -28,7 +28,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--layer", type=int, default=0)
     ap.add_argument("--B", type=int, default=2000)
-    ap.add_argument("--rule", default="v1", choices=["v1", "v1.1"])
+    ap.add_argument("--rule", default="v1", choices=["v1", "v1.1", "v1.2"])
     a = ap.parse_args()
     t0 = time.time()
     data = torch.load(a.data, weights_only=False)

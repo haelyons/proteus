@@ -74,3 +74,29 @@ alpha = 0.5 (descriptive, 3 each): trp and lys_helix now detected in >= 2/3 (W ~
 narrow 0-1/3; helix, buried, ordered, two_job 3/3; hydro_win 1-2/3.
 v1.1 is also scored on the design set (in-sample, reported as such). Neither result is a licence to score real
 columns: that waits for sign-off on the rule, as v1 did.
+
+## #2c Ruler v1.2 on a second fresh draw (written 2026-11-05 after v1.1 on draw 1, before draw 2 exists)
+
+v1.1 on draw 1 (`--seed 1 --noise-seed 1`) passed what it was built to fix (ordered 12/12, two_job 12/12,
+lys_helix 12/12, trp 11/12, noise 42/42) and broke buried (1/12: 11 called "context", residue modes G, A, S, P).
+Cause: the burial descriptor is a C-beta count within 10 A (C-alpha for Gly); its extreme is Gly/Ala-rich, and
+conditioning residues on the tercile does not absorb that. Also seen: lys_helix at alpha 0.5 has a K residue
+mode in 3/3 but the 19-df G passes BH in 1/3. v1.2 (`--rule v1.2`) keeps v1.1 and changes the residue test:
+condition on the descriptor's finest value (burial: the raw count, >= 45 pooled; state5 and rama4 unchanged)
+and test with the largest standardised residue excess (Monte Carlo), not the G. Draw 2: `--seed 2 --noise-seed 2`.
+
+| column (alpha >= 1, 12 each) | predicted pass, v1.2 |
+|---|---|
+| helix | 12/12 |
+| buried | 9-12/12 structural, one mode (risk: residual Gly excess at counts pooled >= 45) |
+| trp | 11-12/12 composition |
+| lys_helix | 12/12 context |
+| two_job / ordered | 11-12/12 each, several modes |
+| narrow | associated 12/12; "peak only" 7-10/12 |
+| hydro_win | 12/12 associated, mostly context |
+| noise and every alpha = 0 (42) | >= 41/42 (the max statistic is a new test; its calibration is checked on these) |
+
+alpha = 0.5 (descriptive, 3 each): lys_helix 1-3/3, trp 1-2/3, narrow 0-1/3, hydro_win 1-3/3, the rest 3/3.
+This is the last rule change made against these nine column types: past this point a change would be fitted
+to the types, not to the noise, and a fresh draw does not protect against that. The next check is column
+types the rule was not designed on.

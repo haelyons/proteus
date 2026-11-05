@@ -62,6 +62,8 @@ class Tables:
         self.burial3 = torch.full_like(self.aa, -1)
         okb = ~torch.isnan(b)
         self.burial3[okb] = torch.bucketize(b[okb], cut, right=True)  # 0 exposed, 1 middle, 2 buried
+        bc = torch.full_like(self.aa, -1)                             # raw C-beta count, counts >= 45 pooled
+        bc[okb] = b[okb].round().long().clamp(max=45)
         self.n = rows
         self.desc = {"state5": self.state5, "burial3": self.burial3, "rama4": self.rama4}
         self.p_x_given_a, self.p_a_given_x = {}, {}
@@ -71,6 +73,14 @@ class Tables:
             cnt.index_put_((self.aa[m], x[m]), torch.ones(int(m.sum())), accumulate=True)
             self.p_x_given_a[k] = (cnt + 0.5) / (cnt + 0.5).sum(1, keepdim=True)
             self.p_a_given_x[k] = ((cnt + 0.5) / (cnt + 0.5).sum(0, keepdim=True)).T.contiguous()   # [K, 20]
+        # v1.2: the residue test conditions on the finest value of the primary descriptor (burial: the count)
+        self.fine = {"state5": self.state5, "burial3": bc, "rama4": self.rama4}
+        self.p_a_given_fine = {}
+        for k, x in self.fine.items():
+            m = (x >= 0) & (self.aa >= 0)
+            cnt = torch.zeros(int(x.max()) + 1, 20)
+            cnt.index_put_((x[m], self.aa[m]), torch.ones(int(m.sum())), accumulate=True)
+            self.p_a_given_fine[k] = (cnt + 0.5) / (cnt + 0.5).sum(1, keepdim=True)
         bg = torch.bincount(self.aa[self.aa >= 0], minlength=20).float()
         self.p_aa = bg / bg.sum()
 
@@ -155,21 +165,26 @@ def score_aa(T: Tables, rows, B, gen):
     return {"n": n, "p": p, "eff_residues": eff, "top": top, "p_res": pr.tolist(), "log2_res": lr.tolist()}
 
 
-def score_aa_given(T: Tables, rows, k, B, gen):
+def score_aa_given(T: Tables, rows, k, B, gen, fine=False):
     """v1.1: residue identity against the residues expected given each sample's state on descriptor k
-    (P(a | x), background composition where x is undefined): residue enrichment beyond the structure."""
-    a, x = T.aa[rows], T.desc[k][rows]
+    (P(a | x), background composition where x is undefined): residue enrichment beyond the structure.
+    v1.2 (fine=True): x is the descriptor's finest value (burial: the raw count, not the tercile), and the
+    test statistic is the largest standardised residue excess (p_max), not the 19-df G (a single residue's
+    excess is diluted by the other 19)."""
+    a, x = T.aa[rows], (T.fine if fine else T.desc)[k][rows]
+    tab = (T.p_a_given_fine if fine else T.p_a_given_x)[k]
     ok = a >= 0
     a, x = a[ok], x[ok]
     n = int(a.numel())
     if n < 10:
         return None
-    P = torch.where((x >= 0)[:, None], T.p_a_given_x[k][x.clamp(min=0)], T.p_aa[None, :])   # [n, 20]
+    P = torch.where((x >= 0)[:, None], tab[x.clamp(min=0)], T.p_aa[None, :])   # [n, 20]
     obs = torch.bincount(a, minlength=20).float(); exp = P.sum(0)
     dr = torch.multinomial(P, B, replacement=True, generator=gen)
     sim = torch.zeros(B, 20); sim.scatter_add_(1, dr.T, torch.ones(B, n))
     G = lambda c: (c * torch.log((c + 1e-9) / exp)).sum(-1)  # noqa: E731
-    return {"n": n, "p": float(((G(sim) >= G(obs)).sum() + 1) / (B + 1)),
+    Z = lambda c: ((c - exp) / torch.sqrt(exp)).max(-1).values  # noqa: E731
+    return {"n": n, "p": float(((G(sim) >= G(obs)).sum() + 1) / (B + 1)), "p_max": float(((Z(sim) >= Z(obs)).sum() + 1) / (B + 1)),
             "p_res": (((sim >= obs).sum(0).float() + 1) / (B + 1)).tolist(), "log2_res": torch.log2((obs + 0.5) / (exp + 0.5)).tolist()}
 
 
@@ -187,6 +202,7 @@ def score_column(T: Tables, res_tok_col: torch.Tensor, B=2000, seed=0):
                 lvl[k] = score_desc(T, rows, k, B, gen, gen_cond)
             if name == "peak":
                 lvl["aa_given"] = {k: score_aa_given(T, rows, k, B, gen_cond) for k in DESC}
+                lvl["aa_given_fine"] = {k: score_aa_given(T, rows, k, B, gen_cond, fine=True) for k in DESC}
         out[name] = lvl
     return out
 
@@ -203,11 +219,15 @@ def calls(scores: list[dict], alpha=0.01, rule="v1"):
         primary descriptor (P(a | x); the composition-matched null in the other direction), and at least one
         residue with p < 0.01 and log2 >= 1 against that expectation (replaces effective number <= 4, which
         measures dominance, not enrichment); residue modes are reported. Residues that a state explains
-        (hydrophobics in a buried sample) are not counted as a residue job;
+        are not counted as a residue job;
       - several modes: a second state counts if it is enriched among the samples outside the top mode
         (conditional test, p < 0.01, log2 >= 0.5); for an ordinal descriptor, not a level adjacent to the top.
+    v1.2 (after v1.1 on a fresh draw): as v1.1, but the residue test conditions on the finest value of the
+      primary descriptor (burial: the raw C-beta count; the extreme of the count is Gly/Ala-rich, which the
+      tercile did not absorb) and uses the largest standardised residue excess as its statistic.
     """
-    assert rule in ("v1", "v1.1")
+    assert rule in ("v1", "v1.1", "v1.2")
+    agk = {"v1.1": ("aa_given", "p"), "v1.2": ("aa_given_fine", "p_max")}.get(rule)
     tests = []
     for i, s in enumerate(scores):
         pk = s["peak"]
@@ -227,8 +247,8 @@ def calls(scores: list[dict], alpha=0.01, rule="v1"):
         tests.append((d["p"] if rule == "v1" else min(1.0, d["p"] * len(cand)), i, "struct"))
         if rule == "v1" and pk["aa"]:
             tests.append((pk["aa"]["p"], i, "comp"))
-        elif rule == "v1.1" and pk.get("aa_given", {}).get(prim):
-            tests.append((pk["aa_given"][prim]["p"], i, "comp"))
+        elif rule != "v1" and pk.get(agk[0], {}).get(prim):
+            tests.append((pk[agk[0]][prim][agk[1]], i, "comp"))
     tests.sort()
     m = len(tests); passed = set()
     for r, (p, i, kind) in enumerate(tests, start=1):
@@ -241,7 +261,7 @@ def calls(scores: list[dict], alpha=0.01, rule="v1"):
         if "aa" not in pk or "primary" not in s:
             c["call"] = "insufficient samples"; out.append(c); continue
         st = (i, "struct") in passed
-        aa = pk["aa"] if rule == "v1" else pk.get("aa_given", {}).get(s["primary"])
+        aa = pk["aa"] if rule == "v1" else pk.get(agk[0], {}).get(s["primary"])
         res_modes = [AA[r] for r in range(20) if aa and aa["p_res"][r] < 0.01 and aa["log2_res"][r] >= 1.0]
         if rule == "v1":
             specific = aa is not None and aa["eff_residues"] <= 4.0 and (i, "comp") in passed
@@ -249,7 +269,7 @@ def calls(scores: list[dict], alpha=0.01, rule="v1"):
             specific = bool(res_modes) and (i, "comp") in passed
         d = pk[s["primary"]]
         modes = [x for x in range(len(d["log2"])) if d["p_state"][x] < 0.01 and d["log2"][x] >= 0.5] if st else []
-        if rule == "v1.1" and st and modes and d.get("cond"):
+        if rule != "v1" and st and modes and d.get("cond"):
             top, cd = d["cond"]["top"], d["cond"]
             second = [x for x in range(len(cd["log2"])) if x != top and cd["p_state"][x] < 0.01 and cd["log2"][x] >= 0.5
                       and not (s["primary"] in ORDINAL and abs(x - top) == 1)]
