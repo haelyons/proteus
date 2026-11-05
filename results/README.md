@@ -346,6 +346,47 @@ protects against fitting the noise, not against fitting the nine column types: t
 written after seeing how these types fail. The next check is column types the rule was not designed on (ideally
 written by someone other than me), then the decision-rule sign-off; no real column has been scored.
 
+## 2026-11-05 - Measurement #3: what a unit writes and what silencing it does (8M, CPU)
+
+`unit_writes_8M_20261105/` (`scripts/unit_writes.py`; predictions `measurement_3_predictions.md`): ESM-2 8M
+fp32, 400 random non-held-out proteins (133,506 residues), 50 random units per layer, three tokens per unit
+(largest h in the sample, the token nearest the median, smallest h): 900 cases, 1,800 silenced forwards,
+201 s on one thread. Re-running a forward reproduces the log-probs exactly (noise floor 0.0), so effects
+down to 1e-12 are real. Medians over the 50 units of each layer:
+
+| layer | GELU(h): pos / median / neg | written / residual: pos / median / neg | KL at the position: pos / median / neg | pos KL / baseline KL | units with \|dlog p(true)\| > 0.1 at pos |
+|---|---|---|---|---|---|
+| 0 | 1.08 / -0.155 / -0.0027 | 0.24 / 0.032 / 5.4e-4 | 9.3e-5 / 8.4e-7 / 2.5e-10 | 143 | 2% |
+| 1 | 1.66 / -0.136 / -0.0016 | 0.18 / 0.014 / 1.5e-4 | 2.9e-4 / 5.6e-7 / 2.6e-10 | 571 | 4% |
+| 2 | 1.74 / -0.061 / -0.0091 | 0.14 / 0.009 / 6.0e-4 | 7.0e-4 / 4.0e-7 / 2.6e-8 | 601 | 10% |
+| 3 | 2.96 / -0.140 / -6.7e-5 | 0.15 / 0.009 / 3.5e-6 | 2.0e-3 / 1.9e-6 / 1.4e-12 | 1,900 | 14% |
+| 4 | 4.31 / -0.161 / 0 | 0.20 / 0.008 / 0 | 3.0e-3 / 2.4e-6 / 0 | 2,060 | 18% |
+| 5 | 4.93 / -0.155 / 0 | 0.24 / 0.007 / 0 | 6.5e-3 / 5.6e-6 / 0 | 1,840 | 20% |
+
+Baseline = a random other unit of the same layer silenced at the same position (median KL 5e-7 to 4e-6).
+
+Against the predictions:
+- **Negative pole is the off state at 8M, across 300 units:** median |GELU| at the negative extreme
+  <= 0.009 in every layer, exactly 0 in layers 4-5; silencing there moves the logits by a median KL <= 3e-8,
+  below the median token's in every layer. Neither contradiction criterion was met.
+- Inside the predicted ranges: written/residual at the positive extreme (0.14-0.24), median-token KL,
+  every negative-extreme cell, |dlog p(true)| at the positive extreme (0.005-0.029), median-token KL ratio
+  to baseline (0.7-3.0). Pooled over layers, 11% of units move log p(true) by > 0.1 at their positive extreme
+  (predicted >= 10%), 0% at the negative extreme (predicted < 2%).
+- Outside: GELU at the positive extreme in layers 0-2 is 1.1-1.7, under the predicted 2-8 (400 proteins
+  are 0.07% of the stream; the atlas extremes are larger); written/residual at the median token in layers
+  0-1 (0.032, 0.014) above the predicted 0.01; unit/baseline KL at the positive extreme in layers 3-5 above the
+  predicted 1,000x.
+- **Travel, wrong:** predicted exactly 0 for layer 5 (it is: nothing after the last FFN mixes positions) and,
+  for layers 0-4, a largest KL elsewhere below the KL at the position. Observed median travel above the
+  position's own KL in layers 1-3 (3.6e-4 vs 2.9e-4, 1.6e-3 vs 7.0e-4, 9.5e-3 vs 2.0e-3), up to 3.2 nats at
+  another position. Part of this is a maximum over hundreds of positions set against one value. The rest
+  is concentrated: in the 10 of 250 cases where the write exceeds the residual it is added to (ratio 1.0-3.1),
+  every one moves another position more than its own (median 0.36 vs 0.020); below that ratio, 124 of 240.
+  Silencing such a write replaces that position's representation, which later layers read elsewhere
+  through attention. For interventions, "what the unit does" is not confined to the position where it
+  fires.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which

@@ -59,6 +59,28 @@ class BaukitTopK:
         return td, torch.gather(self.top_index[:, : self.next], 1, bti)
 
 
+def canon(v: torch.Tensor, t: torch.Tensor):
+    """Sort each row by (value desc, id asc): the order our keys define; torch.topk has no tie order."""
+    o = torch.argsort(t, dim=-1, stable=True)
+    v, t = torch.gather(v, -1, o), torch.gather(t, -1, o)
+    o = torch.argsort(-v, dim=-1, stable=True)
+    return torch.gather(v, -1, o), torch.gather(t, -1, o)
+
+
+def tie_audit(v1, t1, v2, t2) -> dict:
+    """Positional id differences split by where they can legitimately occur. After canonical sorting, two
+    exact top-K lists with equal values can differ only in the tie group at the K-th value (which tokens of
+    that group got in); anywhere above it, a difference means one of them is not an exact top-K."""
+    v1, t1 = canon(v1.float(), t1); v2, t2 = canon(v2.float(), t2)
+    kth = v1[..., -1:]
+    d = t1 != t2
+    tied = torch.zeros_like(d)
+    tied[..., 1:] |= v1[..., 1:] == v1[..., :-1]; tied[..., :-1] |= v1[..., :-1] == v1[..., 1:]
+    return {"tie_slots": int(tied.sum()), "ids_differ_canonical": int(d.sum()),
+            "ids_differ_above_kth": int((d & (v1 > kth)).sum()), "ids_differ_at_kth": int((d & (v1 == kth)).sum()),
+            "columns_with_boundary_ties": int(((v1 == kth).sum(-1) > 1).sum())}
+
+
 def sync(dev):
     if str(dev).startswith("cuda"):
         torch.cuda.synchronize()
@@ -131,6 +153,7 @@ def main():
         id_diff = int((ids_ != ours_t).sum())
         res.update({"values_equal": bool(same_vals), "max_abs_value_diff": float((vals - ours_s).abs().max()),
                     "ids_differ": id_diff, "ids_total": int(ours_t.numel())})
+        res.update(tie_audit(vals, ids_, ours_s, ours_t))
     (out / "batches.jsonl").write_text("\n".join(json.dumps(r) for r in recs) + "\n")
     (out / "result.json").write_text(json.dumps(res, indent=1))
     print(json.dumps(res))
