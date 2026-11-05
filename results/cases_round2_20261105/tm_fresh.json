@@ -1,0 +1,217 @@
+{
+ "test": "tm",
+ "set": "fresh",
+ "proteins": 600,
+ "positions": 243862,
+ "thr": 3.067901134490967,
+ "base_rate": 0.00112,
+ "spearman(h, KD19)": 0.146,
+ "by_category": {
+  "SP": {
+   "n": 2541,
+   "rate": 0.0,
+   "median_h": -0.746
+  },
+  "TM": {
+   "n": 12176,
+   "rate": 0.0116,
+   "median_h": -0.244
+  },
+  "buried helix (not TM/SP)": {
+   "n": 25988,
+   "rate": 0.0027,
+   "median_h": -0.978
+  },
+  "buried strand": {
+   "n": 18081,
+   "rate": 0.0006,
+   "median_h": -1.249
+  },
+  "exposed helix": {
+   "n": 22511,
+   "rate": 0.0001,
+   "median_h": -1.221
+  },
+  "other": {
+   "n": 162565,
+   "rate": 0.0003,
+   "median_h": -1.222
+  }
+ },
+ "by_category_within_KD19_bins": {
+  "[-99, 0.5)": {
+   "SP": {
+    "n": 272,
+    "rate": 0.0,
+    "median_h": -0.944
+   },
+   "TM": {
+    "n": 1616,
+    "rate": 0.0111,
+    "median_h": -0.348
+   },
+   "buried helix (not TM/SP)": {
+    "n": 20499,
+    "rate": 0.0015,
+    "median_h": -1.03
+   },
+   "buried strand": {
+    "n": 15608,
+    "rate": 0.0006,
+    "median_h": -1.248
+   },
+   "exposed helix": {
+    "n": 20537,
+    "rate": 0.0001,
+    "median_h": -1.246
+   },
+   "other": {
+    "n": 147995,
+    "rate": 0.0002,
+    "median_h": -1.229
+   }
+  },
+  "[0.5, 1.0)": {
+   "SP": {
+    "n": 393,
+    "rate": 0.0,
+    "median_h": -0.953
+   },
+   "TM": {
+    "n": 2629,
+    "rate": 0.0141,
+    "median_h": -0.216
+   },
+   "buried helix (not TM/SP)": {
+    "n": 3996,
+    "rate": 0.0058,
+    "median_h": -0.809
+   },
+   "buried strand": {
+    "n": 2048,
+    "rate": 0.001,
+    "median_h": -1.261
+   },
+   "exposed helix": {
+    "n": 1478,
+    "rate": 0.0007,
+    "median_h": -0.987
+   },
+   "other": {
+    "n": 11502,
+    "rate": 0.0007,
+    "median_h": -1.168
+   }
+  },
+  "[1.0, 1.6)": {
+   "SP": {
+    "n": 826,
+    "rate": 0.0,
+    "median_h": -0.782
+   },
+   "TM": {
+    "n": 4587,
+    "rate": 0.0124,
+    "median_h": -0.22
+   },
+   "buried helix (not TM/SP)": {
+    "n": 1358,
+    "rate": 0.0133,
+    "median_h": -0.585
+   },
+   "buried strand": {
+    "n": 401,
+    "rate": 0.0,
+    "median_h": -1.277
+   },
+   "exposed helix": {
+    "n": 400,
+    "rate": 0.0,
+    "median_h": -0.687
+   },
+   "other": {
+    "n": 2734,
+    "rate": 0.0011,
+    "median_h": -1.049
+   }
+  },
+  "[1.6, 99)": {
+   "SP": {
+    "n": 1050,
+    "rate": 0.0,
+    "median_h": -0.644
+   },
+   "TM": {
+    "n": 3344,
+    "rate": 0.0087,
+    "median_h": -0.251
+   },
+   "buried helix (not TM/SP)": {
+    "n": 135,
+    "rate": 0.0,
+    "median_h": -0.347
+   },
+   "buried strand": {
+    "n": 24,
+    "rate": 0.0,
+    "median_h": -1.146
+   },
+   "exposed helix": {
+    "n": 96,
+    "rate": 0.0,
+    "median_h": -0.418
+   },
+   "other": {
+    "n": 334,
+    "rate": 0.0,
+    "median_h": -0.703
+   }
+  }
+ },
+ "by distance to TM": {
+  "no-TM protein": {
+   "n": 180940,
+   "median_h": -1.226,
+   "rate": 0.0003
+  },
+  "TM protein, > 10 from a TM": {
+   "n": 42121,
+   "median_h": -1.153,
+   "rate": 0.0008
+  },
+  "TM protein, <= 10 from a TM": {
+   "n": 8625,
+   "median_h": -0.553,
+   "rate": 0.0039
+  },
+  "TM segment": {
+   "n": 12176,
+   "median_h": -0.244,
+   "rate": 0.0116
+  }
+ },
+ "buried helix outside TM, by protein": {
+  "no-TM protein": {
+   "n": 19286,
+   "median_h": -1.025,
+   "rate": 0.0013
+  },
+  "TM protein": {
+   "n": 6703,
+   "median_h": -0.775,
+   "rate": 0.0067
+  }
+ },
+ "AUROC protein mean h (TM protein vs not)": 0.672,
+ "TM segments (n, median of per-segment medians)": {
+  "n": 40,
+  "native": -0.5,
+  "inserted into 3 soluble hosts": -0.77,
+  "shuffled in place": -0.529,
+  "soluble hosts' own median": -1.235
+ },
+ "TM retention (x - host) / (native - host), median": {
+  "inserted": 0.683,
+  "shuffled in place": 0.992
+ }
+}

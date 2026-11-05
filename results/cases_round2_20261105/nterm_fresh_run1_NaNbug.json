@@ -1,0 +1,225 @@
+{
+ "test": "nterm",
+ "set": "fresh",
+ "proteins": 600,
+ "positions": 243862,
+ "thr": 1.1863071918487549,
+ "base_rate": 0.00122,
+ "spearman(h, KD19)": 0.22,
+ "by_category": {
+  "PROPEP": {
+   "n": 681,
+   "rate": 0.0,
+   "median_h": -0.31
+  },
+  "SIGNAL": {
+   "n": 2541,
+   "rate": 0.0004,
+   "median_h": -0.229
+  },
+  "TM starting < 60": {
+   "n": 2319,
+   "rate": 0.0065,
+   "median_h": 0.078
+  },
+  "TM starting >= 60": {
+   "n": 9857,
+   "rate": 0.0057,
+   "median_h": -0.026
+  },
+  "first 30 (other)": {
+   "n": 14213,
+   "rate": 0.0003,
+   "median_h": -0.292
+  },
+  "other": {
+   "n": 214251,
+   "rate": 0.001,
+   "median_h": -0.407
+  }
+ },
+ "by_category_within_KD19_bins": {
+  "[-99, 0.5)": {
+   "PROPEP": {
+    "n": 586,
+    "rate": 0.0,
+    "median_h": -0.327
+   },
+   "SIGNAL": {
+    "n": 272,
+    "rate": 0.0,
+    "median_h": -0.326
+   },
+   "TM starting < 60": {
+    "n": 267,
+    "rate": 0.0,
+    "median_h": -0.173
+   },
+   "TM starting >= 60": {
+    "n": 1349,
+    "rate": 0.0037,
+    "median_h": -0.192
+   },
+   "first 30 (other)": {
+    "n": 12267,
+    "rate": 0.0002,
+    "median_h": -0.308
+   },
+   "other": {
+    "n": 191786,
+    "rate": 0.0011,
+    "median_h": -0.423
+   }
+  },
+  "[0.5, 1.0)": {
+   "PROPEP": {
+    "n": 45,
+    "rate": 0.0,
+    "median_h": -0.309
+   },
+   "SIGNAL": {
+    "n": 393,
+    "rate": 0.0,
+    "median_h": -0.279
+   },
+   "TM starting < 60": {
+    "n": 434,
+    "rate": 0.0115,
+    "median_h": 0.048
+   },
+   "TM starting >= 60": {
+    "n": 2195,
+    "rate": 0.0036,
+    "median_h": -0.067
+   },
+   "first 30 (other)": {
+    "n": 1355,
+    "rate": 0.0,
+    "median_h": -0.175
+   },
+   "other": {
+    "n": 17624,
+    "rate": 0.0009,
+    "median_h": -0.283
+   }
+  },
+  "[1.0, 1.6)": {
+   "PROPEP": {
+    "n": 22,
+    "rate": 0.0,
+    "median_h": -0.327
+   },
+   "SIGNAL": {
+    "n": 826,
+    "rate": 0.0,
+    "median_h": -0.234
+   },
+   "TM starting < 60": {
+    "n": 814,
+    "rate": 0.0098,
+    "median_h": 0.098
+   },
+   "TM starting >= 60": {
+    "n": 3773,
+    "rate": 0.0072,
+    "median_h": 0.005
+   },
+   "first 30 (other)": {
+    "n": 474,
+    "rate": 0.0042,
+    "median_h": -0.175
+   },
+   "other": {
+    "n": 4397,
+    "rate": 0.0002,
+    "median_h": -0.234
+   }
+  },
+  "[1.6, 99)": {
+   "PROPEP": {
+    "n": 28,
+    "rate": 0.0,
+    "median_h": -0.111
+   },
+   "SIGNAL": {
+    "n": 1050,
+    "rate": 0.001,
+    "median_h": -0.184
+   },
+   "TM starting < 60": {
+    "n": 804,
+    "rate": 0.0025,
+    "median_h": 0.139
+   },
+   "TM starting >= 60": {
+    "n": 2540,
+    "rate": 0.0063,
+    "median_h": 0.033
+   },
+   "first 30 (other)": {
+    "n": 117,
+    "rate": 0.0,
+    "median_h": -0.159
+   },
+   "other": {
+    "n": 444,
+    "rate": 0.0023,
+    "median_h": -0.195
+   }
+  }
+ },
+ "signal peptides moved to the middle": {
+  "n": 40,
+  "share above thr native / moved": [
+   0.0,
+   0.0
+  ]
+ },
+ "internal TM segments moved to the N-terminus": {
+  "n": 40,
+  "share above thr native / moved": [
+   NaN,
+   NaN
+  ]
+ },
+ "readers: change in layer-2 pre-activation at the position when the unit is silenced (mean, 95% CI)": {
+  "2/1006": {
+   "unit": [
+    -0.41733,
+    -0.43549,
+    -0.39961
+   ],
+   "write-matched control": [
+    0.00461,
+    -0.01418,
+    0.02447
+   ]
+  },
+  "2/455": {
+   "unit": [
+    0.33301,
+    0.31893,
+    0.347
+   ],
+   "write-matched control": [
+    -0.012,
+    -0.027,
+    0.00269
+   ]
+  }
+ },
+ "readers: positions": 41,
+ "downstream: silencing over the SP (+10), change in mean log p(true) at masked SP positions (mean, 95% CI)": {
+  "proteins": 60,
+  "unit": [
+   0.00017,
+   -0.00048,
+   0.00082
+  ],
+  "write-matched control": [
+   -0.00047,
+   -0.00341,
+   0.00145
+  ]
+ }
+}

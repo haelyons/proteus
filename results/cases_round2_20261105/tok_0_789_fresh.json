@@ -1,0 +1,162 @@
+{
+ "test": "tok",
+ "set": "fresh",
+ "proteins": 600,
+ "thr": 0.4725429117679596,
+ "eta2 centre residue": 0.076,
+ "rate above thr by centre residue (top 6)": [
+  [
+   "C",
+   4125,
+   0.0255
+  ],
+  [
+   "G",
+   16846,
+   0.0015
+  ],
+  [
+   "A",
+   19563,
+   0.0014
+  ],
+  [
+   "S",
+   18187,
+   0.0007
+  ],
+  [
+   "T",
+   13802,
+   0.0007
+  ],
+  [
+   "E",
+   15255,
+   0.0005
+  ]
+ ],
+ "X tokens: n, rate": [
+  0,
+  null
+ ],
+ "centre C: +-3 ridge (fit on discovery), R^2 here": {
+  "n": 4125,
+  "r2": 0.383,
+  "largest weights": [
+   [
+    "-3I",
+    0.261
+   ],
+   [
+    "-1D",
+    0.211
+   ],
+   [
+    "-3L",
+    0.21
+   ],
+   [
+    "-1N",
+    0.196
+   ],
+   [
+    "+2*",
+    0.178
+   ],
+   [
+    "-2T",
+    0.157
+   ]
+  ],
+  "most negative": [
+   [
+    "-3C",
+    -1.56
+   ],
+   [
+    "+3C",
+    -1.397
+   ],
+   [
+    "-1*",
+    -0.825
+   ],
+   [
+    "-2C",
+    -0.651
+   ]
+  ]
+ },
+ "centre S: +-3 ridge (fit on discovery), R^2 here": {
+  "n": 18187,
+  "r2": 0.218,
+  "largest weights": [
+   [
+    "-1T",
+    0.174
+   ],
+   [
+    "+2S",
+    0.158
+   ],
+   [
+    "+1T",
+    0.156
+   ],
+   [
+    "-2T",
+    0.135
+   ],
+   [
+    "-2S",
+    0.135
+   ],
+   [
+    "-3T",
+    0.121
+   ]
+  ],
+  "most negative": [
+   [
+    "-2C",
+    -0.692
+   ],
+   [
+    "-3C",
+    -0.638
+   ],
+   [
+    "-1C",
+    -0.573
+   ],
+   [
+    "+2C",
+    -0.421
+   ]
+  ]
+ },
+ "centre C: spearman(h, S/T count in +-3)": 0.081,
+ "centre S: spearman(h, S/T count in +-3)": 0.213,
+ "C with >= 4 S/T among +-3: median h disordered / ordered (n)": [
+  -0.792,
+  -0.702,
+  10,
+  16
+ ],
+ "C above thr with +-3 -> A: share still above thr, median h": [
+  0.5,
+  0.462,
+  60
+ ],
+ "C: median h with no other C in +-3 / with >= 1 (n)": [
+  -0.647,
+  -2.02,
+  3342,
+  783
+ ],
+ "C with a C neighbour: neighbouring C -> A, median change in h (n)": [
+  0.722,
+  80
+ ]
+}

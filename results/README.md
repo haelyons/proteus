@@ -812,6 +812,52 @@ unchanged.
   is a statement about this ruler's vocabulary, not about the unit (see the cases below: one "none" unit reads
   whole-protein composition, another reads signal peptides).
 
+## 2026-11-05 (round 2) - Window baseline v1: the repair, against its pass criteria
+
+`baseline_v1_20261105/` (`atlas/seqbaseline.py` v1; `scripts/ruler_challenges.py --baseline v1`; design, target,
+support limits and pass criteria in `cases_round2_plan.md` section 2, with an amendment after the smoke recorded
+there).
+
+The two problems in v0, separated:
+- **Expressiveness:** v0 multiplied independent per-site residue tables, so it could not represent residue
+  conjunctions. v1 uses a small MLP on the one-hot +-5 window (11 x 21 -> 32 -> 1).
+- **Level mismatch:** v0 fitted the window model on lower bins and tested it at the peak. v1 fits and tests at the
+  same level: the density ratio between a column's peak tokens and background tokens.
+
+**Target.** At the peak, the descriptor distribution that the +-5 window alone predicts, computed as background
+tokens reweighted by the fitted peak/background density ratio of their windows. The test asks whether the
+observed peak departs from it.
+
+**Separation.** 5 folds by UniRef50 cluster: each fold's ratio is fitted on the other folds' clusters and applied
+to its own.
+
+**Support limits.**
+- A call is "not estimable" below 40 peak tokens with a defined descriptor, or when a fold's effective sample size
+  falls below 100.
+- A fold trains on about 45 positives at K_r 64 and about 180 at K_r 256.
+- The verdict is worded "unexplained by this fitted +-5 window model", never "structural".
+
+| set | sequence-only types: "unexplained" / estimable calls | structural types: "unexplained" / estimable | not estimable |
+|---|---|---|---|
+| A, K_r 64 (old challenges) | G-x-G-x-x-G **0 / 5**; hydro_win **4 / 12** | 84 / 86 (helix 28/28, ordered 23/23, conj. exposed strand 12/12, buried 6/6, two_job 6/6, narrow 5/5, lys_helix 4/6) | 3 |
+| E, K_r 256 (fresh challenges, seed 9) | hp_i34 0 / 10; kxxxe 1 / 6; pxxp 0 / 9; G-x-G-x-x-G 0 / 3; hydro_win **2 / 4** | strand_buried 12/12; helix_exposed 12/12; helix 4/4 | 0 |
+| A, K_r 256 | pending | pending | pending |
+
+**Against the criteria fixed beforehand** (sequence-only "unexplained" <= 1 per set; structural >= 80%):
+- *Repaired:*
+  - the motif failure (v0 called all 5 G-x-G-x-x-G calls "beyond the window"; v1 none);
+  - the new sequence-only types (1 of 25);
+  - power on structural columns (97-100%).
+- *Not repaired:* hydro_win, the extreme of an additive +-3 hydropathy score, is "unexplained" in 4 of 12 and
+  2 of 4. Its function is representable by the MLP, so this is an estimation failure at the extreme tail (ESS
+  median 534-556), not an expressiveness one. Both sets therefore fail the <= 1 criterion.
+- *Consequence for real units:*
+  - "unexplained by this fitted window model" is evidence against a sequence-only account only for columns whose
+    peak is not an extreme of an additive hydrophobicity-like window score;
+  - for hydrophobic, TM-like or amphipathic columns, the verdict does not exclude sequence-only;
+  - every structural or context call on a real unit below keeps **sequence-only not excluded**, and the cases test
+    sequence against context directly, by intervention.
+
 ## 2026-11-05 (round 2) - The pair's balance: an unsuccessful explanation
 
 `pair_balance_20261105/` (`scripts/pair_balance.py`; frozen test `pair_balance_frozen.md`, which records
@@ -895,6 +941,199 @@ the largest ubiquitin share of its top-64, **layer 15, unit 2087**, positive pol
 - *The earlier atlas-based inference* ("units whose top-64 are mostly ubiquitin copies") would have been read
   as ubiquitin-related without these probes.
 
+## 2026-11-05 (round 2) - Six real 8M units: proposed computations tested on fresh proteins
+
+`cases_round2_20261105/` (`scripts/case_units.py`, `case_inspect.py`, `case_tests.py`).
+- **Predictions:** `cases_round2_predictions.md`, frozen per unit in commits dafee6e, 980b48e and b5c3283, each
+  before that unit's fresh run. It records everything inspected beforehand, including the discovery-set runs of
+  `case_tests.py`, which served as smokes.
+- **Selection:** `real_units_20261105/selection.json`, frozen rule with seed 20261105 and fallbacks fixed before
+  any example was seen.
+  - 5 random picks within predefined ruler categories: structural x2, composition, context, none.
+  - 1 deliberate pick: the "not detected" unit with the strongest next-layer reader (cosine 0.32). A deliberate
+    pick exposes blind spots; it does not estimate how often arbitrary units are understandable.
+- **Protein sets:** fresh = held-out with descriptors, excluding the first pair experiment's 400 (seed 1, 600). For
+  the family unit, fresh = every Swiss-Prot sHSP never inspected for it, against all held-out non-members.
+  Thresholds are each unit's discovery q99.9.
+- **Standard readouts** (all six units):
+  - the share of a predicted context at fresh top positions;
+  - silencing at the masked top position: the signed change in log p of the predicted residues and of the true
+    residue, against a unit matched on write magnitude in the same masked forward.
+
+**Overview**
+- First explanations failed on discovery material for 2 of 6 units: (5,1181) and (0,789).
+- After revision, the frozen fresh predictions held:
+  - in full for 4 units: (3,1238), (5,668), (0,767), (0,789);
+  - in part for (5,1181);
+  - not for (1,746), whose explanation failed on fresh proteins.
+
+### (3,1238) random structural pick: recognition of the small-heat-shock-protein family
+
+- **Proposed computation:** recognise the alpha-crystallin domain (sHSP family). The response needs the intact
+  domain, more than a +-10 window, and is broadcast to most positions of the protein, including the N-terminal
+  region outside the domain.
+
+| fresh prediction | observed |
+|---|---|
+| family (146 never-inspected sHSPs) median fraction of positions above threshold >= 0.2; non-family (10,007 held-out) median 0, q95 <= 0.01; AUROC >= 0.9 | **0.54**; 0 and 0; **0.936** |
+| members below 0.35 identity to every seed: median >= 0.05, below the >= 0.5-identity members | **0.36** (n 47) vs 0.63 (n 81); 0.54 at 0.35-0.5 (n 18) |
+| CS-domain proteins (structural analogues of the domain, n 70): median <= 0.01 | **0** (max 0.003) |
+| C-terminal 60% shuffled: N-terminal 40% response ratio <= 0.3; N-terminal 40% shuffled: C-terminal ratio >= 0.6 | **0.0**; **0.99** (30 members) |
+| +-10 window around each member's maximum transplanted into 5 non-family hosts: share above threshold <= 0.1 | **0.007** (n 150) |
+| composition shuffles: median 0, max <= 0.05 | 0, 0 (n 90) |
+| standard: silencing lowers log p of P/T/S beyond the control; strand share at top above base | -0.065 (CI -0.113 to -0.010) vs control +0.090; strand 0.19 vs 0.14 (weak; 21 positions, few sHSPs among the 600) |
+
+- **Account.**
+  - *Supported:* a family-recognition computation that generalises beyond close relatives (identity < 0.35
+    responds at about 60% of the level of close members). It does not respond to the domain's fold analogues.
+  - *Beyond naming what activates the unit:*
+    - the response is a property of the whole domain, not of any window inside it;
+    - it is broadcast: positions outside the domain respond only while the domain is intact, so the unit's value
+      at an N-terminal residue reports something about residues 60-150 positions away.
+  - *Not shown:* any use of this signal. No masked-prediction test was frozen for this unit.
+  - *Unexplained:* 20 held-out non-members respond at 10-26% of positions, mostly Arabidopsis proteins outside the
+    seed-defined family. Whether they carry divergent alpha-crystallin domains was not checked.
+  - *Ruler:* the structural call (state5, strand) was a by-product of the family's beta-sandwich. Sequence-only is
+    not excluded by the baseline, but the transplants and shuffles show the unit needs the domain, not a window.
+
+### (5,668) random "no association" pick: whole-protein composition
+
+- **Proposed computation:** every position carries an estimate of the protein's overall amino-acid makeup along
+  a GC-proteome axis: high G/A/R/P (and D/E), low F/Y/M/I/N/K. About half of it survives shuffling.
+
+| fresh prediction | observed |
+|---|---|
+| Spearman(protein mean, GARP - FYMINK) >= 0.45 | **0.557** |
+| eta2 protein >= 0.45; centre residue <= 0.05 | **0.573**; **0.016** |
+| shuffle retention >= 0.35 (taxon-signature alternative <= 0.15) | **0.653** |
+| chimera halves shift toward the partner by 0.25-0.75 of the gap (local alternative <= 0.1) | **0.502** (IQR 0.26-0.61, n 80) |
+| standard: silencing lowers Q/H/E beyond the control | -0.127 (CI -0.149 to -0.107) vs -0.001 (CI -0.052 to 0.043) |
+
+- **Account.**
+  - *Supported:* a protein-level variable computed from the whole sequence and written at every position.
+    Chimeras put each half about halfway toward its partner. It is mostly composition: 65% survives shuffling,
+    and the rest depends on order in a way not identified.
+  - *Beyond naming:* this is the ruler's blind spot made concrete. A per-position residue/structure test cannot
+    see a variable that is constant along a protein. "No association" meant "nothing local".
+  - *Not shown:* that the model uses it. Log p(true) at masked top positions: -0.016 (CI -0.054 to 0.017),
+    control +0.007.
+
+### (0,789) random context pick: a lone-cysteine readout (first explanation failed)
+
+- *Unsuccessful explanation, on discovery proteins:* "C or S in an S/T-rich disordered context". Spearman with
+  S/T count was 0.09, and replacing the +-3 neighbours with A kept 59% of top positions above threshold.
+- **Proposed computation:** the centre C raises the unit; any other C within +-3 strongly lowers it (ridge
+  weights -1.56 / -1.40 at -3 / +3). It separates isolated cysteines from CxxC / CC / CxC motifs.
+
+| fresh prediction | observed |
+|---|---|
+| C has the highest rate | **2.55%** (next G 0.15%) |
+| C ridge (fitted on discovery) R^2 >= 0.3 | **0.383** |
+| lone minus clustered C median >= 0.8 | **1.37** (-0.65 vs -2.02; n 3,342 / 783) |
+| neighbouring C -> A raises the value by >= 0.6 | **+0.72** (n 80) |
+| S/T alternative: Spearman <= 0.2; +-3 -> A keeps >= 0.4 | 0.081; 0.50 |
+| standard: silencing has no effect beyond the control | -0.0007 vs -0.0010: none |
+
+- **Account.**
+  - *Supported:* an approximately additive function of the input tokens at layer 0 (centre token plus neighbour
+    terms), with one strong interaction: cysteines cancel each other.
+  - *Beyond naming:* the "context" the ruler found (disorder, S/T) was a correlate. The unit's actual
+    dependence is on nearby cysteines, which the ruler's vocabulary does not contain.
+  - *Not shown:* any downstream use (silencing at the masked position does nothing beyond the control).
+
+### (0,767) random composition pick: token identity plus an additive neighbour term
+
+- **Proposed computation:** a fixed readout of the centre token (X > P > H, far above the rest) plus an
+  approximately additive neighbour term through layer-0 attention: W and D raise it, K and R lower it.
+
+| fresh prediction | observed |
+|---|---|
+| eta2 centre >= 0.4 | **0.515** |
+| ridge R^2 (fitted on discovery) >= 0.25 for P and H | **0.365**, **0.369** |
+| P and H the top two rates | P 2.4%, H 1.2%, all others 0.0% |
+| X at rate >= 0.5 | untested: no X in the fresh proteins |
+| standard: silencing lowers K/R/E beyond the control | -0.0041 (CI -0.0051 to -0.0032) vs 0.0000; tiny |
+
+- **Account:** explained as a near-linear function of the input, nothing more. There is nothing beyond
+  naming here, and that is the expected answer for a layer-0 unit.
+
+### (5,1181) random structural pick: membrane-segment context (first explanation failed; revision partly supported)
+
+- *Unsuccessful explanation, on discovery proteins:* "a hydrophobic segment read from sequence". Spearman with
+  KD19 was 0.13; signal peptides never fired; values inside TM segments were flat across hydrophobicity bins.
+- **Proposed computation:** raised over TM segments and their flanks, further raised within membrane proteins.
+  It reads segment composition (order-insensitive) plus context from the rest of the protein.
+
+| fresh prediction | observed |
+|---|---|
+| TM - no-TM protein >= 0.7; order TM > <= 10 > > 10 >= no-TM | **0.98**; -0.24 > -0.55 > -1.15 > -1.23 |
+| buried helix outside TM: membrane minus soluble protein >= 0.4 | **0.25: fails** |
+| AUROC protein mean (membrane vs not) >= 0.75 | **0.672: fails** |
+| Spearman(h, KD19) <= 0.3 | 0.146 |
+| TM >= buried helix (not TM) + 0.5 in every KD19 bin | 0.68, 0.59 hold; **0.37, 0.10 fail**. The top bin had already failed on discovery (0.01, n 110); I wrote the prediction inconsistently with my own discovery table. |
+| TM segment inserted into soluble hosts: retention 0.15-0.65; shuffled in place >= 0.7 | **0.68: just outside**; 0.99 |
+| standard: helix share at top above base; silencing lowers R/T/V beyond the control | 0.72 vs 0.37; -0.084 (CI -0.140 to -0.029) vs +0.013 |
+
+- **Account.**
+  - *Supported:* the unit is raised over annotated TM segments independently of local hydrophobicity, decays
+    over about 10 residues away from them, and does not care about the order within a segment.
+  - *Contradicted:* the protein-level part. On fresh proteins, membrane membership adds less (AUROC 0.67), and a
+    TM segment keeps 68% of its value in a soluble host. The signal is more segment-local than I proposed.
+  - *Unpredicted observation:* silencing it at fresh masked top positions lowers log p(true), -0.065 (CI -0.109 to
+    -0.021), against -0.009 (CI includes 0) for the control. No prediction was frozen, so this is reported, not
+    claimed.
+  - *Beyond naming:*
+    - a segment-level composition signal that is not hydrophobicity (Spearman 0.15) and is shuffle-invariant;
+    - at the most hydrophobic windows, buried helices of soluble proteins reach TM levels, so whatever it
+      reads overlaps with "very hydrophobic helix" there.
+  - Sequence-only is not excluded: the baseline fails on exactly this kind of additive hydrophobic column.
+
+### (1,746) deliberate pick ("not detected", strongest next-layer reader): the explanation failed on fresh proteins
+
+- **Discovery evidence:**
+  - signal peptides at 50x the base rate among top positions;
+  - moving a signal peptide to mid-protein abolished it;
+  - silencing changed layer-2 units 1006 / 455 by -0.43 / +0.36.
+- **Proposed computation:** a signal-peptide detector with strong opposed outputs to two readers.
+
+| fresh prediction | observed |
+|---|---|
+| SIGNAL rate >= 10x base and >= 3x TM rates | **0.04% vs 0.12% base: fails**; TM 0.65% / 0.57% |
+| first-30 rate <= SIGNAL / 5 | 0.03% (moot) |
+| moved signal peptides lose >= 80% | native share 0: uninformative |
+| TM moved to the N-terminus stays <= 0.02 | 0.0 -> 0.007 (native 0: uninformative) |
+| readers: 1006 down, 455 up, beyond the control, >= 5x | **-0.417** (CI -0.435 to -0.400) and **+0.333** (CI 0.319 to 0.347), against +0.005 and -0.012 |
+| downstream over the signal peptide: no effect beyond the control (a predicted null) | +0.0002 (CI -0.0005 to 0.0008) vs -0.0005 |
+
+- **Why the explanation failed:** on discovery proteins, the 46 top signal-peptide positions came from **2
+  proteins** (Q91717 26, P02893 18; plus 2 in P0AD13) among 37 carrying a signal peptide. I counted tokens, not
+  proteins. That lesson applies to every enrichment in this round, so the confirmatory tests here count proteins
+  or use protein-level splits where it matters.
+- **Account.**
+  - *Supported:* the wiring. At the positions where the unit fires, it moves two specific layer-2 units in
+    opposite directions, by 0.29 and 0.44 of their q50-q90 spans and 30-80x a matched write. Neither reader's own top
+    activations involve signal peptides.
+  - *Not supported:* any description of what it detects. On fresh proteins its top positions are mildly
+    hydrophobic (61% I/V/L/F/A vs 33%) and TM-enriched (5x), and nothing else was found.
+  - *Beyond naming:* nothing yet. The ruler's "none" stands, and so does mine.
+
+### Across the six
+
+- **Not detected by the ruler is not empty.** One "none" unit carries a protein-level composition variable; the
+  ruler's per-position vocabulary cannot express it.
+- **Ruler categories and causes disagree.** The family unit was called structural, the lone-cysteine unit
+  context, the membrane unit structural. In each case the test that distinguished explanations was an
+  intervention on the sequence (transplant, shuffle, insertion, neighbour mutation), not a descriptor.
+- **"What have we explained beyond naming?"**
+  - two non-local computations: family recognition broadcast across a protein, and a whole-protein composition
+    estimate;
+  - one interaction (cysteines cancel);
+  - one segment-level signal;
+  - two near-linear token readouts.
+  - For none of the six did a frozen prediction establish that the model *uses* the unit for masked prediction.
+    Silencing moves the predicted residues beyond controls for 4 units (moves predictions), and changes log
+    p(true) beyond the control only once, unpredicted (5,1181).
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -909,4 +1148,6 @@ held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 b
 03:03-04:11 UTC incl. the rerun of two controls, ~$1.5; K sweep on an A100 (us-east-1), 04:00-04:23 UTC, ~$0.8.
 Total ~$16.7.
 2026-11-05 (later): strict held-out on an A10 (us-east-1), two attempts, 11:07-11:29 and 11:35-12:17 UTC, ~$1.4.
-Total ~$18.1. No instance is running.
+Total ~$18.1.
+2026-11-05 (round 2): real-unit scoring on an A10 (us-east-1), ~17:04-17:46 UTC, ~$0.9. Total ~$19.0. No instance
+is running.

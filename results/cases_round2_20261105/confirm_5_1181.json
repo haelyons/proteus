@@ -1,0 +1,40 @@
+{
+ "unit": [
+  5,
+  1181
+ ],
+ "fresh_proteins": 600,
+ "positions": 72,
+ "context": {
+  "kind": "state5",
+  "values": [
+   1
+  ]
+ },
+ "context_share_at_top": 0.722,
+ "context_share_base": 0.369,
+ "silence_readout_residues_mean_dlogp (mean, 95% CI)": {
+  "unit": [
+   -0.08364,
+   -0.14003,
+   -0.02881
+  ],
+  "control": [
+   0.01293,
+   -0.0318,
+   0.05857
+  ]
+ },
+ "silence_dlogp_true (mean, 95% CI)": {
+  "unit": [
+   -0.06494,
+   -0.10851,
+   -0.02143
+  ],
+  "control": [
+   -0.00918,
+   -0.03905,
+   0.01967
+  ]
+ }
+}

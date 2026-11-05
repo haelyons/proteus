@@ -1,0 +1,18 @@
+{
+ "test": "gc",
+ "set": "fresh",
+ "proteins": 600,
+ "spearman(protein mean h, GARP - FYMINK)": 0.557,
+ "eta2 protein (share of per-position variance between proteins)": 0.573,
+ "eta2 centre residue": 0.016,
+ "mean of protein means": -1.724,
+ "shuffles of the top-20 proteins: retention (shuffled - mu) / (native - mu), median": 0.653,
+ "chimeras (high-index 150 + low-index 150, both orders): shift of each half toward its partner, as a share of the gap": {
+  "n": 80,
+  "median": 0.502,
+  "q25 / q75": [
+   0.258,
+   0.61
+  ]
+ }
+}

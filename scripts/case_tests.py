@@ -219,6 +219,16 @@ def cmd_shsp(a, M, d, F):
         seen = {d["acc"][t_ // SEQ_STRIDE] for t_ in toks if t_ >= 0} | {p["acc"] for p in proteins(a, False, 600, 2)}
         seen |= {d["acc"][i] for i in smoke_pool} | seed_acc
         allQ = {x: d["seq"][i][:1022] for i, x in enumerate(d["acc"]) if x not in seen}
+        # candidate pass (speed only): seeds as queries against every protein, lenient e-value (<= 1000, which covers
+        # e <= 1e-3 in the 18-seed database many times over); the frozen criterion is applied to the candidates below
+        with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
+            qf, tf, of = Path(tmp) / "q.fa", Path(tmp) / "t.fa", Path(tmp) / "o.m8"
+            qf.write_text("".join(f">{k}\n{v}\n" for k, v in seeds.items())); tf.write_text("".join(f">{k}\n{v}\n" for k, v in allQ.items()))
+            subprocess.run(["mmseqs", "easy-search", str(qf), str(tf), str(of), str(Path(tmp) / "w"), "-e", "1000", "-s", "7.5", "--max-seqs", "100000",
+                            "--format-output", "query,target", "--threads", "3", "-v", "1"], check=True)
+            cand_acc = {line.split("\t")[1].strip() for line in open(of)}
+        out_c = len(cand_acc)
+        allQ = {k: v for k, v in allQ.items() if k in cand_acc}
         with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
             best_s = mmseqs(allQ, {k: v for k, v in seeds.items() if k.startswith("S|")}, tmp)
         with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
@@ -226,7 +236,7 @@ def cmd_shsp(a, M, d, F):
         fam = set(best_s); cs = {q for q in best_c if q not in fam}
         Q = {k: allQ[k] for k in fam | cs}
         Q.update({x: d["seq"][i][:1022] for i, x in enumerate(d["acc"]) if x in held and x not in fam and x not in cs})
-        out0 = {"excluded as inspected": len(seen)}
+        out0 = {"excluded as inspected": len(seen), "candidates from the lenient reverse pass": out_c}
     else:
         Q = {d["acc"][i]: d["seq"][i][:1022] for i in smoke_pool}
         with tempfile.TemporaryDirectory(dir=a.tmp) as tmp:
@@ -366,7 +376,7 @@ def cmd_nterm(a, M, d, F):
                 n0 = frac(unit_h(M, s, l, u)[:e0], thr); n1 = frac(unit_h(M, new, l, u)[mid:mid + e0], thr)
                 mv_sp.append((round(n0, 3), round(n1, 3)))
         for s0, e0 in F.segments(p["acc"], "ft:TRANSMEM"):
-            if s0 >= 60 and 15 <= e0 - s0 <= 30 and len(mv_tm) < 40:
+            if s0 >= 60 and 15 <= e0 - s0 <= 30 and e0 <= len(s) and len(mv_tm) < 40:   # e0 <= len(s): features keep uncropped coordinates
                 seg = s[s0:e0]; new = "M" + seg + s[:s0] + s[e0:]
                 n0 = frac(unit_h(M, s, l, u)[s0:e0], thr); n1 = frac(unit_h(M, new, l, u)[1:1 + len(seg)], thr)
                 mv_tm.append((round(n0, 3), round(n1, 3)))

@@ -264,7 +264,7 @@ approximately additive neighbour term through layer-0 attention.
 **Standard readouts** (`pred/0_767.json`): P/H share at top positions; silencing lowers log p of K, R, E beyond the
 control (discovery unit 0.002 against 0.0004).
 
-## (0,789): frozen 2026-11-05 ~18:30 UTC (see the commit), before any fresh protein was scored for it
+## (0,789): frozen 2026-11-05 18:20 UTC (commit b5c3283), before any fresh protein was scored for it
 
 **My first explanation failed on discovery proteins (kept as an unsuccessful explanation).** I guessed "C or S in
 an S/T-rich disordered context". The discovery runs of `case_tests.py tok` contradict it:
@@ -293,3 +293,15 @@ a little for S.
 
 **Standard readouts** (`pred/0_789.json`): C share at top positions above base; silencing at the masked position has
 no effect beyond the control (discovery: unit 0.0005, control 0.0009).
+
+## Execution notes for the fresh runs (no prediction changed)
+
+- **`nterm` fresh, run 1:** "internal TM moved to the N-terminus" returned NaN. Swiss-Prot feature coordinates are
+  not cropped with the 1,022-residue sequences, so some segments were empty. Fixed (`e0 <= len(s)`) and re-run;
+  every other number is identical between the runs (`nterm_fresh_run1_NaNbug.json` is kept).
+- **`shsp` fresh, run 1:** killed after about 30 minutes in MMseqs2 prefiltering (575k queries at -s 7.5 against
+  18 seeds). Run 2 first takes candidates with the seeds as queries against the never-inspected proteins
+  (e <= 1000, -s 7.5, --max-seqs 100000). It then applies the frozen criterion (proteins as queries against the
+  seeds, e <= 1e-3, seed coverage >= 0.4) to those candidates. The family definition is unchanged; a hit missed by
+  the lenient pass would need e > 1000 against all of Swiss-Prot.
+- Results and accounts: `README.md`, section "Six real 8M units".

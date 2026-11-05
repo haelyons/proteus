@@ -1,0 +1,45 @@
+{
+ "unit": [
+  5,
+  668
+ ],
+ "fresh_proteins": 600,
+ "positions": 22,
+ "context": {
+  "kind": "residue",
+  "values": [
+   "L",
+   "A",
+   "P",
+   "S",
+   "G",
+   "R"
+  ]
+ },
+ "context_share_at_top": 0.591,
+ "context_share_base": 0.417,
+ "silence_readout_residues_mean_dlogp (mean, 95% CI)": {
+  "unit": [
+   -0.12709,
+   -0.14886,
+   -0.10681
+  ],
+  "control": [
+   -0.00066,
+   -0.05196,
+   0.04254
+  ]
+ },
+ "silence_dlogp_true (mean, 95% CI)": {
+  "unit": [
+   -0.01619,
+   -0.05422,
+   0.01657
+  ],
+  "control": [
+   0.00686,
+   -0.02229,
+   0.03719
+  ]
+ }
+}
