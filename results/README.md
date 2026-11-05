@@ -456,14 +456,15 @@ licence; its pickles were not loaded).
 Corrected for noise and for condition-wide effects (each condition mapped onto DMSO by an affine fit over all
 alleles: MG132 slope 0.81, DTT offset -0.078; then Cochran's Q over the five calibrated position means, SE from
 the replicate SDs of each position's alleles), 43 of 70 testable positions still differ between conditions at
-Bonferroni p < 0.01, and 7 are stable at p > 0.1 (8, 13, 33, 42, 44, 54, 67). That rests on three-replicate SDs
+Bonferroni p < 0.01, and 7 have no detected condition dependence at p > 0.1 (8, 13, 33, 42, 44, 54, 67; not
+"stable": that needs an equivalence test, see the revised ubiquitin section). That rests on three-replicate SDs
 being honest errors; if they understate the noise by 2x, Q is 4x too large. Either way the prediction (5-20)
 was too low.
 
 What it decides: a unit-level check against this scan compares human-sequence activations with yeast
 fitness (the three differing positions are themselves near-neutral in yeast), and most positions' tolerance
-moves with the condition. A comparison should use positions stable across conditions, or name the
-condition; "the DMS says this position matters" is not one statement here.
+moves with the condition. A comparison should name the condition (DMSO primary) or use positions shown equivalent across
+conditions at a stated margin; "the DMS says this position matters" is not one statement here.
 
 ## 2026-11-05 - Measurement #4: four relations between units (8M, CPU on the new 8M atlases)
 
@@ -652,6 +653,72 @@ elsewhere); for hydro_win (ESS 328) an independent-sites model approximates a wi
   3. sequence-only columns can be called structural or context: 12 / 12 hydro_win, 5 / 12 motif;
   4. calls move with bf16 or relabelling only at the detection margin;
   5. the error rate at high signal fractions is bounded only loosely (upper bound 12%).
+
+## 2026-11-05 - Valine pair: layer 1 units 86 and 1200 of ESM-2 8M, on fresh proteins
+
+`valine_pair_20261105/` (`scripts/pair_silencing.py`; predictions `mechanistic_round1_predictions.md` section 1,
+with an amendment before the real run: the main group is "both above q99.9", because on fresh proteins unit
+86's q99 is below zero). 400 date-held-out proteins (164,947 residues); 44 positions where both fire; at each,
+post-GELU silencing of 86, of 1200, of both, and halving both, against a control pair matched per position on
+write magnitude.
+
+From the weights: input cosine 0.81, output cosine -0.661, the most opposed write to 86's among all 1,280 units
+of the layer; |w_out| 1.68 / 1.12.
+
+| quantity ("both" positions, median) | pair | matched controls | predicted |
+|---|---|---|---|
+| Pearson r of the two units over all fresh tokens | 0.899 | - | 0.80-0.95 |
+| top-64 that are V, each unit | **36%** | - | >= 60% |
+| cosine of the residue-prediction changes, silence 86 vs silence 1200 | **-0.78** | +0.11 | -0.3 to -0.8 |
+| joint / (individual + individual), prediction change | **0.40** | 0.80 | 0.3-0.7; controls 0.8-1.0 |
+| Spearman of layer-2 changes, silence 86 vs silence 1200 | **-0.55** | +0.02 | -0.3 to -0.9 |
+| halve both / silence both | 0.52 | - | 0.4-0.6 |
+| KL(silence both) < KL(silence 86) | 45% of positions | - | >= 50% |
+| masked prediction elsewhere, mean \|D log p(true)\| | 0.0052 / 0.0063 / 0.0057 (86 / 1200 / both) | 0.0023 / 0.0023 / 0.0046 | - |
+
+**What their opposed writes do:** they act on a polar-versus-hydrophobic axis, not on valine. At the position,
+silencing 86 lowers log p of E, Q and G by ~0.06 each and slightly raises I; silencing 1200 raises E, K and Q by
+0.06-0.07 and lowers I and F. My prediction (V down, I / L / A up) was wrong. The same later units move in
+opposite directions: layer-2 units 786, 785, 1142, 203 and 1235 are among the ten most changed by silencing 86
+at most positions (786 at 36 of 44).
+
+**Where the case is weak:**
+- The pair never fires alone on fresh proteins. With one unit above q99.9 and the other below q90 there are
+  0 positions of either kind, so the regime where their *difference* would matter cannot be isolated by
+  selection. That needs graded interventions (e.g. scale one unit across its range while holding the other)
+  rather than found positions.
+- Unit 1200's write (2.35) is larger than any other unit's at those positions, so its "matched" control
+  writes half as much (1.11). The controls show what a pair of unrelated units does, not one of equal size.
+- At a valine the unmasked prediction is near-certain, so the KL there is ~1e-4. The masked readout at other
+  positions, where the pair moves predictions 2.5x more than its controls, is the more informative.
+
+Supported: units with similar inputs and opposed writes have opposed, partly cancelling effects on fresh
+proteins (0.40 vs 0.80 sub-additivity; -0.78 vs +0.11). Not shown: what the cancellation accomplishes. The
+next step is to vary each unit's activation independently and measure the polar / hydrophobic readout.
+
+## 2026-11-05 - Ubiquitin, revised (CPU)
+
+`ubiquitin_v2_20261105/` (`scripts/dms_align.py`, `scripts/ubq_dms_scores.py`; predictions
+`mechanistic_round1_predictions.md` section 3). DMSO is the primary condition; the others are shown
+separately, never pooled.
+
+| ESM-2 masked-marginal score vs fitness (yeast wild type, Spearman) | DMSO (primary) | caffeine | DTT | HU | MG132 | predicted (DMSO) |
+|---|---|---|---|---|---|---|
+| 8M | **0.112** | 0.163 | 0.116 | 0.106 | 0.143 | 0.15-0.35 |
+| 650M | **0.541** | 0.600 | 0.540 | 0.546 | 0.528 | 0.35-0.55 |
+
+(n = 1,218-1,298 scored missense alleles per condition.) Yeast ubiquitin is itself in ESM-2's training data,
+so this is an alignment check, not an independent test.
+
+Conditions:
+- Positions 8, 13, 33, 42, 44, 54 and 67 (p > 0.1 in the heterogeneity test) are positions with **no detected
+  condition dependence**, not "stable".
+- Equivalence (two one-sided tests, 90% intervals of each condition's calibrated deviation within the margin):
+  at **+-0.1** (stop ~ -0.5, wild type ~ 0), **38 of 70** positions are equivalent across conditions,
+  including all seven above. At **+-0.05**, only **4** are (33, 54, 64, 65). Predicted 0-7 at +-0.1: wrong.
+- Many positions with detectable condition dependence are also equivalent at +-0.1: their differences are
+  real but small. So "43 of 70 positions depend on condition" (part 2 above) overstates the size; the margin
+  decides the answer, and it is a choice.
 
 ## Spend
 

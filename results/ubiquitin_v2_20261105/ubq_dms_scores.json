@@ -1,0 +1,61 @@
+{
+ "wild_type": "MQIFVKTLTGKTITLEVESSDTIDNVKSKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+ "models": {
+  "8M": {
+   "spearman_by_condition": {
+    "DMSO": {
+     "n": 1298,
+     "spearman": 0.112
+    },
+    "Caffeine": {
+     "n": 1256,
+     "spearman": 0.163
+    },
+    "DTT": {
+     "n": 1252,
+     "spearman": 0.116
+    },
+    "HU": {
+     "n": 1240,
+     "spearman": 0.106
+    },
+    "MG132": {
+     "n": 1218,
+     "spearman": 0.143
+    }
+   },
+   "primary_DMSO": {
+    "n": 1298,
+    "spearman": 0.112
+   }
+  },
+  "650M": {
+   "spearman_by_condition": {
+    "DMSO": {
+     "n": 1298,
+     "spearman": 0.541
+    },
+    "Caffeine": {
+     "n": 1256,
+     "spearman": 0.6
+    },
+    "DTT": {
+     "n": 1252,
+     "spearman": 0.54
+    },
+    "HU": {
+     "n": 1240,
+     "spearman": 0.546
+    },
+    "MG132": {
+     "n": 1218,
+     "spearman": 0.528
+    }
+   },
+   "primary_DMSO": {
+    "n": 1298,
+    "spearman": 0.541
+   }
+  }
+ }
+}
