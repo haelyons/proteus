@@ -47,6 +47,16 @@ def column_spec():
     return cols
 
 
+def column_spec_e():
+    """Fresh baseline challenges (cases_round2_plan.md section 2): new sequence-only and structural types."""
+    cols = []
+    for t in ("hp_i34", "kxxxe", "pxxp", "strand_buried", "helix_exposed"):
+        cols += [(t, a, "iid", r) for a in (1.0, 2.0, 3.0, 4.0) for r in range(3)]
+    cols += [(t, a, "iid", r) for t in ("helix", "hydro_win", "motif_gxgxxg") for a in (2.0, 3.0) for r in range(2)]
+    cols += [("noise", 0.0, "iid", r) for r in range(60)]
+    return cols
+
+
 def clopper_pearson(k, n, a=0.05):
     if n == 0:
         return (None, None)
@@ -98,6 +108,9 @@ def main():
     ap.add_argument("--pilot-tokens", type=int, default=1_000_000)
     ap.add_argument("--B", type=int, default=2000)
     ap.add_argument("--max-proteins", type=int, default=0, help="smoke only")
+    ap.add_argument("--Kr", type=int, default=64)
+    ap.add_argument("--spec", default="A", choices=["A", "E"], help="A: the challenge set; E: fresh baseline challenges")
+    ap.add_argument("--baseline", default="v0", choices=["v0", "v1", "none"])
     a = ap.parse_args()
     a.bf16 = a.set == "B"; a.relabel_seed = 77 if a.set == "C" else 0; a.dup_frac = 0.05 if a.set == "D" else 0.0
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
@@ -105,7 +118,7 @@ def main():
     prot = build_proteins(a)
     if a.max_proteins:
         prot = prot[: a.max_proteins]
-    cols = column_spec(); C = len(cols)
+    cols = column_spec() if a.spec == "A" else column_spec_e(); C = len(cols)
     (out / "columns.json").write_text(json.dumps([{"col": i, "type": t, "alpha": al, "noise": nm, "rep": r} for i, (t, al, nm, r) in enumerate(cols)]))
     allb = torch.cat([p["burial"][p["plddt"] >= 70] for p in prot])
     bmu, bsd = float(allb.mean()), float(allb.std())
@@ -150,12 +163,22 @@ def main():
         for m in re.finditer(r"(?=G.G..G)", seq):
             gx[m.start()] = 1.0
         conj = ((s5 == 2) & (b3 == 0)).float()
+        hyd = torch.tensor([float(ch in "ILVFMW") for ch in seq])
+        hp34 = torch.zeros(n); kxe = torch.zeros(n); pxp = torch.zeros(n)
+        if n > 4:
+            hp34[: n - 4] = hyd[: n - 4] * hyd[3: n - 1] * hyd[4:n]
+        for m in re.finditer(r"(?=K...E)", seq):
+            kxe[m.start()] = 1.0
+        for m in re.finditer(r"(?=P..P)", seq):
+            pxp[m.start()] = 1.0
         bb = b3.clone(); bb[bb < 0] = 3
         u = torch.rand(n, generator=noise_rng(key, 11))
         xor = (u < pi[s5, bb]).float()
         xor_sel["n"] += int(xor.sum()); xor_sel["state5"] += torch.bincount(s5[xor > 0], minlength=5).float()
         xor_sel["burial3"] += torch.bincount(bb[xor > 0], minlength=4).float()
-        sg.update({"motif_nxst": nxst, "motif_gxgxxg": gx, "conj_exposed_strand": conj, "balanced_xor": xor})
+        sg.update({"motif_nxst": nxst, "motif_gxgxxg": gx, "conj_exposed_strand": conj, "balanced_xor": xor,
+                   "hp_i34": hp34, "kxxxe": kxe, "pxxp": pxp, "strand_buried": ((s5 == 2) & (b3 == 2)).float(),
+                   "helix_exposed": ((s5 == 1) & (b3 == 0)).float()})
         E = torch.randn(n, C, generator=noise_rng(key, 1))
         up = torch.randn(C, generator=noise_rng(key, 2))
         uc = torch.randn(C, generator=noise_rng(zlib.crc32(p["cluster"].encode()), 3))
@@ -181,7 +204,7 @@ def main():
     Hp = torch.cat(pilot); del pilot
     E = pilot_edges([Hp], probs=(0.5, 0.9, 0.99, 0.999, 0.9999, 0.99999), chunk=32)   # 32 columns per sort: 15 GB container
     del Hp
-    at = Atlas(1, C, E, AtlasConfig(K=64, Kr=64, backend="torch", seed=a.seed, gram=False, cap_frac=0.02), n_annot=0)
+    at = Atlas(1, C, E, AtlasConfig(K=64, Kr=a.Kr, backend="torch", seed=a.seed, gram=False, cap_frac=0.02), n_annot=0)
     blocks, toks, cur, nb = [], [], 0, 0
 
     def flush():
@@ -210,15 +233,26 @@ def main():
     rt = res["res_tok"][0, 0]
     scores = [score_column(T, rt[c], B=a.B, seed=c) for c in range(C)]
     full = calls(scores, rule="v1.2")
-    WT = WindowTables(T, W=5, n_bg=200_000, seed=0)
+    torch.save({"res_tok": res["res_tok"][0, 0].to(torch.int32)}, out / "res_tok.pt")      # for re-running diagnostics
+    if a.baseline == "v0":
+        WT = WindowTables(T, W=5, n_bg=200_000, seed=0)
+    elif a.baseline == "v1":
+        from atlas.seqbaseline import WindowTablesV1, baseline_v1
+        WT = WindowTablesV1(T, W=5, n_bg=1_000_000, seed=0)
     for c in full:
-        if c["call"] in ("structural association", "context association"):
-            c["window_baseline_v0"] = baseline_test(WT, rt[c["col"]], c["primary"], B=a.B, seed=c["col"])
+        if c["call"] in ("structural association", "context association") and a.baseline != "none":
+            if a.baseline == "v0":
+                c["window_baseline_v0"] = baseline_test(WT, rt[c["col"]], c["primary"], B=a.B, seed=c["col"])
+            else:
+                c["window_baseline_v1"] = baseline_v1(WT, rt[c["col"]], c["primary"], B=a.B, seed=c["col"])
         s = scores[c["col"]]["peak"]
         c["peak_p"] = {k: (s[k]["p"] if s.get(k) else None) for k in ("state5", "burial3", "rama4")}
         c["n_clusters_peak"] = s.get("n_clusters", 0)
     # mixes: all null; ~80% signal (null columns subsampled); the set as built
     null_ix = [i for i, (t, al, _, _) in enumerate(cols) if t == "noise" or al == 0]
+    for c in full:
+        b = c.get("window_baseline_v1") or {}
+        if "p" in b: b.pop("p")
     sig_ix = [i for i in range(C) if i not in set(null_ix)]
     g = torch.Generator().manual_seed(1)
     keep_null = [null_ix[j] for j in torch.randperm(len(null_ix), generator=g)[: max(1, len(sig_ix) // 4)].tolist()]
@@ -238,9 +272,11 @@ def main():
         c.pop("levels", None)
     out_calls = [dict(c, **{"type": cols[c["col"]][0], "alpha": cols[c["col"]][1], "noise": cols[c["col"]][2], "rep": cols[c["col"]][3]}) for c in full]
     (out / "calls.json").write_text(json.dumps(out_calls))
-    summary = {"set": a.set, "proteins": len(prot), "tokens": at.n_seen, "columns": C, "batches": nb, "generate_s": round(t_gen, 1),
+    summary = {"set": a.set, "spec": a.spec, "Kr": a.Kr, "baseline": a.baseline, "proteins": len(prot), "tokens": at.n_seen, "columns": C, "batches": nb, "generate_s": round(t_gen, 1),
                "total_s": round(time.time() - t0, 1), "balanced_xor_check": xor_check, "mixes": mix_res,
-               "ruler": "atlas/ruler.py @ aab0c82, rule v1.2", "baseline": "atlas/seqbaseline.py v0 (W 5, 200k background, lam 20)"}
+               "ruler": "atlas/ruler.py @ aab0c82, rule v1.2",
+               "baseline_detail": {"v0": "atlas/seqbaseline.py v0 (W 5, 200k background, lam 20)",
+                                   "v1": "atlas/seqbaseline.py v1 (same level, 5 cluster folds, MLP 11x21-32-1, 1M background)", "none": "-"}[a.baseline]}
     (out / "summary.json").write_text(json.dumps(summary, indent=1))
     print(json.dumps({k: v for k, v in summary.items() if k != "mixes"}))
     print(json.dumps(mix_res))

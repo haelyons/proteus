@@ -128,3 +128,23 @@ legitimate finding.
   composition-preserving shuffles, and point mutants at the positions where it fires.
 
 This proceeds regardless of 8M's weak DMS correlation.
+
+### Addendum: set E expectations (written before set E is generated)
+
+v1.2 calls (alpha >= 2, where the signal dominates the peak):
+- hp_i34 (hydrophobic at i, i+3, i+4): structural or context (helix / buried);
+- kxxxe (K at i, E at i+4): composition (K) or context (K and helix);
+- pxxp (P at i and i+3): composition (P), possibly context;
+- strand_buried, helix_exposed: structural or context, with state5 or burial3 as the primary.
+
+Baseline v1 on their structural / context calls:
+- hp_i34, kxxxe, pxxp: "unexplained by the fitted window model" in <= 1 per type;
+- strand_buried, helix_exposed: "unexplained" in >= 80% of estimable calls;
+- some calls will be "not estimable" at K_r 64 (folds of ~45 positives); at K_r 256 most should be estimable.
+
+### Amendment to section 2 after a smoke, before any evaluation run
+
+Smoke (6,000 proteins, set-E spec, K_r 256; inspected: 5 columns, all "not estimable" for lack of peak tokens
+except a helix column fitted on 33 positives, whose reweighting collapsed to ESS 34; 42 s per column). Changed
+before evaluation: weight decay 1e-3 -> 1e-2, negatives per fold 20,000 -> 5,000, steps 300 -> 200, background
+1,000,000 residues. Target, folds, model class, support floors and pass criteria unchanged.
