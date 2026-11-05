@@ -62,3 +62,12 @@ masked task (a random 15% of the other positions masked; change in log p of the 
   every single substitution, Spearman with fitness per condition. Predicted: 8M 0.15-0.35, 650M 0.35-0.55 under
   DMSO; the ordering of conditions not predicted. Yeast ubiquitin is itself in ESM-2's training data, so this
   is an alignment check, not an independent test.
+
+### Amendment to section 1, before the real run (smoke on 30 proteins)
+
+On fresh proteins unit 86's q99 is -0.18 (pre-GELU; GELU there ~ -0.07), so "both above q99" selects positions
+where the units barely write, and the smoke's effects there were ~1e-4 KL. The main group is changed to both
+above **q99.9**, and "only" to one above q99.9 with the other below q90. The original definition is kept as a
+separate group ("both_q99_only": both above q99 but not both above q99.9) and reported. The numerical
+predictions above are unchanged and apply to the q99.9 group. The smoke also showed 27-30% V in each unit's
+top-64 on 13k fresh tokens; the >= 60% prediction stands for the full 400 proteins.
