@@ -28,6 +28,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--layer", type=int, default=0)
     ap.add_argument("--B", type=int, default=2000)
+    ap.add_argument("--rule", default="v1", choices=["v1", "v1.1"])
     a = ap.parse_args()
     t0 = time.time()
     data = torch.load(a.data, weights_only=False)
@@ -35,12 +36,12 @@ def main():
     at = torch.load(a.atlas, map_location="cpu", weights_only=False)
     rt = at["res_tok"][a.layer, 0]                       # [D, B, Kr], pole 0
     scores = [score_column(T, rt[c], B=a.B, seed=c) for c in range(rt.shape[0])]
-    out = calls(scores)
+    out = calls(scores, rule=a.rule)
     for c, s in zip(out, scores):
         c["levels"] = {lv: {"n_clusters": s[lv].get("n_clusters", 0),
                             **({k: {"p": s[lv][k]["p"], "log2": [round(v, 2) for v in s[lv][k]["log2"]]}
                                 for k in ("state5", "burial3", "rama4") if s[lv].get(k)})} for lv in LEVELS}
-    Path(a.out).write_text(json.dumps({"calls": out, "seconds": round(time.time() - t0, 1), "residues": T.n}, indent=0))
+    Path(a.out).write_text(json.dumps({"rule": a.rule, "calls": out, "seconds": round(time.time() - t0, 1), "residues": T.n}, indent=0))
     print(json.dumps({"columns": len(out), "seconds": round(time.time() - t0, 1),
                       "calls": {k: sum(1 for c in out if c["call"] == k) for k in sorted({c["call"] for c in out})}}))
 

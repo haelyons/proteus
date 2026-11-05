@@ -43,3 +43,34 @@ At alpha = 0.5, weak residue jobs will be missed by design: "composition" requir
 concentrate on <= 4 types (effective number), and a Trp column at alpha = 0.5 puts only ~10% Trp in the peak.
 Predicted: trp alpha = 0.5 called "no association" in >= 2 of 3; common indicators (helix, ordered,
 two_job, buried, hydro_win) detected at alpha = 0.5 in >= 2 of 3.
+
+## #2b Ruler v1.1 on a fresh noise draw (written 2026-11-05 after the v1 gate, before this draw exists)
+
+v1 failed its gate on trp (9/12), lys_helix (9/12), two_job (9/12) and ordered (5/12); observed values, the
+token-id defect found first (proteins > 1,024 residues) and the gate-script bucket fix are in results/README.md.
+The 162 columns that showed this are now the design set; v1.1 (`atlas/ruler.py`, `--rule v1.1`) changes three
+things, each traced to a failure there, and is scored on a fresh draw: same 60,000 proteins, `--seed 1
+--noise-seed 1` (new noise per residue, new pilot, new reservoir hash), gate unchanged (`scripts/eval_synthetic.py`).
+
+1. Primary descriptor p x 3 (it is the smallest of three p-values; both v1 false positives were structural).
+2. Composition: residues tested against P(a | state) on the primary descriptor, not the background; a residue mode
+   is p < 0.01 and log2 >= 1. (v1's effective number <= 4 missed W at 33-47% of the peak, 25-36x background.)
+3. Several modes: the second state is tested among samples outside the top mode (conditional), not on the
+   marginal (a two-mode sample splits between its modes; secondary log2 0.13-0.44 in v1's misses); an ordinal
+   descriptor's adjacent level does not count.
+
+| column (alpha >= 1, 12 each) | predicted pass, v1.1 |
+|---|---|
+| helix | 12/12 (one mode, to q90) |
+| buried | 10-12/12 (risk: residue excess within the buried tercile at its extreme gives "context") |
+| trp | 12/12 composition |
+| lys_helix | 12/12 context |
+| two_job / ordered | 11-12/12 each, several modes; still indistinguishable from each other |
+| narrow | associated 12/12; "peak only" 7-10/12 |
+| hydro_win | 12/12 associated; mostly context now (hydrophobics beyond state), primary state5 or rama4 |
+| noise and every alpha = 0 (42) | >= 41/42 |
+
+alpha = 0.5 (descriptive, 3 each): trp and lys_helix now detected in >= 2/3 (W ~10% of the peak against 1.3%);
+narrow 0-1/3; helix, buried, ordered, two_job 3/3; hydro_win 1-2/3.
+v1.1 is also scored on the design set (in-sample, reported as such). Neither result is a licence to score real
+columns: that waits for sign-off on the rule, as v1 did.

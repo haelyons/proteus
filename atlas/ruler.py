@@ -24,6 +24,8 @@ import math
 
 import torch
 
+from atlas.core import SEQ_STRIDE
+
 AA = "ACDEFGHIKLMNPQRSTVWY"
 DESC = {"state5": 5, "burial3": 3, "rama4": 4}
 LEVELS = {"q90": 1, "q99": 2, "q99.9": 3, "q99.99": 4, "peak": 5}
@@ -33,12 +35,13 @@ class Tables:
     """Per-residue descriptor tables for a set of proteins (dicts as in scripts/synthetic_columns.load_subset)."""
 
     def __init__(self, prot):
-        rows, self.row_of = 0, {}
+        rows, self.row_of, self.len_of = 0, {}, {}
         aa, st, bu, ra, cl, plddt = [], [], [], [], [], []
         names = {}
         for p in prot:
             n = len(p["seq"])
             self.row_of[p["seq_idx"]] = rows
+            self.len_of[p["seq_idx"]] = n
             rows += n
             aa.append(torch.tensor([AA.find(c) for c in p["seq"]]))
             s = p["ss3"].long().clone(); s[p["plddt"] < 70] = 4; s[p["plddt"] < 50] = 3
@@ -61,12 +64,13 @@ class Tables:
         self.burial3[okb] = torch.bucketize(b[okb], cut, right=True)  # 0 exposed, 1 middle, 2 buried
         self.n = rows
         self.desc = {"state5": self.state5, "burial3": self.burial3, "rama4": self.rama4}
-        self.p_x_given_a = {}
+        self.p_x_given_a, self.p_a_given_x = {}, {}
         for k, x in self.desc.items():
             m = (x >= 0) & (self.aa >= 0)
             cnt = torch.zeros(20, DESC[k])
             cnt.index_put_((self.aa[m], x[m]), torch.ones(int(m.sum())), accumulate=True)
             self.p_x_given_a[k] = (cnt + 0.5) / (cnt + 0.5).sum(1, keepdim=True)
+            self.p_a_given_x[k] = ((cnt + 0.5) / (cnt + 0.5).sum(0, keepdim=True)).T.contiguous()   # [K, 20]
         bg = torch.bincount(self.aa[self.aa >= 0], minlength=20).float()
         self.p_aa = bg / bg.sum()
 
@@ -76,9 +80,10 @@ class Tables:
         for i, t in enumerate(tok.tolist()):
             if t < 0:
                 continue
-            base = self.row_of.get(t // 1024)
-            if base is not None:
-                out[i] = base + t % 1024
+            q, pos = divmod(t, SEQ_STRIDE)
+            base = self.row_of.get(q)
+            if base is not None and pos < self.len_of[q]:
+                out[i] = base + pos
         return out
 
 
@@ -93,7 +98,7 @@ def dedup(rows: torch.Tensor, cluster: torch.Tensor) -> torch.Tensor:
     return torch.tensor(keep, dtype=torch.long)
 
 
-def score_desc(T: Tables, rows, k, B, gen):
+def score_desc(T: Tables, rows, k, B, gen, gen_cond=None):
     x, a = T.desc[k][rows], T.aa[rows]
     ok = (x >= 0) & (a >= 0)
     x, a = x[ok], a[ok]
@@ -113,8 +118,23 @@ def score_desc(T: Tables, rows, k, B, gen):
     ps = ((sim >= obs).sum(0).float() + 1) / (B + 1)
     q = obs / n; se = torch.sqrt(q * (1 - q) / n + 1e-12); ef = exp / n
     lo = torch.log2(torch.clamp(q - 1.96 * se, min=1e-6) / ef); hi = torch.log2(torch.clamp(q + 1.96 * se, min=1e-6) / ef)
-    return {"n": n, "p": p, "log2": lr.tolist(), "p_state": ps.tolist(), "ci_lo": lo.tolist(), "ci_hi": hi.tolist(),
-            "obs": obs.tolist(), "exp": exp.tolist()}
+    out = {"n": n, "p": p, "log2": lr.tolist(), "p_state": ps.tolist(), "ci_lo": lo.tolist(), "ci_hi": hi.tolist(),
+           "obs": obs.tolist(), "exp": exp.tolist()}
+    # v1.1: second mode tested among the samples outside the top mode, against the same per-residue null
+    # restricted to the other states (a two-mode sample splits between its modes, so each mode's marginal
+    # log2 ratio is diluted by the other; the conditional test is not)
+    cand = [s for s in range(K) if ps[s] < 0.01 and lr[s] >= 0.5]
+    if cand:
+        top = max(cand, key=lambda s: float(lr[s]))
+        rest = x != top
+        if gen_cond is not None and int(rest.sum()) >= 10:   # own generator: v1's draws are unchanged
+            Pr = P[rest].clone(); Pr[:, top] = 0; Pr = Pr / Pr.sum(1, keepdim=True)
+            nr = int(rest.sum()); obr = torch.bincount(x[rest], minlength=K).float(); exr = Pr.sum(0)
+            dr = torch.multinomial(Pr, B, replacement=True, generator=gen_cond)
+            sr = torch.zeros(B, K); sr.scatter_add_(1, dr.T, torch.ones(B, nr))
+            out["cond"] = {"top": top, "n": nr, "log2": torch.log2((obr + 0.5) / (exr + 0.5)).tolist(),
+                           "p_state": (((sr >= obr).sum(0).float() + 1) / (B + 1)).tolist()}
+    return out
 
 
 def score_aa(T: Tables, rows, B, gen):
@@ -130,12 +150,33 @@ def score_aa(T: Tables, rows, B, gen):
     f = obs / n
     eff = float(torch.exp(-(f[f > 0] * torch.log(f[f > 0])).sum()))   # effective number of residues
     top = [(AA[i], round(float(f[i]), 3)) for i in f.argsort(descending=True)[:4].tolist()]
-    return {"n": n, "p": p, "eff_residues": eff, "top": top}
+    pr = ((simc >= obs).sum(0).float() + 1) / (B + 1)                  # one-sided, per residue
+    lr = torch.log2((obs + 0.5) / (exp + 0.5))
+    return {"n": n, "p": p, "eff_residues": eff, "top": top, "p_res": pr.tolist(), "log2_res": lr.tolist()}
+
+
+def score_aa_given(T: Tables, rows, k, B, gen):
+    """v1.1: residue identity against the residues expected given each sample's state on descriptor k
+    (P(a | x), background composition where x is undefined): residue enrichment beyond the structure."""
+    a, x = T.aa[rows], T.desc[k][rows]
+    ok = a >= 0
+    a, x = a[ok], x[ok]
+    n = int(a.numel())
+    if n < 10:
+        return None
+    P = torch.where((x >= 0)[:, None], T.p_a_given_x[k][x.clamp(min=0)], T.p_aa[None, :])   # [n, 20]
+    obs = torch.bincount(a, minlength=20).float(); exp = P.sum(0)
+    dr = torch.multinomial(P, B, replacement=True, generator=gen)
+    sim = torch.zeros(B, 20); sim.scatter_add_(1, dr.T, torch.ones(B, n))
+    G = lambda c: (c * torch.log((c + 1e-9) / exp)).sum(-1)  # noqa: E731
+    return {"n": n, "p": float(((G(sim) >= G(obs)).sum() + 1) / (B + 1)),
+            "p_res": (((sim >= obs).sum(0).float() + 1) / (B + 1)).tolist(), "log2_res": torch.log2((obs + 0.5) / (exp + 0.5)).tolist()}
 
 
 def score_column(T: Tables, res_tok_col: torch.Tensor, B=2000, seed=0):
     """res_tok_col [n_bins, Kr] packed tokens (keys ascending) for one column and pole."""
     gen = torch.Generator().manual_seed(seed)
+    gen_cond = torch.Generator().manual_seed(1_000_003 + seed)
     out = {}
     for name, b in LEVELS.items():
         rows = dedup(T.rows(res_tok_col[b]), T.cluster)
@@ -143,13 +184,30 @@ def score_column(T: Tables, res_tok_col: torch.Tensor, B=2000, seed=0):
         if rows.numel() >= 10:
             lvl["aa"] = score_aa(T, rows, B, gen)
             for k in DESC:
-                lvl[k] = score_desc(T, rows, k, B, gen)
+                lvl[k] = score_desc(T, rows, k, B, gen, gen_cond)
+            if name == "peak":
+                lvl["aa_given"] = {k: score_aa_given(T, rows, k, B, gen_cond) for k in DESC}
         out[name] = lvl
     return out
 
 
-def calls(scores: list[dict], alpha=0.01):
-    """Per-column calls from score_column outputs, with BH across columns x {structural, composition}."""
+ORDINAL = {"burial3"}
+
+
+def calls(scores: list[dict], alpha=0.01, rule="v1"):
+    """Per-column calls from score_column outputs, with BH across columns x {structural, composition}.
+
+    rule "v1": results/plan_ruler_v1.md as committed. rule "v1.1" (after the synthetic gate, 2026-11-05):
+      - the primary descriptor's p is multiplied by the number of descriptors scored (it is a minimum of 3);
+      - composition: residue identity tested against the residues expected given each sample's state on the
+        primary descriptor (P(a | x); the composition-matched null in the other direction), and at least one
+        residue with p < 0.01 and log2 >= 1 against that expectation (replaces effective number <= 4, which
+        measures dominance, not enrichment); residue modes are reported. Residues that a state explains
+        (hydrophobics in a buried sample) are not counted as a residue job;
+      - several modes: a second state counts if it is enriched among the samples outside the top mode
+        (conditional test, p < 0.01, log2 >= 0.5); for an ordinal descriptor, not a level adjacent to the top.
+    """
+    assert rule in ("v1", "v1.1")
     tests = []
     for i, s in enumerate(scores):
         pk = s["peak"]
@@ -166,9 +224,11 @@ def calls(scores: list[dict], alpha=0.01):
         prim, d = max(cand, key=lambda kd: (-math.log10(kd[1]["p"]), jsd_excess(kd[1])))
         s["primary"] = prim
         s["primary_jsd"] = jsd_excess(d)
-        tests.append((d["p"], i, "struct"))
-        if pk["aa"]:
+        tests.append((d["p"] if rule == "v1" else min(1.0, d["p"] * len(cand)), i, "struct"))
+        if rule == "v1" and pk["aa"]:
             tests.append((pk["aa"]["p"], i, "comp"))
+        elif rule == "v1.1" and pk.get("aa_given", {}).get(prim):
+            tests.append((pk["aa_given"][prim]["p"], i, "comp"))
     tests.sort()
     m = len(tests); passed = set()
     for r, (p, i, kind) in enumerate(tests, start=1):
@@ -181,10 +241,21 @@ def calls(scores: list[dict], alpha=0.01):
         if "aa" not in pk or "primary" not in s:
             c["call"] = "insufficient samples"; out.append(c); continue
         st = (i, "struct") in passed
-        specific = pk["aa"] is not None and pk["aa"]["eff_residues"] <= 4.0 and (i, "comp") in passed
+        aa = pk["aa"] if rule == "v1" else pk.get("aa_given", {}).get(s["primary"])
+        res_modes = [AA[r] for r in range(20) if aa and aa["p_res"][r] < 0.01 and aa["log2_res"][r] >= 1.0]
+        if rule == "v1":
+            specific = aa is not None and aa["eff_residues"] <= 4.0 and (i, "comp") in passed
+        else:
+            specific = bool(res_modes) and (i, "comp") in passed
         d = pk[s["primary"]]
         modes = [x for x in range(len(d["log2"])) if d["p_state"][x] < 0.01 and d["log2"][x] >= 0.5] if st else []
-        c.update({"primary": s["primary"], "modes": modes, "aa_top": pk["aa"]["top"], "eff_residues": round(pk["aa"]["eff_residues"], 2)})
+        if rule == "v1.1" and st and modes and d.get("cond"):
+            top, cd = d["cond"]["top"], d["cond"]
+            second = [x for x in range(len(cd["log2"])) if x != top and cd["p_state"][x] < 0.01 and cd["log2"][x] >= 0.5
+                      and not (s["primary"] in ORDINAL and abs(x - top) == 1)]
+            modes = sorted({top, *second})
+        c.update({"primary": s["primary"], "modes": modes, "aa_top": pk["aa"]["top"], "eff_residues": round(pk["aa"]["eff_residues"], 2),
+                  "residue_modes": res_modes})
         if st and specific:
             c["call"] = "context association"
         elif st:

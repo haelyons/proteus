@@ -40,7 +40,9 @@ TYPES = ["helix", "buried", "trp", "lys_helix", "two_job", "ordered", "narrow", 
 ALPHAS = [0.0, 0.5, 1.0, 2.0, 3.0, 4.0]
 
 
-def load_subset(desc_dir, data, uniref, heldout=False):
+def load_subset(desc_dir, data, uniref, heldout=False, max_res=1022):
+    """Proteins cropped to the first max_res residues, as the model streams are (atlas.data.SwissProt max_res):
+    token ids pack (seq_idx, pos) with stride 1024, so longer proteins would collide with the next id."""
     parts = sorted(glob.glob(str(Path(desc_dir) / "part_*.pt")))
     seqs = data["seq"]
     cl = {}
@@ -56,6 +58,7 @@ def load_subset(desc_dir, data, uniref, heldout=False):
             if d["heldout"][j] != heldout:
                 continue
             s, e = int(off[j]), int(off[j + 1])
+            e = min(e, s + max_res)
             prot.append({"acc": acc, "seq_idx": int(d["seq_idx"][j]), "seq": seqs[int(d["seq_idx"][j])][: e - s],
                          "ss3": d["ss3"][s:e], "plddt": d["plddt"][s:e].float(), "burial": d["burial"][s:e].float(),
                          "phi": d["phi"][s:e].float(), "psi": d["psi"][s:e].float(), "cluster": cl.get(acc) or acc})
@@ -100,6 +103,7 @@ def main():
     ap.add_argument("--Kr", type=int, default=64)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--replicates", type=int, default=3)
+    ap.add_argument("--noise-seed", type=int, default=0, help="0: noise seeded by seq_idx (the design set); k > 0: a fresh noise draw")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     data = torch.load(a.data, weights_only=False)
@@ -122,13 +126,13 @@ def main():
             Z[:, i] += al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0)
         return Z
 
-    gen = torch.Generator().manual_seed(a.seed + 1)
+    nseed = lambda p: p["seq_idx"] + (a.noise_seed << 32)  # noqa: E731
     blocks, toks, n_tok = [], [], 0
     pilot = []
     for p in prot:  # pilot: the first tokens of the (shuffled) stream, then streamed again like the model runs
         if n_tok >= a.pilot_tokens:
             break
-        Z = column_block(p, torch.Generator().manual_seed(p["seq_idx"]))
+        Z = column_block(p, torch.Generator().manual_seed(nseed(p)))
         pilot.append(Z); n_tok += Z.shape[0]
     E = pilot_edges([torch.cat(pilot)], probs=(0.5, 0.9, 0.99, 0.999, 0.9999, 0.99999))
     at = Atlas(1, C, E, AtlasConfig(K=64, Kr=a.Kr, backend="torch", seed=a.seed, gram=False, cap_frac=0.02), n_annot=0)
@@ -143,7 +147,7 @@ def main():
             at.begin_batch(ctx, redo_layers=redo); at.observe(0, H); at.end_batch()
     cur = 0
     for p in prot:
-        Z = column_block(p, torch.Generator().manual_seed(p["seq_idx"]))   # same noise as in the pilot (fixed per protein)
+        Z = column_block(p, torch.Generator().manual_seed(nseed(p)))   # same noise as in the pilot (fixed per protein)
         blocks.append(Z); toks.append(pack_tok(torch.full((Z.shape[0],), p["seq_idx"]), torch.arange(Z.shape[0])))
         cur += Z.shape[0]
         if cur >= a.tokens_per_batch:
