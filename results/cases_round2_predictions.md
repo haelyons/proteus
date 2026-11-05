@@ -121,7 +121,7 @@ About half of it is composition, which survives shuffling. The rest depends on o
   direction);
 - change in log p(true): no prediction (discovery: unit +0.005, control -0.012).
 
-## (5,1181), (3,1238), (1,746), (0,767): frozen 2026-11-05 ~18:30 UTC, before any fresh protein was scored for them
+## (5,1181), (3,1238), (1,746), (0,767): frozen 2026-11-05 18:19 UTC (commit 980b48e), before any fresh protein was scored for them
 
 ### (5,1181)
 
@@ -263,3 +263,33 @@ approximately additive neighbour term through layer-0 attention.
 
 **Standard readouts** (`pred/0_767.json`): P/H share at top positions; silencing lowers log p of K, R, E beyond the
 control (discovery unit 0.002 against 0.0004).
+
+## (0,789): frozen 2026-11-05 ~18:30 UTC (see the commit), before any fresh protein was scored for it
+
+**My first explanation failed on discovery proteins (kept as an unsuccessful explanation).** I guessed "C or S in
+an S/T-rich disordered context". The discovery runs of `case_tests.py tok` contradict it:
+- Spearman(h, S/T count in +-3) is 0.088 for C and 0.214 for S;
+- with the +-3 neighbours set to A, 59% of top C positions stay above the threshold (median 0.55);
+- in S/T-rich windows, disordered C has median -0.25 and ordered C -0.50, but n is only 15 / 9.
+
+**Discovery material behind the revised proposal:**
+- eta2 of the centre residue 0.084 (C is rare); rate C 1.6%, S 0.36%, T 0.32%;
+- C ridge, in sample: R^2 0.44, with large **negative** weights for C at -3 / +3 / -2 (-1.56 / -1.40 / -0.65);
+- C with no other C in +-3: median -0.71; with at least one: -2.02 (n 2,326 / 470);
+- replacing the neighbouring C by A raises the value by a median **+1.08** (n 80).
+
+**Proposed computation:** a lone-cysteine readout. The centre C token raises the unit, and every other C within
++-3 strongly lowers it, so it separates isolated cysteines from Cys-rich motifs (CxxC, CC, CxC). S/T neighbours add
+a little for S.
+
+**Alternative:** the S/T-disorder context, which predicts Spearman(C) >= 0.3 and the +-3 -> A share below 0.2.
+
+**Fresh predictions:**
+- C has the highest rate of the 20 residues;
+- C ridge R^2 (fitted on discovery) >= 0.3 on fresh proteins;
+- lone minus clustered C median >= 0.8;
+- neighbouring C -> A raises the value by a median >= 0.6;
+- Spearman(C, S/T count) <= 0.2; the +-3 -> A share stays >= 0.4.
+
+**Standard readouts** (`pred/0_789.json`): C share at top positions above base; silencing at the masked position has
+no effect beyond the control (discovery: unit 0.0005, control 0.0009).

@@ -1,0 +1,81 @@
+{
+ "set": "A",
+ "spec": "A",
+ "Kr": 64,
+ "baseline": "v1",
+ "proteins": 60000,
+ "tokens": 20557222,
+ "columns": 414,
+ "batches": 623,
+ "generate_s": 438.9,
+ "total_s": 1689.9,
+ "balanced_xor_check": {
+  "selected": 14652095,
+  "state5_selected_minus_background": [
+   -0.0001,
+   0.0001,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "burial3_selected_minus_background": [
+   0.0,
+   0.0,
+   -0.0,
+   -0.0
+  ],
+  "delta": 0.0481
+ },
+ "mixes": {
+  "as_built": {
+   "columns": 414,
+   "null_columns": 240,
+   "insufficient_samples": 2,
+   "false_calls": 0,
+   "false_call_rate": 0.0,
+   "false_call_rate_95ci": [
+    0.0,
+    0.0153
+   ],
+   "calls": 148,
+   "false_discovery_proportion": 0.0,
+   "fdp_95ci": [
+    0.0,
+    0.0246
+   ]
+  },
+  "all_null": {
+   "columns": 240,
+   "null_columns": 240,
+   "insufficient_samples": 2,
+   "false_calls": 0,
+   "false_call_rate": 0.0,
+   "false_call_rate_95ci": [
+    0.0,
+    0.0153
+   ],
+   "calls": 0,
+   "false_discovery_proportion": null,
+   "fdp_95ci": null
+  },
+  "signal_80": {
+   "columns": 217,
+   "null_columns": 43,
+   "insufficient_samples": 0,
+   "false_calls": 1,
+   "false_call_rate": 0.0233,
+   "false_call_rate_95ci": [
+    0.0006,
+    0.1229
+   ],
+   "calls": 149,
+   "false_discovery_proportion": 0.0067,
+   "fdp_95ci": [
+    0.0002,
+    0.0368
+   ]
+  }
+ },
+ "ruler": "atlas/ruler.py @ aab0c82, rule v1.2",
+ "baseline_detail": "atlas/seqbaseline.py v1 (same level, 5 cluster folds, MLP 11x21-32-1, 1M background)"
+}
