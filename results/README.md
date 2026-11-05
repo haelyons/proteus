@@ -720,6 +720,35 @@ Conditions:
   real but small. So "43 of 70 positions depend on condition" (part 2 above) overstates the size; the margin
   decides the answer, and it is a choice.
 
+## 2026-11-05 - Travel, re-measured (8M, CPU)
+
+`travel_v2_8M_20261105/` (`scripts/travel_v2.py`; predictions `mechanistic_round1_predictions.md` section 2).
+The 300 positive-extreme cases of measurement #3: KL at every position (not only the largest elsewhere), by
+distance; a control unit at the same position matched on write magnitude (achieved ratio 1.02-1.51 by layer);
+and a masked task (15% of the other positions masked).
+
+| layer | KL at i | median KL elsewhere / at i | sum elsewhere / at i | median near (\|d\| <= 3) / far (> 16) | unit / matched control, summed travel | masked / unmasked change, same positions | masked change: unit / control |
+|---|---|---|---|---|---|---|---|
+| 0 | 9.3e-5 | 0.0008 | 4.3 | 200 | 1.42 | 3.2 | 1.20 |
+| 1 | 2.9e-4 | 0.0031 | 6.5 | 136 | 3.21 | 3.2 | 1.62 |
+| 2 | 6.9e-4 | 0.0033 | 15.4 | 124 | 1.41 | 3.5 | 1.26 |
+| 3 | 2.0e-3 | 0.0009 | 29.9 | 257 | 1.01 | 3.4 | 1.23 |
+| 4 | 3.0e-3 | 7e-6 | 0.91 | 1,742 | 1.42 | 3.7 | 0.76 |
+| 5 | 6.5e-3 | 0 | 0 | - | - | - | 0 |
+
+Against the predictions: the per-position ratio (1/1000-1/100 predicted) holds in layers 0-3; the summed
+ratio is above the predicted 1-10x in layers 2-3 (15, 30); near/far >= 10 holds (124-1,742); unit /
+control 1-3 holds except layer 1 (3.2); masked / unmasked 3-30 holds (3.2-3.7); layer 5 is exactly 0 in both
+tasks.
+
+What survives: measured per position, silencing a unit at its strongest token moves any one other position
+by 0.1-0.3% of what it moves its own. The earlier "moves other positions more than its own" compared a
+maximum over hundreds of positions with one value. *Summed* over the protein, though, the effect elsewhere is
+4-30x the effect at the position in layers 0-3, concentrated within three residues. It mostly tracks write
+magnitude rather than unit identity: a control unit writing as much at the same position travels about as far
+(1.0-1.4x except layer 1), in the masked task too. For interventions: where a unit fires is not where most of
+its effect lands, but that is a property of large writes in early layers, not evidence about this unit.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
