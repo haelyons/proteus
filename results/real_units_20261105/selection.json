@@ -1,0 +1,113 @@
+{
+ "eligible": 7637,
+ "random": {
+  "structural association": {
+   "picks": [
+    [
+     5,
+     1181
+    ],
+    [
+     3,
+     1238
+    ]
+   ],
+   "fallbacks_in_order": [
+    [
+     3,
+     1143
+    ],
+    [
+     4,
+     827
+    ],
+    [
+     3,
+     141
+    ]
+   ]
+  },
+  "composition association": {
+   "picks": [
+    [
+     0,
+     767
+    ]
+   ],
+   "fallbacks_in_order": [
+    [
+     2,
+     108
+    ],
+    [
+     0,
+     39
+    ],
+    [
+     5,
+     429
+    ]
+   ]
+  },
+  "context association": {
+   "picks": [
+    [
+     0,
+     789
+    ]
+   ],
+   "fallbacks_in_order": [
+    [
+     4,
+     977
+    ],
+    [
+     3,
+     1208
+    ],
+    [
+     3,
+     427
+    ]
+   ]
+  },
+  "no association found by this procedure": {
+   "picks": [
+    [
+     5,
+     668
+    ]
+   ],
+   "fallbacks_in_order": [
+    [
+     4,
+     657
+    ],
+    [
+     2,
+     22
+    ],
+    [
+     2,
+     844
+    ]
+   ]
+  }
+ },
+ "deliberate": {
+  "not detected, strongest single reader": {
+   "unit": [
+    1,
+    746
+   ],
+   "max_reader_cosine": 0.32103341817855835
+  }
+ },
+ "counts_by_call": {
+  "context association": 7158,
+  "composition association": 97,
+  "structural association": 408,
+  "insufficient samples": 7,
+  "no association found by this procedure": 10
+ }
+}
