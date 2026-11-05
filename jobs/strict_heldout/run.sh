@@ -69,7 +69,7 @@ NSEQ=$($UNZ $FASTA | grep -c '^>')
 echo "[atlas] UniRef50 2021_04 FASTA: $NSEQ sequences ($(stat -c %s $FASTA) bytes)"
 
 python3 scripts/strict_heldout.py queries --data $DATA --held $HELD --out $W/queries.fasta --max-queries $MAXQ | sed 's/^/[atlas] /'
-if [ "$SMOKE" != 1 ]; then
+if [ "$SMOKE" != 1 ] && [ -f $FS/descriptors_swissprot_2026_03.pt ]; then
   python3 -c "
 import torch; d = torch.load('$FS/descriptors_swissprot_2026_03.pt', weights_only=False)
 open('$DESC_ACCS', 'w').write('\n'.join(d['acc']) + '\n'); print('[atlas] descriptor accessions', len(d['acc']))"
@@ -90,6 +90,7 @@ import json; json.dump({"reference": "UniRef50 release 2021_04 (27-Oct-2021), re
   "alignment_mode": 3, "coverage_filter_in_search": "none (cov-mode 0, c 0); criteria applied afterwards"},
   "fields": "query,target,fident,alnlen,qcov,tcov,evalue,bits,qlen,tlen"}, open("$OUT/settings.json", "w"), indent=1)
 PY
-python3 scripts/strict_heldout.py classify --hits $W/hits.m8 --queries $W/queries.fasta --out $OUT --desc-accs $DESC_ACCS | sed 's/^/[atlas] /' | cut -c1-900
+DA=""; [ -s "$DESC_ACCS" ] && DA="--desc-accs $DESC_ACCS"
+python3 scripts/strict_heldout.py classify --hits $W/hits.m8 --queries $W/queries.fasta --out $OUT $DA | sed 's/^/[atlas] /' | cut -c1-900
 gzip -c $W/hits.m8 > $OUT/hits.m8.gz
 echo "[atlas] end $(date -u +%FT%TZ)"
