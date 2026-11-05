@@ -501,7 +501,82 @@ What this says:
      0.75, tail Jaccard 0; a co-activation family would merge an Asn unit with a Lys/Arg unit;
   3. near-identical input weights with different tails: none (no pair with input cosine >= 0.8 and tail
      <= 0.05); where input weights nearly coincide, tails overlap (0.5-0.6).
-- Not yet: the other two control seeds (job 2, running) and how stable these numbers are across them.
+- Across the three control seeds, co-activation ~ input weights is 0.209-0.227 in every layer and seed, and
+  near-duplicate tails number 0-1 per layer: the trained/control separation (0.61-0.65 vs ~0.22) is far
+  outside the control spread (`shuffled_seed1/2/3`).
+
+## 2026-11-05 - Job batch_20261105: 650M tie audit, 8M atlases (A10, us-east-1)
+
+`batch_20261105/` (predictions `batch_20261105_predictions.md`, with an addendum written before launch: no
+A100/H100 anywhere at 02:55, so parts A, C, D ran on an A10 and the K sweep (B) waits for an A100).
+
+**A. Tie audit at 650M** (first 60 batches, filtered top-K vs baukit's algorithm, canonical comparison):
+
+| quantity | predicted | observed |
+|---|---|---|
+| values equal | yes | yes (max difference 0.0) |
+| ids differing above the K-th value | **0** | **0** |
+| slots inside exact-value ties | 50-80% | 79.9% (17,273,097 of 21,626,880) |
+| ids differing at the K-th value | 1-5% | 3.55% (768,485), all in the boundary tie group |
+| columns whose K-th value ties with a token outside the list | 50-80% | 76.4% (258,121 of 337,920) |
+
+Both are exact top-K lists; they differ only in which tokens of the last tie group get in, which our key
+fixes (smaller token id) and torch.topk does not. The positional count (12,090,302) is identical to the
+A100 run's. At bf16, 80% of a 650M unit's top-64 sits in exact ties: any statement about "the" top-64 tokens
+of a unit depends on a tie rule.
+
+**C. 8M atlases** (K 64, K_r 256, bf16): pretrained full stream 194,177,125 residues in 494 s (8.2 min;
+predicted 10-20 min on the A10), 0 redo batches, paired overhead mean 0.674 / median 0.357 (predicted 1-4:
+the atlas is cheaper relative to the 8M forward than I assumed); seeds verified (0 of 73,763 short);
+held-out (same edges) 4,080,811 residues in 216 s; atlas.pt 0.61 GB, slim copies 0.214 GB. Controls: **two
+of three failed** with CUDA out of memory, because three pilots ran concurrently (6-9 GB each on a 22 GB A10;
+the concurrency was sized for a 40 GB A100 and the CPU smoke ran them one at a time, so it could not catch
+this). Seed 2 completed (597 s). The launcher was stopped before the job ended, seeds 1 and 3 were rerun one
+at a time on the same instance as a second job (part E, smoke-tested on CPU first), and supervision was
+re-attached with the original cap; part C now runs controls concurrently only on >= 40 GB GPUs.
+
+**D. #7, part 1: ubiquitin copies in unit samples.** Copies of human ubiquitin (>= 70/76 identical, ungapped):
+394 in 146 proteins (155 exact in 50; 5 proteins held out), 29,260 residues in the non-held-out stream
+(0.0151%; `ubiquitin_copies.tsv`).
+
+| quantity | 650M (337,920 columns) | 8M trained (15,360) | 8M shuffled, seeds 1 / 2 / 3 | predicted (650M / 8M / shuffled) |
+|---|---|---|---|---|
+| columns with any copy residue in top-64 | 201 (0.06%) | 40 (0.26%) | 0 / 0 / 0 | 2-6% / 2-6% / 2-8% |
+| columns with >= half of top-64 in copies | 39 | 4 | 0 / 0 / 0 | 0.1-1% / 0.1-1% / >= trained |
+| columns whose top-64 are all copies | 1 (layer 15) | 0 | 0 | - |
+| peak reservoir bins >= half copies | 9 | 1 | 0 / 0 / 0 | 0-50 / 0-10 / 0-10 |
+
+Wrong by one to two orders of magnitude, and in the control column wrong in direction: copies dominate a few
+dozen 650M units (spread over layers 3-32), not hundreds to thousands, and no shuffled-weight control puts a
+copy residue in any top-64 at all. Independent draws would put one in ~1% of lists; trained top-64 lists sit
+below that and control lists far below (their tops are residue identity spread over many proteins, see #6).
+So ubiquitin redundancy matters for those 39 units, where a ubiquitin-based check is a check on copies of one
+sequence, and is negligible elsewhere; where it shows up, the trained model put it there.
+
+## 2026-11-05 - Measurement #6: three shuffled-weight controls at 8M
+
+`controls_8M_20261105/` (`scripts/controls_summary.py`; predictions `measurement_6_predictions.md`).
+Medians over the 1,280 units of each layer, positive pole; trained vs the three controls (seeds 1, 2, 3):
+
+| layer | effective residues, top-64 | effective residues, peak sample | top-64 from <= 3 proteins | top-64 one residue |
+|---|---|---|---|---|
+| 0 | 2.94 vs 1.26 / 1.31 / 1.37 | 5.45 vs 1.60 / 1.71 / 1.76 | 2.8% vs 7.7 / 8.1 / 7.8% | 22% vs 57 / 57 / 54% |
+| 1 | 2.94 vs 1.75 / 1.80 / 1.78 | 6.44 vs 2.56 / 2.49 / 2.69 | 0.5% vs 9.1 / 8.1 / 10.4% | 23% vs 42 / 40 / 41% |
+| 2 | 3.72 vs 1.85 / 1.90 / 1.98 | 8.06 vs 2.70 / 2.75 / 3.10 | 0% vs 11.4 / 8.6 / 9.4% | 17% vs 37 / 38 / 35% |
+| 3 | 3.29 vs 1.89 / 1.92 / 1.95 | 7.86 vs 2.94 / 2.99 / 3.34 | 0% vs 13.6 / 7.8 / 13.3% | 18% vs 37 / 35 / 36% |
+| 4 | 4.52 vs 2.13 / 2.07 / 2.22 | 10.49 vs 3.35 / 3.59 / 3.97 | 0% vs 13.4 / 8.0 / 12.0% | 12% vs 30 / 32 / 30% |
+| 5 | 4.71 vs 2.27 / 2.37 / 2.37 | 10.51 vs 3.91 / 4.14 / 4.51 | 0.2% vs 14.3 / 9.4 / 13.7% | 11% vs 31 / 25 / 27% |
+
+- Direction as predicted: untrained units are more residue-specific than trained ones at every layer
+  (effective residues in the top-64 1.3-2.4 vs 2.9-4.7). "This unit fires on one residue" is the easiest
+  result to obtain from a network that learned nothing.
+- Spread across control seeds, as a fraction of the trained-minus-control difference: 2-5% for both residue
+  measures (predicted < 10%), 5-7% for the one-residue share except layer 5 (18%), and 4-28% for the
+  protein-concentration share, whose trained value is ~0. One control seed separates trained from untrained
+  on residue diversity; on protein concentration it would not be enough beyond layer 0.
+- Outside the predictions: the trained peak samples are more diverse than predicted in layers 2-5 (7.9-10.5
+  vs 2-8), and both trained and control top-64 lists are less protein-concentrated than predicted (trained
+  0-2.8% vs 5-30%; controls 8-14% vs 30-70%).
 
 ## Spend
 
@@ -513,4 +588,5 @@ holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). 
 (asia-south-1), ~102 billed minutes, ~$3.40 (new filesystem `esm-atlas-asia-south-1`: dataset, HF cache,
 checkpoints, the 10.85 GB atlas). Follow-up on an A100 40 GB (us-east-1), 14:29-16:43 UTC, ~$4.4 (atlas copy #2 and the
 held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 billed minutes, ~$0.95.
-2026-11-05: workload comparison on an A100 40 GB (us-east-1), 01:44-02:45 UTC, ~$2.0. Total ~$14.4.
+2026-11-05: workload comparison on an A100 40 GB (us-east-1), 01:44-02:45 UTC, ~$2.0; batch job on an A10 (us-east-1),
+03:03-04:11 UTC incl. the rerun of two controls, ~$1.5. Total ~$15.9 (K sweep running).

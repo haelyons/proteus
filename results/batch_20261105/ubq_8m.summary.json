@@ -1,0 +1,120 @@
+{
+ "min_identity": "70/76",
+ "copies": 394,
+ "exact_copies": 155,
+ "proteins": 146,
+ "proteins_with_exact": 50,
+ "held_out_proteins": 5,
+ "residues_in_copies": 29944,
+ "residues_in_copies_not_held_out": 29260,
+ "identity_histogram": {
+  "70": 1,
+  "71": 6,
+  "72": 12,
+  "73": 149,
+  "74": 49,
+  "75": 22,
+  "76": 155
+ },
+ "atlas": "/lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_pre/atlas.pt",
+ "stream_fraction_in_copies": 0.00015068716255841154,
+ "columns": 15360,
+ "totals": {
+  "units_any_top": 40,
+  "units_top_ge_0.5": 4,
+  "units_top_all": 0,
+  "res_bins_ge_0.5": 1
+ },
+ "per_layer": {
+  "0": {
+   "units_any_top": 2,
+   "units_top_ge_0.5": 0,
+   "units_top_all": 0,
+   "mean_top_frac": 7.324219041038305e-05,
+   "res_bins_ge_0.5": 0,
+   "mean_res_frac_by_bin": [
+    0.0,
+    0.0,
+    7e-05,
+    8.1e-05,
+    0.000107,
+    0.000139
+   ]
+  },
+  "1": {
+   "units_any_top": 0,
+   "units_top_ge_0.5": 0,
+   "units_top_all": 0,
+   "mean_top_frac": 0.0,
+   "res_bins_ge_0.5": 0,
+   "mean_res_frac_by_bin": [
+    0.0,
+    0.0,
+    5.3e-05,
+    0.000133,
+    0.000121,
+    5e-05
+   ]
+  },
+  "2": {
+   "units_any_top": 6,
+   "units_top_ge_0.5": 0,
+   "units_top_all": 0,
+   "mean_top_frac": 0.0004394531133584678,
+   "res_bins_ge_0.5": 0,
+   "mean_res_frac_by_bin": [
+    0.0,
+    0.0,
+    0.000121,
+    0.000179,
+    0.000284,
+    0.000474
+   ]
+  },
+  "3": {
+   "units_any_top": 10,
+   "units_top_ge_0.5": 1,
+   "units_top_all": 0,
+   "mean_top_frac": 0.0006103515625,
+   "res_bins_ge_0.5": 0,
+   "mean_res_frac_by_bin": [
+    0.0,
+    0.0,
+    5.3e-05,
+    0.000261,
+    0.000858,
+    0.001232
+   ]
+  },
+  "4": {
+   "units_any_top": 16,
+   "units_top_ge_0.5": 2,
+   "units_top_all": 0,
+   "mean_top_frac": 0.001678466796875,
+   "res_bins_ge_0.5": 1,
+   "mean_res_frac_by_bin": [
+    0.0,
+    0.0,
+    0.000269,
+    0.001135,
+    0.00239,
+    0.002792
+   ]
+  },
+  "5": {
+   "units_any_top": 6,
+   "units_top_ge_0.5": 1,
+   "units_top_all": 0,
+   "mean_top_frac": 0.0004089355352334678,
+   "res_bins_ge_0.5": 0,
+   "mean_res_frac_by_bin": [
+    0.0,
+    0.0,
+    0.000282,
+    0.000604,
+    0.001404,
+    0.001213
+   ]
+  }
+ }
+}

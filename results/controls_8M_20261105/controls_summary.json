@@ -1,0 +1,286 @@
+{
+ "trained": "/tmp/claude-0/-home-user-proteus/e2ef4f9f-70bb-5a08-8300-c4da6fe62bad/scratchpad/a8/a8_pre.slim.pt",
+ "controls": [
+  "/tmp/claude-0/-home-user-proteus/e2ef4f9f-70bb-5a08-8300-c4da6fe62bad/scratchpad/a8/a8_shuf1.slim.pt",
+  "/tmp/claude-0/-home-user-proteus/e2ef4f9f-70bb-5a08-8300-c4da6fe62bad/scratchpad/a8/a8_shuf2.slim.pt",
+  "/tmp/claude-0/-home-user-proteus/e2ef4f9f-70bb-5a08-8300-c4da6fe62bad/scratchpad/a8/a8_shuf3.slim.pt"
+ ],
+ "layers": {
+  "0": {
+   "eff_top": {
+    "trained": 2.9357,
+    "controls": [
+     1.2634,
+     1.3086,
+     1.3679
+    ],
+    "control_sd": 0.0524,
+    "difference": 1.6225,
+    "sd_over_abs_difference": 0.032
+   },
+   "eff_peak": {
+    "trained": 5.4479,
+    "controls": [
+     1.6015,
+     1.7068,
+     1.7621
+    ],
+    "control_sd": 0.0816,
+    "difference": 3.7578,
+    "sd_over_abs_difference": 0.022
+   },
+   "share_top_le3_proteins": {
+    "trained": 0.0281,
+    "controls": [
+     0.0766,
+     0.0805,
+     0.0781
+    ],
+    "control_sd": 0.002,
+    "difference": -0.0503,
+    "sd_over_abs_difference": 0.039
+   },
+   "share_top_one_residue": {
+    "trained": 0.2227,
+    "controls": [
+     0.5688,
+     0.5648,
+     0.5383
+    ],
+    "control_sd": 0.0166,
+    "difference": -0.3346,
+    "sd_over_abs_difference": 0.05
+   }
+  },
+  "1": {
+   "eff_top": {
+    "trained": 2.9403,
+    "controls": [
+     1.7499,
+     1.8004,
+     1.7748
+    ],
+    "control_sd": 0.0253,
+    "difference": 1.1653,
+    "sd_over_abs_difference": 0.022
+   },
+   "eff_peak": {
+    "trained": 6.4354,
+    "controls": [
+     2.5618,
+     2.487,
+     2.6912
+    ],
+    "control_sd": 0.1033,
+    "difference": 3.8554,
+    "sd_over_abs_difference": 0.027
+   },
+   "share_top_le3_proteins": {
+    "trained": 0.0055,
+    "controls": [
+     0.0906,
+     0.0812,
+     0.1039
+    ],
+    "control_sd": 0.0114,
+    "difference": -0.0865,
+    "sd_over_abs_difference": 0.132
+   },
+   "share_top_one_residue": {
+    "trained": 0.2266,
+    "controls": [
+     0.4156,
+     0.3992,
+     0.4047
+    ],
+    "control_sd": 0.0084,
+    "difference": -0.1799,
+    "sd_over_abs_difference": 0.046
+   }
+  },
+  "2": {
+   "eff_top": {
+    "trained": 3.718,
+    "controls": [
+     1.8497,
+     1.9031,
+     1.9765
+    ],
+    "control_sd": 0.0637,
+    "difference": 1.8082,
+    "sd_over_abs_difference": 0.035
+   },
+   "eff_peak": {
+    "trained": 8.0645,
+    "controls": [
+     2.6966,
+     2.7456,
+     3.1003
+    ],
+    "control_sd": 0.2203,
+    "difference": 5.217,
+    "sd_over_abs_difference": 0.042
+   },
+   "share_top_le3_proteins": {
+    "trained": 0.0,
+    "controls": [
+     0.1141,
+     0.0859,
+     0.0938
+    ],
+    "control_sd": 0.0145,
+    "difference": -0.0979,
+    "sd_over_abs_difference": 0.148
+   },
+   "share_top_one_residue": {
+    "trained": 0.1727,
+    "controls": [
+     0.3727,
+     0.3766,
+     0.3531
+    ],
+    "control_sd": 0.0126,
+    "difference": -0.1948,
+    "sd_over_abs_difference": 0.064
+   }
+  },
+  "3": {
+   "eff_top": {
+    "trained": 3.2927,
+    "controls": [
+     1.8902,
+     1.9241,
+     1.9523
+    ],
+    "control_sd": 0.0311,
+    "difference": 1.3705,
+    "sd_over_abs_difference": 0.023
+   },
+   "eff_peak": {
+    "trained": 7.8634,
+    "controls": [
+     2.9402,
+     2.9913,
+     3.3381
+    ],
+    "control_sd": 0.2165,
+    "difference": 4.7735,
+    "sd_over_abs_difference": 0.045
+   },
+   "share_top_le3_proteins": {
+    "trained": 0.0,
+    "controls": [
+     0.1359,
+     0.0781,
+     0.1328
+    ],
+    "control_sd": 0.0325,
+    "difference": -0.1156,
+    "sd_over_abs_difference": 0.281
+   },
+   "share_top_one_residue": {
+    "trained": 0.1773,
+    "controls": [
+     0.368,
+     0.3477,
+     0.3562
+    ],
+    "control_sd": 0.0102,
+    "difference": -0.1799,
+    "sd_over_abs_difference": 0.057
+   }
+  },
+  "4": {
+   "eff_top": {
+    "trained": 4.52,
+    "controls": [
+     2.1334,
+     2.0679,
+     2.2242
+    ],
+    "control_sd": 0.0785,
+    "difference": 2.3782,
+    "sd_over_abs_difference": 0.033
+   },
+   "eff_peak": {
+    "trained": 10.4898,
+    "controls": [
+     3.3468,
+     3.5913,
+     3.9656
+    ],
+    "control_sd": 0.3117,
+    "difference": 6.8552,
+    "sd_over_abs_difference": 0.045
+   },
+   "share_top_le3_proteins": {
+    "trained": 0.0,
+    "controls": [
+     0.1344,
+     0.0797,
+     0.1203
+    ],
+    "control_sd": 0.0284,
+    "difference": -0.1115,
+    "sd_over_abs_difference": 0.255
+   },
+   "share_top_one_residue": {
+    "trained": 0.1219,
+    "controls": [
+     0.2984,
+     0.3219,
+     0.2984
+    ],
+    "control_sd": 0.0135,
+    "difference": -0.1844,
+    "sd_over_abs_difference": 0.073
+   }
+  },
+  "5": {
+   "eff_top": {
+    "trained": 4.7125,
+    "controls": [
+     2.2667,
+     2.3693,
+     2.3738
+    ],
+    "control_sd": 0.0606,
+    "difference": 2.3759,
+    "sd_over_abs_difference": 0.026
+   },
+   "eff_peak": {
+    "trained": 10.5057,
+    "controls": [
+     3.907,
+     4.1366,
+     4.507
+    ],
+    "control_sd": 0.3027,
+    "difference": 6.3221,
+    "sd_over_abs_difference": 0.048
+   },
+   "share_top_le3_proteins": {
+    "trained": 0.0016,
+    "controls": [
+     0.143,
+     0.0938,
+     0.1367
+    ],
+    "control_sd": 0.0268,
+    "difference": -0.1229,
+    "sd_over_abs_difference": 0.218
+   },
+   "share_top_one_residue": {
+    "trained": 0.1094,
+    "controls": [
+     0.3086,
+     0.25,
+     0.2695
+    ],
+    "control_sd": 0.0298,
+    "difference": -0.1667,
+    "sd_over_abs_difference": 0.179
+   }
+  }
+ }
+}
