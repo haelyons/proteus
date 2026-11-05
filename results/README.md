@@ -597,6 +597,62 @@ candidates account for ~6-10 ms of a 122 ms excess in these early batches; the r
 does not depend on K. K = 256 for every bin would cost +24% atlas time early in the stream; K_r = 256 at
 the lower bins (agreed for the next build) changes reservoir candidates, which this sweep did not vary.
 
+## 2026-11-05 - Ruler v1.2 frozen and challenged (CPU)
+
+`ruler_challenges_20261105/` (sets A-D; `scripts/ruler_challenges.py`; expectations `ruler_challenges_predictions.md`,
+committed before any challenge column existed). Rule: `atlas/ruler.py` at aab0c82, v1.2, unchanged throughout.
+60,000 proteins (20.56M residues), 414 columns per set (240 null), each streamed through the Atlas, scored, called.
+
+**Whole-procedure error rates** (selection, reservoir sampling, de-duplication, scoring, BH, calls), Clopper-Pearson 95%:
+
+| set | null columns called (as built, 42% signal) | false discovery proportion | 80%-signal mix | all-null mix |
+|---|---|---|---|---|
+| A fp32 | 0 / 240 (0-1.5%) | 0 / 148 (0-2.5%) | 1 / 43 (0.06-12.3%) | 0 / 240 |
+| B bf16 | 1 / 240 (0.01-2.3%) | 1 / 149 | 1 / 43 | 0 / 240 |
+| C ids permuted | 0 / 240 | 0 / 147 | 0 / 43 (0-8.2%) | 0 / 240 |
+| D 5% duplicated | 1 / 240 (0.01-2.3%) | 1 / 149 (0.02-3.7%) | 1 / 43 | 0 / 240 |
+
+The sets share their noise, so they are not independent replicates. The 80% mix has only 43 null columns,
+and its interval reaches 12%; bounding the error rate where most columns are real needs more null columns
+than this set has.
+
+**Challenges** (set A; alpha >= 1, 12 columns per type unless stated):
+
+| challenge | expected | observed |
+|---|---|---|
+| motif N-x-[ST] (sequence only) | composition (N) >= 9; structural <= 6 | composition, residue mode N, **12 / 12**; structural 0 |
+| motif G-x-G-x-x-G (sequence only) | structural / context >= 8, mode G | **5 / 12** context (alpha 3-4); composition G 4; none 3 (alpha 1) |
+| exposed strand (conjunction) | associated 12; primary state5 6-12; burial3 also significant in the scores >= 10 | associated 12 (structural 9, context 3); primary state5 12 / 12; burial3 p <= 0.01 in the stored scores 12 / 12; the call names only state5 |
+| balanced interaction (marginals planted equal to background; checked: within 0.0001) | "no association" >= 8 | **12 / 12 not detected** |
+| correlated noise, null columns (30 each) | <= 2 / 30 each | protein effect 0 / 30, cluster effect 0 / 30, smooth 0 / 30 (2 insufficient samples); pooled 0 / 90 (0-4.0%) |
+| correlated noise, clusters at the peak | protein / cluster 20-50, smooth 45-62 | 61 / 58 / **33.5** (smooth noise concentrates the peak in fewer proteins; protein and cluster effects barely do) |
+| correlated noise, power (helix, trp, ordered) | alpha 3 >= 8 / 9; alpha 1 up to half lost | 9 / 9 at both alphas in every model |
+| bf16 (B) vs fp32 | class agrees >= 90% | 161 / 162 (149 with the same primary and mode label) |
+| ids permuted (C) vs A | >= 85% | 152 / 162; every disagreement at the margin (structural <-> context as a residue mode crosses threshold; composition <-> none at alpha 1) |
+| 5% duplicated (D) vs A | >= 85% | 156 / 162; median clusters at the peak 64 -> 62 (de-duplication absorbs the copies) |
+
+**Window baseline v0 (declared diagnostic, not part of the call) failed.** It said "structure beyond the +-5
+window" for every helix, buried, ordered, two_job, narrow, lys_helix and exposed-strand call (correct: those
+columns are structural), and also for all 5 G-x-G-x-x-G calls and 4 of 12 hydro_win calls, which are
+sequence-only: 9 false claims out of 17 sequence-only structural / context calls. For the motif, the window
+reweighting collapses onto a handful of G-rich windows (effective sample size median 21, against 300-50,000
+elsewhere); for hydro_win (ESS 328) an independent-sites model approximates a window mean too loosely.
+
+**Verdict against the criteria fixed beforehand.**
+- *No necessary correction to v1.2.* Error control held in every set, noise model and transformation (no
+  95% interval lies above 2%), and no call asserted something false in its own terms: N and G composition
+  calls are true, and the exposed-strand association is real.
+- *Necessary correction to the baseline before any "structure beyond sequence" statement.* v0 must not be
+  used; a sequence model that can represent residue conjunctions (and a stated ESS floor) is needed, then
+  re-challenged on the same sequence-only columns.
+- *Documented limitations, carried into every real-column report:*
+  1. a conjunction is reported through one descriptor, and the other is visible only in the scores;
+  2. a balanced interaction is "not detected by this ruler" (12 / 12), which is not the same as "no
+     coherent computation";
+  3. sequence-only columns can be called structural or context: 12 / 12 hydro_win, 5 / 12 motif;
+  4. calls move with bf16 or relabelling only at the detection margin;
+  5. the error rate at high signal fractions is bounded only loosely (upper bound 12%).
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
