@@ -1,0 +1,28 @@
+{
+ "Ub x4": {
+  "masked": 11,
+  "mean_dlogp_true_unit": -1e-05,
+  "mean_abs_unit": 4e-05,
+  "control_unit": 4330,
+  "write_load_unit_vs_ctl": [
+   1096.04,
+   1030.35
+  ],
+  "mean_dlogp_true_ctl": -5e-05,
+  "mean_abs_ctl": 5e-05,
+  "unit_value_at_masked_mean": null
+ },
+ "Ub x1": {
+  "masked": 11,
+  "mean_dlogp_true_unit": -0.00019,
+  "mean_abs_unit": 0.00224,
+  "control_unit": 1979,
+  "write_load_unit_vs_ctl": [
+   25.85,
+   25.84
+  ],
+  "mean_dlogp_true_ctl": -0.00055,
+  "mean_abs_ctl": 0.00178,
+  "unit_value_at_masked_mean": null
+ }
+}

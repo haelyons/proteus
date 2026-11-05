@@ -831,6 +831,43 @@ variable, and any "help" comes from neighbour composition.
 - *Not tested:* other readouts (the position itself when masked; later-layer readers; longer-range positions).
   The effects measured here are close to the noise floor of a single-unit intervention.
 
+## 2026-11-05 (round 2) - A 650M "ubiquitin unit" that counts repeats
+
+`ubq650_unit_20261105/` (`scripts/ubq650_probe.py`, `ubq650_repeat.py`, `ubq650_dose.py`, `ubq650_silence.py`;
+predictions and their history in `ubq650_unit_predictions.md`). Chosen by the frozen rule: the 650M column with
+the largest ubiquitin share of its top-64, **layer 15, unit 2087**, positive pole (share 1.0).
+
+- **Discovery:** top-64 = His68 of ubiquitin copies in 8 polyubiquitin precursors (values 6.66-6.91). The peak
+  reservoir is mostly not ubiquitin (H 31, P 21 of 64).
+- **Pre-registered explanations:** family recognition, local His-window motif, structural patch. **All three
+  failed their first probe:** in isolated human ubiquitin the unit reads -1.34 at H68 (between its q50 and q90),
+  and likewise in NEDD8, mutants, shuffles and transplants. The highest value in isolated ubiquitin is 0.76.
+- **Post-hoc hypothesis** (written after that failure, before testing): the response needs tandem copies.
+  - Repeat dependence held: one copy fused to a ribosomal protein gives -1.4; UBB (3 copies) 3.3-3.8; UBC
+    (9 copies) 5.7-6.7.
+  - It also held beyond ubiquitin: SUMO1 x2 lifts the unit's maximum from 0.97 to 2.6; an unrelated lysozyme
+    fragment x2 from 1.1 to 2.9.
+  - Its direction ("already seen earlier") was wrong: copy 1 is as high as later copies.
+- **Revised proposal and fresh test:** the unit's value grows with the number of identical copies of the local
+  sequence in the protein. Ubiquitin x1-x9: -1.34, 2.14, 3.93, 5.02, 6.06, 6.68 (monotone, saturating). Five random
+  held-out fragments x1 / x2 / x4: monotone in **5 / 5** (e.g. 0.39 / 3.09 / 4.54).
+- **Downstream test (pre-registered):** silencing it at every position of Ub x4 changes log p(true) at masked
+  copy-2 positions by -1e-5 nats, against -5e-5 for a write-matched control. The predicted drop was not seen. In a
+  perfect repeat the masked residues are already near-certain, so the readout may sit at its ceiling; and one unit
+  of 168,960 may be redundant.
+
+**Account.**
+- *Proposed computation:* repeat copy number of the local sequence within a protein, read in both directions.
+- *What fresh inputs show:* copy number predicts the unit's value on held-out fragments it was never selected
+  on (5 / 5 monotone).
+- *What it explains beyond naming what activates it:* the ubiquitin enrichment is not family recognition. It is a
+  repeat count, and polyubiquitin precursors are the most perfectly repeated sequences in Swiss-Prot. So the
+  share of a unit's top-64 that is "ubiquitin" measures redundancy (as #7 suspected), and for this unit it says
+  nothing about ubiquitin biology. A DMS comparison against this unit would be meaningless.
+- *Not shown:* that the model uses the count. Silencing it moved nothing at the readout tried.
+- *The earlier atlas-based inference* ("units whose top-64 are mostly ubiquitin copies") would have been read
+  as ubiquitin-related without these probes.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
