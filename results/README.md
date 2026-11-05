@@ -578,6 +578,25 @@ Medians over the 1,280 units of each layer, positive pole; trained vs the three 
   vs 2-8), and both trained and control top-64 lists are less protein-concentrated than predicted (trained
   0-2.8% vs 5-30%; controls 8-14% vs 30-70%).
 
+## 2026-11-05 - Measurement #8: K swept over 16 / 64 / 256 (650M, A100 40 GB, us-east-1)
+
+`k_sweep_650m_20261105/` (job `atlas-ksweep-20261105-0358`, part B of `jobs/batch_20261105`, 04:00-04:23 UTC;
+predictions `batch_20261105_predictions.md` B). Complete workload, first 200 batches, thresholds seeded for
+the full stream (`--stop-after`), K_r 64, every batch paired. Batches 100-199 without a redo (94 per K):
+
+| K | overhead, batches 100-199, median (predicted) | mean / median, all 200 | top-K candidates per batch (predicted) | atlas excess, median | redo batches (predicted) |
+|---|---|---|---|---|---|
+| 16 | 0.252 (0.24-0.27) | 0.499 / 0.256 | 39k (~40k) | 117.5 ms | 18 (15-30) |
+| 64 | 0.260 (0.25-0.28) | 0.461 / 0.267 | 146k (~150k) | 121.7 ms | 20 (15-30) |
+| 256 | 0.323 (0.28-0.40) | 0.592 / 0.341 | 555k (~600k) | 150.2 ms | 20 (15-30) |
+
+Reservoir candidates are the same at every K (228k per batch), as they should be. Marginal cost per top-K
+candidate: 38.7 ms per million from K 16 to 64, **69.9 ms per million from 64 to 256** (predicted 15-60):
+the cost per candidate grows with K, as a merge whose sort width is K would make it. At K = 64 the top-K
+candidates account for ~6-10 ms of a 122 ms excess in these early batches; the rest is per-token work that
+does not depend on K. K = 256 for every bin would cost +24% atlas time early in the stream; K_r = 256 at
+the lower bins (agreed for the next build) changes reservoir candidates, which this sweep did not vary.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -589,4 +608,5 @@ holds the dataset copy, HF cache and this run's checkpoints and atlas, ~16 GB). 
 checkpoints, the 10.85 GB atlas). Follow-up on an A100 40 GB (us-east-1), 14:29-16:43 UTC, ~$4.4 (atlas copy #2 and the
 held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 billed minutes, ~$0.95.
 2026-11-05: workload comparison on an A100 40 GB (us-east-1), 01:44-02:45 UTC, ~$2.0; batch job on an A10 (us-east-1),
-03:03-04:11 UTC incl. the rerun of two controls, ~$1.5. Total ~$15.9 (K sweep running).
+03:03-04:11 UTC incl. the rerun of two controls, ~$1.5; K sweep on an A100 (us-east-1), 04:00-04:23 UTC, ~$0.8.
+Total ~$16.7. No instance is running.
