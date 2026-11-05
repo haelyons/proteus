@@ -785,6 +785,52 @@ representative" does not exclude a >= 50%-identical training member. The 30% / n
 sequence search at this sensitivity (-s 5.7), not proof that nothing related was in training. Searching
 UniRef90 2021_04 (in the same archive) would close the member gap at several times the cost.
 
+## 2026-11-05 (round 2) - The pair's balance: an unsuccessful explanation
+
+`pair_balance_20261105/` (`scripts/pair_balance.py`; frozen test `pair_balance_frozen.md`, which records
+everything inspected beforehand, the independent reviewer's alternative and an amendment after the smoke).
+
+**Proposed computation (from discovery, 600 non-held-out proteins).**
+- The pair detects "buried beta-strand position": its top tokens are 85% strand and 81% buried tercile, with V
+  the commonest residue there.
+- Their balance encodes the centre residue's identity and its N-terminal context: 86-heavy departures from
+  the fitted relationship (h1200 = 1.11 + 0.66 h86, R^2 0.31) have centre D/S; 1200-heavy ones have K/G/S/Q
+  at -1/-2.
+- The opposed writes shift masked neighbours along a polar/hydrophobic axis, and this natural variation helps
+  masked prediction.
+
+**Reviewer's alternative.** The residual is a fixed linear direction applied to the layer-1 input, which is
+dominated by the centre token's embedding. The D/S signature is then a property of the weights, not a computed
+variable, and any "help" comes from neighbour composition.
+
+**Fresh test** (600 held-out proteins with descriptors, excluding the first experiment's 400):
+
+| observation | proposal predicts | alternative predicts | observed |
+|---|---|---|---|
+| 86-heavy departures with centre D/S | >= 3x base | also passes (fixed readout) | 23% vs 4% base (5.8x): passes, uninformative |
+| gain from natural departures beyond injected ones, conditioning on neighbour polarity and centre D/S | > 0 | ~ 0 | **-0.00025 (95% CI -0.0019 to 0.0015)** |
+| polarity slope (natural / injected) | - | equal | 0.0030 (CI -0.0011 to 0.0070) / -0.0017 (CI -0.0081 to 0.0048): both include 0 |
+| median gain at masked neighbours | > 0 | ~ 0 | natural -0.000125, injected +0.000096 nats |
+| \|change\| vs a same-norm change of another unit in the same masked forward | larger | similar | 0.0020 vs 0.0022 (natural); 0.0018 vs 0.0021 (injected) |
+| +-3 window transplanted into other proteins: share above the unit's q99 (strand / helix / loop hosts) | high in strand | similar, and retained | 86: 0.20 / 0.11 / 0.13; 1200: 0.14 / 0.11 / 0.10 |
+
+**Account.**
+- *Supported:* the pair fires at buried strand positions on fresh proteins; departures from its fitted
+  balance recur with centre D/S (5.8x); its single effects are opposed and add almost linearly (joint within
+  25% of the vector sum, cosine -0.73 in discovery).
+- *Contradicted:* "the natural variation in their balance helps prediction". Removing it, or injecting it,
+  changes log p of the true neighbouring residues by ~1e-4 nats, no more than a same-norm change to an
+  unrelated unit, and with no dependence on context or neighbour polarity that the intervals can see.
+- *Neither explanation as stated:* the transplant shows that the units' top activations need more than the
+  +-3 window (80-90% lost when it is moved), with a modest strand-host advantage. So "a fixed readout of
+  local sequence" is too narrow, and "buried strand" is only weakly supported.
+- *What is explained beyond naming what activates the units:* little. Their writes oppose and partly cancel by
+  ordinary vector addition, and the balance tracks the centre residue. No downstream benefit of the balance is
+  detectable at masked neighbours. The opposed output cosine remains a fact about the weights, not yet an
+  explanation of anything the model does with it.
+- *Not tested:* other readouts (the position itself when masked; later-layer readers; longer-range positions).
+  The effects measured here are close to the noise floor of a single-unit intervention.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which

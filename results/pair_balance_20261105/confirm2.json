@@ -1,0 +1,100 @@
+{
+ "proteins": 600,
+ "recurrence": {
+  "departures": 177,
+  "with_centre_DS": 41,
+  "share": 0.23163841807909605,
+  "base_share": 0.0397422126745435,
+  "ratio": 5.82852343869293
+ },
+ "sites": {
+  "natural": 177,
+  "injected": 300
+ },
+ "regression_gain ~ 1 + natural + polar_frac + centre_DS (coef, 95% lo, hi)": {
+  "intercept": [
+   -0.00082,
+   -0.00234,
+   0.000621
+  ],
+  "natural": [
+   -0.000254,
+   -0.001851,
+   0.00146
+  ],
+  "polar_frac": [
+   0.000359,
+   -0.0042,
+   0.004625
+  ],
+  "centre_DS": [
+   0.000651,
+   -0.000854,
+   0.002195
+  ]
+ },
+ "polar_slope_by_kind (coef, lo, hi)": {
+  "natural": [
+   0.002957,
+   -0.001129,
+   0.006954
+  ],
+  "injected": [
+   -0.001715,
+   -0.008123,
+   0.004757
+  ]
+ },
+ "gain_median": {
+  "natural": -0.000125,
+  "injected": 9.6e-05
+ },
+ "abs_change_median_vs_matched_control": {
+  "natural": [
+   0.002022,
+   0.002189
+  ],
+  "injected": [
+   0.001806,
+   0.002136
+  ]
+ },
+ "transplant": {
+  "86": {
+   "strand": {
+    "n": 200,
+    "frac_above_q99": 0.195,
+    "median_h": -0.652
+   },
+   "helix": {
+    "n": 198,
+    "frac_above_q99": 0.106,
+    "median_h": -0.964
+   },
+   "loop": {
+    "n": 200,
+    "frac_above_q99": 0.13,
+    "median_h": -0.7
+   },
+   "sites": 40
+  },
+  "1200": {
+   "strand": {
+    "n": 200,
+    "frac_above_q99": 0.14,
+    "median_h": 0.276
+   },
+   "helix": {
+    "n": 200,
+    "frac_above_q99": 0.105,
+    "median_h": -0.131
+   },
+   "loop": {
+    "n": 200,
+    "frac_above_q99": 0.1,
+    "median_h": -0.01
+   },
+   "sites": 40
+  }
+ }
+}
