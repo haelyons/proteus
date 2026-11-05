@@ -117,37 +117,55 @@ gradient x input agrees with masking on the same samples; only if it does is it 
 Cost: ~1 day; GPU ~$0.5 at 8M (~5,000 proteins x ~350 positions of the 8M model, ~10-20 min on an A10);
 the same at 650M would be ~2-3 h.
 
-## 7. Decision rule (draft for you to amend before any number)
+## 7. Decision rule (v1, revised 2026-11-05 after the assessment; numbers frozen before the first real-column score)
+
+What the ruler can say: whether a column's samples are associated with our descriptor vocabulary beyond
+composition and sample size. It cannot say what a column computes, and it cannot tell "no job" from "a
+job outside the vocabulary". Revisions from the draft: persistence is descriptive, not a requirement
+(a narrow detector whose meaning changes at weaker activation is still associated); "no association
+found by this procedure" is a category of its own, never read as "unrelated jobs"; the negative pole is
+the unit's off-state (GELU writes ~0 at its extremes, `assessment_20261104.md` section 5), so
+structural and functional claims use the positive pole, and the negative pole is reported only as where
+the unit is silent.
 
 Blinding: every column (unit, latent, baseline, control, synthetic) gets an opaque id; the key file's
 sha256 is committed before scoring and the key after the calls are frozen.
 
-Gate (ruler validity), all on synthetic columns, else no call on real columns:
-- one-job columns called "one job" at SNR >= the stated level in >= 90%;
-- two-job columns called "two jobs" in >= 80% (with the family check);
-- pure noise called "background" in >= 95%;
-- the tryptophan column called "composition job" with structural excess within the null's 95% band;
-- persistence class of planted persistent / peak-only / none columns correct in >= 85%.
+Calls per column (positive pole; samples de-duplicated by UniRef50 cluster; BH over columns x descriptors):
+- "structural association": at least one structural descriptor (state, burial, backbone region)
+  enriched at the peak (q99.999 reservoir) beyond the composition-matched null. Sub-label "one mode" or
+  "several modes": several enriched states of one descriptor (e.g. helix and strand) are reported as
+  several modes, provisional until the family check; they are never called several jobs on their own
+  (one meaning in two contexts gives the same pattern).
+- "composition association": residue identity enriched against background, no structural excess.
+- "context association": both, i.e. a residue response that depends on structure.
+- "no association found by this procedure".
+- Persistence class (descriptive): mode present at q99 and q90 / q99 only / peak only (half-effect
+  criterion with 95% interval).
 
-Per real column, "clean" = all of:
-(a) a significant job at the q99.999 peak after cluster de-duplication and BH;
-(b) for a structural job, calibrated coherence above the 95th percentile of the +-3 Bayes-optimal
-    predictor for that descriptor;
-(c) persists to q99 (half-effect criterion with 95% interval);
-(d) not a two-job mixture after the family check.
+Gate (ruler validity) on synthetic columns, else no call on real columns, at the stated SNR or above:
+- single-job columns: "structural association, one mode" >= 90%, the right descriptor;
+- tryptophan: "composition association" >= 90%;
+- residue-in-context column: "context association" >= 80%;
+- planted two-job mixture and planted one-meaning-two-contexts column: both "several modes" >= 80%
+  (the ruler is expected not to separate them; that is the family check's job);
+- narrow detector with a different meaning at weaker activation: associated at the peak >= 90%, and
+  persistence "peak only" for its structural mode >= 80%;
+- pure noise: "no association found" >= 95%.
 
-Population calls (8M, per layer and pooled; f = fraction clean; S = shuffled-weights units as the
+Population calls (8M, per layer and pooled; f = fraction of columns with an association beyond the +-3
+Bayes-optimal local predictor for the same descriptor; S = shuffled-weights units, three seeds, as the
 false-call floor):
-- "units clean": f_units - f_S >= 0.30 and f_units >= 0.75 f_latents.
-- "latents clean, units not": f_latents - f_S >= 0.30 and f_units < 0.5 f_latents.
+- "units associated": f_units - f_S >= 0.30 and f_units >= 0.75 f_latents.
+- "latents associated, units not": f_latents - f_S >= 0.30 and f_units < 0.5 f_latents.
 - "both": both >= 0.30 above the floor and f_units / f_latents in [0.75, 1.33].
 - "neither": both < 0.15 above the floor.
-- Otherwise "inconclusive", stating which criterion failed. Held-out: each call must hold in sign on
-  the strict held-out subset (predicted descriptor enrichment in the same direction for >= 70% of the
-  clean columns) or it is reported as not generalising.
+- Otherwise "inconclusive", stating which criterion failed. Held-out: on the strict held-out subset
+  (no hit >= 50% identity in UniRef50 2021_04), the predicted enrichment holds in sign for >= 70% of the
+  associated columns, or the call is reported as not generalising.
 
-The numbers are placeholders until you change or accept them; once accepted they are frozen in a commit
-before the first real-column score.
+Numbers are placeholders until accepted; once accepted they are frozen in a commit before the first
+real-column score.
 
 ## Housekeeping
 
