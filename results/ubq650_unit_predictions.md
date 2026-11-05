@@ -95,3 +95,24 @@ Dose-response predictions (synthetic tandem copies, 650M, H68 of copy 1 and the 
 Monotone increase in copy number, copy 1 and later copies alike. For 5 random held-out protein fragments (80
 residues, none containing ubiquitin): the maximum over the construct rises from 1 to 2 to 4 copies in >= 4 of 5.
 If it does not, D' is wrong.
+
+## Dose-response result (D' predictions above)
+
+Ubiquitin copies 1 / 2 / 3 / 4 / 6 / 9 give H68 values of -1.34 / 2.14 / 3.93 / 5.02 / 6.06 / 6.68: monotone and
+saturating, with copy 1 equal to the later copies. Held-out fragments x1 / x2 / x4 rise monotonically in **5 / 5**
+(e.g. 0.39 / 3.09 / 4.54). D' holds on fresh sequences.
+
+## Downstream test, written before running it
+
+Does the model use the unit when predicting masked residues in repeats? In Ub x4, mask a random 15% of copy 2's
+positions (seeded). Silence unit 2087 (post-GELU = 0) at every position, against a control: another layer-15 unit
+whose summed |GELU| x |w_out| over the sequence is closest to 2087's in the same masked forward. Readout: signed
+change in log p(true) at the masked positions. The same in a single ubiquitin (unit near its off level).
+
+Predicted:
+- in Ub x4, silencing 2087 lowers mean log p(true) at the masked positions, by more than twice the matched
+  control's |change| but by < 0.05 nats (one unit of 168,960);
+- in a single ubiquitin: no change beyond the control.
+
+If silencing changes nothing beyond the control, the unit reads repeats without the model detectably using it
+for masked prediction at this scale. That would be reported as such.
