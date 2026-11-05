@@ -810,7 +810,8 @@ unchanged.
   76 (layers 0-5).
 - *No association* is rare in both (10 against 1-2), so the procedure almost always finds something. A "none" call
   is a statement about this ruler's vocabulary, not about the unit (see the cases below: one "none" unit reads
-  whole-protein composition, another reads signal peptides).
+  whole-protein composition; another drives two layer-2 units strongly, though what triggers it stays
+  unidentified).
 
 ## 2026-11-05 (round 2) - Window baseline v1: the repair, against its pass criteria
 
