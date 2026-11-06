@@ -114,6 +114,21 @@ def pack(job_dir: Path, include: list[Path], extra: dict[str, str]) -> bytes:
             tf.addfile(ti, io.BytesIO(data))
     return buf.getvalue()
 
+def fetch_after_done(jup, base, out, files, ev):
+    """once, after done.json: copy each listed output (binary-safe) before the instance is terminated."""
+    for f in files:
+        for attempt in range(3):
+            try:
+                data = jup.get_bytes(f"{base}/{f}")
+                (out / f).parent.mkdir(parents=True, exist_ok=True)
+                (out / f).write_bytes(data)
+                ev("fetched", file=f, bytes=len(data))
+                break
+            except Exception as e:  # noqa: BLE001
+                if attempt == 2:
+                    ev("fetch_failed", file=f, error=str(e)[:200])
+                time.sleep(5)
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -131,6 +146,7 @@ def main():
     ap.add_argument("--hard-cap", type=float, required=True, help="seconds after launch")
     ap.add_argument("--upload", nargs=2, action="append", default=[], metavar=("LOCAL", "REMOTE_UNDER_FS"),
                     help="chunked-upload LOCAL to <fs>/REMOTE if absent (e.g. cache/swissprot.pt)")
+    ap.add_argument("--fetch", nargs="*", default=[], help="files under runs/<job>/ copied once (binary-safe) after done.json")
     ap.add_argument("--mirror", nargs="*", default=[], help="files under runs/<job>/ to mirror locally each poll")
     a = ap.parse_args()
     if not a.ssh_key and not a.dry_run:
@@ -217,6 +233,7 @@ def main():
             try:
                 done = json.loads(jup.read_text(f"{base}/done.json"))
                 ev("job_done", **done)
+                fetch_after_done(jup, base, out, a.fetch, ev)
                 break
             except Exception:  # noqa: BLE001
                 time.sleep(20)

@@ -18,12 +18,28 @@ import lambda_api as L  # noqa: E402
 
 FS_JUP = "esm-atlas-results"
 
+def fetch_after_done(jup, base, out, files, ev):
+    """once, after done.json: copy each listed output (binary-safe) before the instance is terminated."""
+    for f in files:
+        for attempt in range(3):
+            try:
+                data = jup.get_bytes(f"{base}/{f}")
+                (out / f).parent.mkdir(parents=True, exist_ok=True)
+                (out / f).write_bytes(data)
+                ev("fetched", file=f, bytes=len(data))
+                break
+            except Exception as e:  # noqa: BLE001
+                if attempt == 2:
+                    ev("fetch_failed", file=f, error=str(e)[:200])
+                time.sleep(5)
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
     ap.add_argument("--instance-id", required=True)
     ap.add_argument("--cap-at", type=float, required=True, help="epoch seconds: terminate no later than this")
+    ap.add_argument("--fetch", nargs="*", default=[], help="files under runs/<job>/ copied once (binary-safe) after done.json")
     ap.add_argument("--mirror", nargs="*", default=[])
     ap.add_argument("--fs", default=None, help="filesystem name (default: the per-region name lambda_job.py uses)")
     a = ap.parse_args()
@@ -67,6 +83,7 @@ def main():
             try:
                 done = json.loads(jup.read_text(f"{base}/done.json"))
                 ev("job_done", **done)
+                fetch_after_done(jup, base, out, a.fetch, ev)
                 break
             except Exception:  # noqa: BLE001
                 time.sleep(20)

@@ -1,6 +1,6 @@
-# 650M layer 15 unit 2087: when the input carries repeat information, does changing this signal alter how the model uses it? (DRAFT, nothing frozen)
+# 650M layer 15 unit 2087: when the input carries repeat information, does changing this signal alter how the model uses it?
 
-**Status, 2026-11-06:**
+**Status, 2026-11-06 (first written):**
 - Only the timing and memory pilot has run (below).
 - The discovery pilot, which shows whether the behavioural contrasts have room to move, comes next. After it,
   the constructs, readouts and effect sizes are frozen in a later section of this file, in a commit made before
@@ -172,3 +172,155 @@ The hooks add no measurable time. Batching does not help on CPU. Throughput is a
 
 **Each part leaves behind:** construct sequences and masks, frozen predictions, raw responses, controls, and
 per-base summaries with bootstrap intervals.
+
+
+## Discovery pilot (2026-11-06; already inspected, before the freeze below)
+
+- **Material:** `ubq650_use_20261106/constructs_discovery.json`: 8 non-held-out bases (seed 2), 4 targets each.
+- **Raw outputs and summaries:** `discovery_pilot/` (`behaviour.pt`, `screen.pt`, `intervention.pt`, `items.csv`,
+  `intervention_items.csv`, `summary.json`). Run on CPU, fp32.
+- **Smokes before it:** one base, one target (Q4J8E4), all parts, twice, plus the job script end to end on CPU.
+
+**Run incidents:**
+- The first pilot's intervention file failed to save: the disk filled because, on CPU,
+  `pre15[:, 2087].float().cpu()` stays a view, so `torch.save` wrote the whole layer-15 storage per record.
+- Fixed with `.clone()`. Behaviour and screen files were re-saved compactly (values unchanged), and the
+  intervention part was re-run.
+
+**Behaviour** (per-base means; 95% bootstrap CI over the 8 bases; all 8 bases share a sign unless noted):
+
+| contrast | mean (CI) |
+|---|---|
+| agree: log p(t) with copy minus with scramble | +1.43 (0.75 to 2.09) |
+| disagree: shift in [log p(v) - log p(t)] | +9.11 (7.93 to 10.35) |
+| disagree: log p(t) | -4.09 (-4.99 to -3.20) |
+| masked-all: corresponding position masked in both blocks | -0.49 (-0.83 to -0.20) |
+| scrambled second block vs R alone | +0.002 (-0.10 to 0.13; 3 / 8 positive) |
+| 4 blocks, c = 3 vs c = 0 | +1.60 (1.04 to 2.16) |
+
+- **Confidence:**
+  - p(t) with a scramble 0.43 (median 0.22); with a copy 0.988;
+  - entropy over the 20 residues 1.62 vs 0.08 nats.
+  - The agree recipient is near ceiling. The disagree contrast is not.
+- **2087 pre-GELU:**
+  - at the masked target: -1.44 with copy, -2.33 with scramble;
+  - at the visible counterpart: -2.01 vs -2.34;
+  - reference-block mean: -0.98 vs -2.27;
+  - masked-all target -2.01; c = 3 target -1.20 vs c = 0 -2.21.
+
+**Screen** (4 blocks, constant length, unmasked, R in slot 1):
+
+| copies | 2087 reference-block mean | share of reference positions > q99 (0.57) | share > q99.9 (2.19) | mean maximum |
+|---|---|---|---|---|
+| c = 0 | -2.14 | 0.2% | 0% | -0.25 |
+| c = 1 | -0.73 | 33% | 4% | 2.98 |
+| c = 2 | -0.73 | 40% | 8% | 3.51 |
+| c = 3 | -0.71 | 43% | 12% | 3.80 |
+
+- Above q99.9 at c = 3, by residue: H 0.75 (n 12), C 0.75 (4), P 0.62 (34), S 0.39 (52).
+- Masked c = 1 / 2 reference-block means: -0.74 / -0.74.
+- **Columns** (pole-adjusted z, c = 3 vs c = 0):
+  - the 40 ubiquitin-selected columns: median 0.41, 9 with z > 2, 4 with z > 5 (largest 32/1659, 10/3519, 9/2946,
+    20/2491);
+  - the 132 comparison columns: median 0.01, 1 with z > 2.
+- **Layer 15:** 2087 has z 2.05, rank 8 of 5,120. The quantiles of all units are median -0.23, q99 1.22,
+  q99.9 2.22.
+- **Selected group** (rule in `ubq650_use.py select_group`): 2087, 4330, 1493, 1284, 1659, 1526, 3318, 4544, 4133,
+  2481, 1444, 1148, 2600, 3743, 4759, 4449, 4645, 3775, 4531, 704. Unit 4330 was the write-matched control of the
+  earlier silencing test.
+
+**Intervention.** f = fraction of the contrast removed (ratio of sums over bases, CI over bases).
+
+| recipient | 2087, alpha = 1, all positions | 20-unit group, alpha = 1 |
+|---|---|---|
+| agree | -0.0000 (-0.0001 to 0.0001) | -0.0003 (-0.0009 to 0.0001) |
+| disagree (copying preference) | -0.0008 (-0.0023 to 0.0004) | -0.0033 (-0.0090 to 0.0012) |
+| 4 blocks, c = 3 | -0.0000 | +0.0001 |
+
+- Unit and random-direction controls are of the same order: |f| <= 0.0011.
+- KL at the target is <= 6e-4 throughout.
+- 2087's own patch is graded but tiny: disagree d log p(t) -0.0009 / -0.0020 / -0.0031 / -0.0042 at alpha 0.25 /
+  0.5 / 0.75 / 1.
+- **Control failure:** random 20-unit groups reached only 0.37-0.57 of the group's combined residual change, so
+  the group comparison was under-matched.
+
+## Amendments after the pilot, before any fresh base is scored
+
+1. **Bug fix:** `.clone()` on saved per-position vectors. Values are unchanged.
+2. **Group controls:**
+   - random same-size groups are drawn from all non-group units, then from the top 2,000 / 1,000 / 500 / 200
+     non-group units by single-unit change norm, until 4 lie within +-10% of the group's combined norm;
+   - the pool and ratio are recorded per item;
+   - plus 2 group-level random directions with the group's per-position combined-change norm.
+   - Smoke: ratios 0.92-1.05 from the top-500 / top-200 pools.
+3. **Secondary upper bound:** the whole layer-15 FFN output (all 5,120 units) is patched toward the donor
+   (alpha 0.5, 1), against 2 random directions with its per-position norm.
+4. **The discovery intervention is re-run on the GPU** with the amended controls, recorded as discovery, in the
+   same job before the fresh run (`run.sh` stage 1b). Predictions below cover it too.
+
+## FROZEN 2026-11-06, before any fresh base is scored
+
+**Inputs:**
+- `constructs_fresh.json`: sha256 4582a12b...ebadd; 48 held-out bases (seed 1), 8 targets each; disagreeing
+  residues balanced 19-20 per amino acid.
+- `group_frozen.json`: sha256 6cbe15e3...2eb5; the pilot's group.
+
+**Run setup:** A10, fp32, TF32 off. Stage 1 compares GPU with CPU on the smoke constructs.
+
+**Inference:** per-base means, 95% bootstrap over the 48 bases (2,000 draws), with the number of bases sharing the
+sign. Raw per-item values are kept in `items.csv`, `intervention_items.csv` and the `.pt` files.
+
+**Behaviour.** Decision rule with delta_b = 0.1 nats:
+- *effect:* the interval excludes 0 and lies beyond 0.1 in the stated direction;
+- *excluded:* the interval lies within +-0.1;
+- *inconclusive:* otherwise.
+
+| contrast | prediction |
+|---|---|
+| agree | effect, +; mean 0.8-2.5 nats |
+| disagree preference shift | effect, +; mean >= 5 nats |
+| disagree log p(t) | effect, - |
+| masked-all | effect, - (weakly held: pilot -0.49) |
+| scramble block vs R alone | excluded (scramble neutral) |
+| 4-block c = 3 vs c = 0 | effect, + |
+| order RX vs XR | agree means within 0.3 nats |
+
+Confidence and unit activity (recorded, with ranges predicted):
+- p(t) with copy >= 0.95; with scramble 0.25-0.6;
+- 2087 at the masked target: below its q90 (-0.96) on average with copy; above the scramble value by 0.5-1.5;
+- reference-block mean: copy minus scramble >= 0.8.
+
+**Screen.** For 2087:
+- share of reference positions > q99: <= 2% at c = 0 and >= 20% at each of c = 1, 2, 3;
+- reference-block mean at c >= 1 minus c = 0: >= 1.0;
+- H, C or P among the three residues most often above q99.9 at c = 3;
+- masked vs unmasked reference-block mean: within 0.1.
+
+Columns: the ubiquitin-selected set has more columns with pole-adjusted z > 2 than the comparison set, by count
+and by proportion (pilot 9 / 40 vs 1 / 132), and a higher median z.
+
+**Intervention.** For each recipient (agree, disagree, 4-block c = 3), with meaningful effect size delta_i = 0.02,
+i.e. 2% of that recipient's behavioural contrast:
+- *effect:* the lower bound of f exceeds 0.02, and the point estimate exceeds the upper bound of each pooled
+  matched-control family (unit controls, random directions, matched groups / group random directions);
+- *excluded:* the interval for f lies within (-0.02, 0.02);
+- *inconclusive:* otherwise.
+
+| patch | prediction | conclusion it addresses |
+|---|---|---|
+| 2087, alpha = 1, all positions | **excluded** in all three recipients | "accounts for part of the repeat effect" |
+| 2087, reference block only / other blocks only | excluded | |
+| 20-unit group, alpha = 1 | **excluded** in all three | |
+| 2087 and group: KL at the target | no larger than the pooled matched controls' (upper CI) | "moves predictions" |
+| 2087 and group: agree d log p(t) | within +-0.02 nats | "helps prediction" |
+| 2087 and group: disagree preference | f within +-0.02 | "reduces copying" |
+| whole layer-15 FFN, alpha = 1 (secondary) | f between 0 and 0.2 in agree and disagree, not excluded (weakly held) | upper bound for layer 15's FFN |
+
+**Wording fixed now:**
+- *If 2087 is excluded:* "Replacing 2087's output with its scramble-construct values, at every position,
+  changes the model's use of the copy by less than 2% of the behavioural contrast (95% CI over 48 fresh bases).
+  This closes the route that this signal, alone or with its 19 strongest layer-15 co-responders, carries the
+  repeat effect in these constructs. It does not settle other roles: different constructs, natural repeats, or
+  effects at positions not read out here."
+- *If even the whole layer-15 FFN is excluded:* the repeat use is carried elsewhere (attention, or FFNs in
+  other layers). Readers stay deferred until a contrast worth explaining exists at some layer.

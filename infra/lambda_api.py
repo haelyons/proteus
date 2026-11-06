@@ -77,6 +77,13 @@ class Jupyter:
             return base64.b64decode(d["content"]).decode(errors="replace")
         return d["content"]
 
+    def get_bytes(self, path: str, timeout=600) -> bytes:
+        """binary-safe read of a file (Jupyter returns base64 for non-text files, text otherwise)."""
+        import base64
+
+        _, d = self.get(path, timeout=timeout)
+        return base64.b64decode(d["content"]) if d.get("format") == "base64" else d["content"].encode()
+
     def put_text(self, path: str, text: str):
         body = {"type": "file", "format": "text", "content": text}
         return _req("PUT", f"{self.base}/api/contents/{urllib.parse.quote(path)}", body, self._h)
