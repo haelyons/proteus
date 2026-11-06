@@ -1,0 +1,80 @@
+{
+ "threads": 4,
+ "rss_before_load_gb": 0.38,
+ "load_s": 0.8,
+ "rss_after_load_gb": 0.42,
+ "timing": [
+  {
+   "blocks": 2,
+   "length": 160,
+   "batch": 1,
+   "plain_s_per_forward_batch": 0.584,
+   "plain_s_per_sequence": 0.584,
+   "capture_s_per_forward_batch": 0.562,
+   "capture_s_per_sequence": 0.562,
+   "patch_unit_s_per_forward_batch": 0.513,
+   "patch_unit_s_per_sequence": 0.513,
+   "patch_group_s_per_forward_batch": 0.51,
+   "patch_group_s_per_sequence": 0.51,
+   "peak_rss_gb": 3.37
+  },
+  {
+   "blocks": 2,
+   "length": 160,
+   "batch": 4,
+   "plain_s_per_forward_batch": 2.005,
+   "plain_s_per_sequence": 0.501,
+   "capture_s_per_forward_batch": 2.096,
+   "capture_s_per_sequence": 0.524,
+   "patch_unit_s_per_forward_batch": 2.119,
+   "patch_unit_s_per_sequence": 0.53,
+   "patch_group_s_per_forward_batch": 2.127,
+   "patch_group_s_per_sequence": 0.532,
+   "peak_rss_gb": 3.48
+  },
+  {
+   "blocks": 4,
+   "length": 320,
+   "batch": 1,
+   "plain_s_per_forward_batch": 0.92,
+   "plain_s_per_sequence": 0.92,
+   "capture_s_per_forward_batch": 0.993,
+   "capture_s_per_sequence": 0.993,
+   "patch_unit_s_per_forward_batch": 1.014,
+   "patch_unit_s_per_sequence": 1.014,
+   "patch_group_s_per_forward_batch": 0.909,
+   "patch_group_s_per_sequence": 0.909,
+   "peak_rss_gb": 3.48
+  },
+  {
+   "blocks": 4,
+   "length": 320,
+   "batch": 4,
+   "plain_s_per_forward_batch": 4.111,
+   "plain_s_per_sequence": 1.028,
+   "capture_s_per_forward_batch": 3.87,
+   "capture_s_per_sequence": 0.968,
+   "patch_unit_s_per_forward_batch": 3.939,
+   "patch_unit_s_per_sequence": 0.985,
+   "patch_group_s_per_forward_batch": 3.928,
+   "patch_group_s_per_sequence": 0.982,
+   "peak_rss_gb": 3.61
+  },
+  {
+   "blocks": 8,
+   "length": 640,
+   "batch": 1,
+   "plain_s_per_forward_batch": 2.237,
+   "plain_s_per_sequence": 2.237,
+   "capture_s_per_forward_batch": 2.09,
+   "capture_s_per_sequence": 2.09,
+   "patch_unit_s_per_forward_batch": 2.231,
+   "patch_unit_s_per_sequence": 2.231,
+   "patch_group_s_per_forward_batch": 2.129,
+   "patch_group_s_per_sequence": 2.129,
+   "peak_rss_gb": 3.61
+  }
+ ],
+ "peak_rss_gb": 3.61,
+ "note": "times only; logits computed and discarded, never printed or saved"
+}

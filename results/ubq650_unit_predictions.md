@@ -116,3 +116,17 @@ Predicted:
 
 If silencing changes nothing beyond the control, the unit reads repeats without the model detectably using it
 for masked prediction at this scale. That would be reported as such.
+
+## Result of the downstream test (recorded 2026-11-06; wording revised)
+
+- **Ub x4:** mean change in log p(true) at the 11 masked copy-2 positions was -1e-5 nats, against -5e-5 for the
+  write-matched control (unit 4330).
+- **Ub x1:** -1.9e-4, against -5.5e-4.
+- The predicted drop (more than twice the control's |change|) was not seen.
+- Scope: one base sequence, 11 masked positions, one mask seed.
+- **Not established:** why. The run saved neither the baseline log p(true) at the masked positions (so a
+  confidence ceiling is untested) nor the unit's values at or near the masked positions after masking. The
+  summed write load in the masked Ub x4 forward was 1,096 against 26 in Ub x1, so the unit was active somewhere
+  in that forward, but not necessarily where the masks were.
+- Redundancy was not tested, and the unit's being one of 168,960 is not evidence for it.
+- The follow-up is `ubq650_use_plan.md`.

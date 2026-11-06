@@ -939,9 +939,13 @@ the largest ubiquitin share of its top-64, **layer 15, unit 2087**, positive pol
   sequence in the protein. Ubiquitin x1-x9: -1.34, 2.14, 3.93, 5.02, 6.06, 6.68 (monotone, saturating). Five random
   held-out fragments x1 / x2 / x4: monotone in **5 / 5** (e.g. 0.39 / 3.09 / 4.54).
 - **Downstream test (pre-registered):** silencing it at every position of Ub x4 changes log p(true) at masked
-  copy-2 positions by -1e-5 nats, against -5e-5 for a write-matched control. The predicted drop was not seen. In a
-  perfect repeat the masked residues are already near-certain, so the readout may sit at its ceiling; and one unit
-  of 168,960 may be redundant.
+  copy-2 positions by -1e-5 nats, against -5e-5 for a write-matched control. The predicted drop was not seen.
+  - Scope: one base sequence (ubiquitin), 11 masked positions, one mask seed.
+  - Why it is null is not known. A confidence ceiling and redundancy are possible, but neither was shown: the
+    saved results record neither the baseline log p(true) at the masked positions nor the unit's activity after
+    masking.
+  - Being one of 168,960 units is not evidence of redundancy.
+  - Both quantities are recorded in the follow-up (`ubq650_use_plan.md`).
 
 **Account.**
 - *Proposed computation:* repeat copy number of the local sequence within a protein, read in both directions.
@@ -951,7 +955,8 @@ the largest ubiquitin share of its top-64, **layer 15, unit 2087**, positive pol
   repeat count, and polyubiquitin precursors are the most perfectly repeated sequences in Swiss-Prot. So the
   share of a unit's top-64 that is "ubiquitin" measures redundancy (as #7 suspected), and for this unit it says
   nothing about ubiquitin biology. A DMS comparison against this unit would be meaningless.
-- *Not shown:* that the model uses the count. Silencing it moved nothing at the readout tried.
+- *Not shown:* that the model uses the count. Silencing it moved nothing detectable at the one readout tried, and
+  the reason is open.
 - *The earlier atlas-based inference* ("units whose top-64 are mostly ubiquitin copies") would have been read
   as ubiquitin-related without these probes.
 
