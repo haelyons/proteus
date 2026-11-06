@@ -1153,6 +1153,37 @@ the largest ubiquitin share of its top-64, **layer 15, unit 2087**, positive pol
     Silencing moves the predicted residues beyond controls for 4 units (moves predictions), and changes log
     p(true) beyond the control only once, unpredicted (5,1181).
 
+## 2026-11-06 - 650M L15/2087: the model uses the repeat; this unit does not carry that use
+
+`ubq650_use_20261106/`; plan, pilot, amendments, frozen predictions and results in `ubq650_use_plan.md` (frozen in
+commit 634c77f before any fresh base was scored). Constructs: fixed 80-residue blocks; the reference block is
+never changed; the other blocks are exact copies, or composition-matched scrambles in the same positions.
+
+| question | answer on 48 fresh held-out bases (95% CI over bases) |
+|---|---|
+| Does a visible copy change the prediction at a hidden residue? | Yes: +2.26 nats log p(true) (2.08-2.44); p(true) from 0.19 to 0.98. A disagreeing copy shifts the preference toward its residue by +7.9 nats and lowers log p(true) by 4.0. |
+| Does repeat context help when the residue is masked in every copy? | No: it hurts slightly, -0.25 nats (-0.35 to -0.16). |
+| Does 2087 respond to repetition at constant length? | Yes. Reference positions above its q99: 0.5% with no copy, 38-43% with 1-3 copies; mostly at H, N, P. It is weak at the masked target (-1.08 vs -2.04) and at its visible counterpart (-1.86 vs -1.92). |
+| Are the ubiquitin-selected columns repeat-responsive? | More than a random comparison sample: 8 / 40 vs 0 / 132 with z > 2. The strongest are in layers 9-32, not 15. |
+| Does replacing 2087's output with its scramble-construct value change how the model uses the copy? | Not meaningfully. At most 0.12% of the copying preference (CI magnitude <= 0.17%), excluded at the frozen 2% margin. Same for its 19 strongest layer-15 co-responders. |
+| Whole layer-15 FFN (secondary bound) | Patching it toward the scramble state *increases* copying by 3.3% (2.5-4.1%). The prediction (removes 0-20%) failed on its sign. |
+
+**What is now shown:**
+- The earlier null was not a confidence ceiling. The disagree readout has no ceiling (log p(true) -6.3), and the
+  near-ceiling agree readout could fall but did not.
+- 2087's repeat response is real and length-independent.
+- But it is not how the model uses the repeat: the use is large, and almost none of it passes through this unit,
+  its layer-15 co-responders, or layer 15's FFN.
+- 2087 does move predictions, detectably and graded with the replacement, in the disagree case, by 0.12% of
+  the effect and in the "copy less" direction.
+
+**Not shown:**
+- where the copying is carried (attention, or other layers' FFNs);
+- roles outside these constructs: natural repeats, imperfect copies, other readouts.
+- The reader search, the similarity sweep and natural repeats remain deferred, as planned.
+
+**Spend:** A10, about 41 billed minutes, about $0.9. Running total about $19.9.
+
 ## Spend
 
 A10 compute 2026-11-03: ~53 billed minutes, ~$1.14 (marker test + four phase-1 launches, three of which
@@ -1168,5 +1199,5 @@ held-out atlas on `esm-atlas-results`). Descriptors on an A10 (us-east-1), ~44 b
 Total ~$16.7.
 2026-11-05 (later): strict held-out on an A10 (us-east-1), two attempts, 11:07-11:29 and 11:35-12:17 UTC, ~$1.4.
 Total ~$18.1.
-2026-11-05 (round 2): real-unit scoring on an A10 (us-east-1), ~17:04-17:46 UTC, ~$0.9. Total ~$19.0. No instance
-is running.
+2026-11-05 (round 2): real-unit scoring on an A10 (us-east-1), ~17:04-17:46 UTC, ~$0.9. Total ~$19.0.
+2026-11-06: 650M use study on an A10 (us-east-1), 13:28-14:13 UTC, ~$0.9. Total ~$19.9. No instance is running.

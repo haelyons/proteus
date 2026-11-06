@@ -1,0 +1,5632 @@
+{
+ "behaviour": {
+  "agree": {
+   "mean": 2.2611,
+   "median": 2.4894,
+   "ci95": [
+    2.0822,
+    2.4378
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "true_under_dis": {
+   "mean": -4.0417,
+   "median": -4.097,
+   "ci95": [
+    -4.258,
+    -3.8239
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "pref_shift": {
+   "mean": 7.8913,
+   "median": 7.7076,
+   "ci95": [
+    7.6507,
+    8.1465
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "masked_all": {
+   "mean": -0.2495,
+   "median": -0.1815,
+   "ci95": [
+    -0.3543,
+    -0.162
+   ],
+   "bases": 48,
+   "bases_positive": 9
+  },
+  "deletion_vs_copy": {
+   "mean": 2.2258,
+   "median": 2.3856,
+   "ci95": [
+    2.0277,
+    2.4109
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "deletion_vs_scr": {
+   "mean": -0.0353,
+   "median": -0.0037,
+   "ci95": [
+    -0.0888,
+    0.0108
+   ],
+   "bases": 48,
+   "bases_positive": 24
+  },
+  "b4_c3_vs_c0": {
+   "mean": 2.3559,
+   "median": 2.5327,
+   "ci95": [
+    2.1814,
+    2.5196
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "agree_RX": {
+   "mean": 2.2427,
+   "median": 2.4712,
+   "ci95": [
+    2.0411,
+    2.4308
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "agree_XR": {
+   "mean": 2.2795,
+   "median": 2.503,
+   "ci95": [
+    2.1024,
+    2.4491
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "pref_shift_RX": {
+   "mean": 7.9752,
+   "median": 7.778,
+   "ci95": [
+    7.6939,
+    8.2879
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "pref_shift_XR": {
+   "mean": 7.8074,
+   "median": 7.5788,
+   "ci95": [
+    7.5688,
+    8.0704
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "p_t_scr": {
+   "mean": 0.1928,
+   "median": 0.1046,
+   "ci95": [
+    0.1508,
+    0.2391
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "p_t_copy": {
+   "mean": 0.9802,
+   "median": 0.9861,
+   "ci95": [
+    0.9744,
+    0.9849
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "pmax_scr": {
+   "mean": 0.2943,
+   "median": 0.2265,
+   "ci95": [
+    0.2472,
+    0.3444
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "entropy_scr": {
+   "mean": 2.2786,
+   "median": 2.4001,
+   "ci95": [
+    2.1208,
+    2.4274
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "entropy_copy": {
+   "mean": 0.1202,
+   "median": 0.098,
+   "ci95": [
+    0.1032,
+    0.1386
+   ],
+   "bases": 48,
+   "bases_positive": 48
+  },
+  "u2087_target_copy_vis_RX": {
+   "mean": -1.0804,
+   "median": -0.9668,
+   "ci95": [
+    -1.2892,
+    -0.8804
+   ],
+   "bases": 48,
+   "bases_positive": 3
+  },
+  "u2087_target_scr0_vis_RX": {
+   "mean": -2.043,
+   "median": -2.0581,
+   "ci95": [
+    -2.149,
+    -1.9388
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "u2087_counterpart_copy_vis_RX": {
+   "mean": -1.8649,
+   "median": -1.8341,
+   "ci95": [
+    -2.0308,
+    -1.7089
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "u2087_counterpart_scr0_vis_RX": {
+   "mean": -1.9217,
+   "median": -1.9209,
+   "ci95": [
+    -2.0349,
+    -1.8127
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "u2087_refmean_copy_vis_RX": {
+   "mean": -0.6776,
+   "median": -0.7052,
+   "ci95": [
+    -0.7603,
+    -0.5978
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "u2087_refmean_scr0_vis_RX": {
+   "mean": -1.8965,
+   "median": -1.8921,
+   "ci95": [
+    -2.0019,
+    -1.7927
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "u2087_target_copy_all_RX": {
+   "mean": -1.8626,
+   "median": -1.9307,
+   "ci95": [
+    -1.9463,
+    -1.7799
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "u2087_target_dis_vis_RX": {
+   "mean": -0.906,
+   "median": -0.8646,
+   "ci95": [
+    -1.0654,
+    -0.7387
+   ],
+   "bases": 48,
+   "bases_positive": 4
+  },
+  "u2087_target_b4_c3": {
+   "mean": -1.0276,
+   "median": -0.9438,
+   "ci95": [
+    -1.2681,
+    -0.8057
+   ],
+   "bases": 48,
+   "bases_positive": 6
+  },
+  "u2087_target_b4_c0": {
+   "mean": -2.0951,
+   "median": -2.1419,
+   "ci95": [
+    -2.1916,
+    -1.9919
+   ],
+   "bases": 48,
+   "bases_positive": 0
+  },
+  "item_quantiles (q10 q25 q50 q75 q90)": {
+   "agree": [
+    0.636,
+    1.553,
+    2.379,
+    2.92,
+    3.534
+   ],
+   "pref_shift": [
+    6.029,
+    6.945,
+    7.727,
+    8.58,
+    10.22
+   ],
+   "true_under_dis": [
+    -5.997,
+    -5.133,
+    -4.256,
+    -3.17,
+    -1.365
+   ],
+   "masked_all": [
+    -1.104,
+    -0.404,
+    -0.107,
+    0.079,
+    0.365
+   ],
+   "b4_c3_vs_c0": [
+    0.688,
+    1.848,
+    2.398,
+    3.01,
+    3.517
+   ],
+   "p_t_scr": [
+    0.028,
+    0.053,
+    0.092,
+    0.217,
+    0.546
+   ],
+   "p_t_copy": [
+    0.971,
+    0.984,
+    0.991,
+    0.995,
+    0.997
+   ]
+  },
+  "items": 384
+ },
+ "screen": {
+  "columns": [
+   {
+    "layer": 3,
+    "unit": 4225,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.005,
+    "z_pole_adjusted": 0.005,
+    "bases_same_sign": 28,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.002,
+     0.006,
+     0.005
+    ]
+   },
+   {
+    "layer": 4,
+    "unit": 724,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.007,
+    "z_pole_adjusted": 0.007,
+    "bases_same_sign": 28,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.009,
+     -0.004,
+     0.007
+    ]
+   },
+   {
+    "layer": 4,
+    "unit": 1769,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.039,
+    "z_pole_adjusted": 0.039,
+    "bases_same_sign": 31,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.018,
+     0.027,
+     0.039
+    ]
+   },
+   {
+    "layer": 5,
+    "unit": 504,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.053,
+    "z_pole_adjusted": 0.053,
+    "bases_same_sign": 30,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.012,
+     0.031,
+     0.053
+    ]
+   },
+   {
+    "layer": 5,
+    "unit": 4827,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.044,
+    "z_pole_adjusted": 0.044,
+    "bases_same_sign": 31,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.025,
+     0.041,
+     0.044
+    ]
+   },
+   {
+    "layer": 6,
+    "unit": 806,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.015,
+    "z_pole_adjusted": 0.015,
+    "bases_same_sign": 21,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.004,
+     0.008,
+     0.015
+    ]
+   },
+   {
+    "layer": 6,
+    "unit": 4927,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.022,
+    "z_pole_adjusted": 0.022,
+    "bases_same_sign": 23,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.014,
+     0.017,
+     0.022
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 909,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.015,
+    "z_pole_adjusted": 0.015,
+    "bases_same_sign": 23,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.01,
+     0.018,
+     0.015
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 1885,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.009,
+    "z_pole_adjusted": 0.009,
+    "bases_same_sign": 22,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.035,
+     0.015,
+     0.009
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 3932,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.15,
+    "z_pole_adjusted": 0.15,
+    "bases_same_sign": 35,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.066,
+     0.104,
+     0.15
+    ]
+   },
+   {
+    "layer": 8,
+    "unit": 1544,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.35,
+    "z_pole_adjusted": -0.35,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.408,
+     -0.409,
+     -0.35
+    ]
+   },
+   {
+    "layer": 8,
+    "unit": 2721,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.376,
+    "z_pole_adjusted": -0.376,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.296,
+     -0.328,
+     -0.376
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 2344,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.62,
+    "z_pole_adjusted": 0.62,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.239,
+     0.407,
+     0.62
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 2946,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 4.56,
+    "z_pole_adjusted": 4.56,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     3.715,
+     4.241,
+     4.56
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 1686,
+    "pole": 1,
+    "kind": "ubq",
+    "z_c3_vs_c0": -1.737,
+    "z_pole_adjusted": 1.737,
+    "bases_same_sign": 47,
+    "dose_z (c0..c3)": [
+     0.0,
+     -1.467,
+     -1.675,
+     -1.737
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 3260,
+    "pole": 1,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.11,
+    "z_pole_adjusted": -0.11,
+    "bases_same_sign": 19,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.149,
+     0.152,
+     0.11
+    ]
+   },
+   {
+    "layer": 10,
+    "unit": 2196,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 4.176,
+    "z_pole_adjusted": 4.176,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     3.842,
+     4.105,
+     4.176
+    ]
+   },
+   {
+    "layer": 10,
+    "unit": 3519,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 4.969,
+    "z_pole_adjusted": 4.969,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     3.879,
+     4.547,
+     4.969
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 3028,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 1.952,
+    "z_pole_adjusted": 1.952,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     1.461,
+     1.768,
+     1.952
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 4224,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.294,
+    "z_pole_adjusted": 0.294,
+    "bases_same_sign": 28,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.013,
+     0.163,
+     0.294
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 5003,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 1.043,
+    "z_pole_adjusted": 1.043,
+    "bases_same_sign": 47,
+    "dose_z (c0..c3)": [
+     0.0,
+     1.016,
+     1.135,
+     1.043
+    ]
+   },
+   {
+    "layer": 13,
+    "unit": 337,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.825,
+    "z_pole_adjusted": 0.825,
+    "bases_same_sign": 43,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.495,
+     0.631,
+     0.825
+    ]
+   },
+   {
+    "layer": 14,
+    "unit": 1202,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 3.792,
+    "z_pole_adjusted": 3.792,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     3.794,
+     3.841,
+     3.792
+    ]
+   },
+   {
+    "layer": 14,
+    "unit": 1992,
+    "pole": 1,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.39,
+    "z_pole_adjusted": 0.39,
+    "bases_same_sign": 44,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.233,
+     -0.294,
+     -0.39
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 2087,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 1.397,
+    "z_pole_adjusted": 1.397,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     1.383,
+     1.432,
+     1.397
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 3486,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.271,
+    "z_pole_adjusted": -0.271,
+    "bases_same_sign": 11,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.198,
+     -0.24,
+     -0.271
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 4165,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.12,
+    "z_pole_adjusted": -0.12,
+    "bases_same_sign": 16,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.236,
+     -0.174,
+     -0.12
+    ]
+   },
+   {
+    "layer": 16,
+    "unit": 2168,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 1.141,
+    "z_pole_adjusted": 1.141,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.274,
+     0.806,
+     1.141
+    ]
+   },
+   {
+    "layer": 16,
+    "unit": 2343,
+    "pole": 1,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.257,
+    "z_pole_adjusted": -0.257,
+    "bases_same_sign": 14,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.217,
+     0.302,
+     0.257
+    ]
+   },
+   {
+    "layer": 20,
+    "unit": 2491,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 5.843,
+    "z_pole_adjusted": 5.843,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     3.441,
+     4.779,
+     5.843
+    ]
+   },
+   {
+    "layer": 25,
+    "unit": 4354,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.592,
+    "z_pole_adjusted": -0.592,
+    "bases_same_sign": 2,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.285,
+     -0.419,
+     -0.592
+    ]
+   },
+   {
+    "layer": 26,
+    "unit": 2704,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.359,
+    "z_pole_adjusted": -0.359,
+    "bases_same_sign": 13,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.101,
+     -0.175,
+     -0.359
+    ]
+   },
+   {
+    "layer": 29,
+    "unit": 1178,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.459,
+    "z_pole_adjusted": 0.459,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.396,
+     0.43,
+     0.459
+    ]
+   },
+   {
+    "layer": 29,
+    "unit": 3904,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 1.071,
+    "z_pole_adjusted": 1.071,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.697,
+     0.846,
+     1.071
+    ]
+   },
+   {
+    "layer": 30,
+    "unit": 1579,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 0.976,
+    "z_pole_adjusted": 0.976,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.802,
+     0.91,
+     0.976
+    ]
+   },
+   {
+    "layer": 30,
+    "unit": 2183,
+    "pole": 1,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.463,
+    "z_pole_adjusted": 0.463,
+    "bases_same_sign": 43,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.409,
+     -0.371,
+     -0.463
+    ]
+   },
+   {
+    "layer": 31,
+    "unit": 1508,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 6.238,
+    "z_pole_adjusted": 6.238,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     5.854,
+     6.085,
+     6.238
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 1209,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 4.163,
+    "z_pole_adjusted": 4.163,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     3.298,
+     3.792,
+     4.163
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 1659,
+    "pole": 0,
+    "kind": "ubq",
+    "z_c3_vs_c0": 7.377,
+    "z_pole_adjusted": 7.377,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     6.39,
+     6.904,
+     7.377
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 3592,
+    "pole": 1,
+    "kind": "ubq",
+    "z_c3_vs_c0": -0.283,
+    "z_pole_adjusted": 0.283,
+    "bases_same_sign": 35,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.388,
+     -0.292,
+     -0.283
+    ]
+   },
+   {
+    "layer": 0,
+    "unit": 395,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.001,
+    "z_pole_adjusted": 0.001,
+    "bases_same_sign": 25,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.001,
+     0.001,
+     0.001
+    ]
+   },
+   {
+    "layer": 0,
+    "unit": 723,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.0,
+    "z_pole_adjusted": 0.0,
+    "bases_same_sign": 27,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "layer": 0,
+    "unit": 1094,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.0,
+    "z_pole_adjusted": -0.0,
+    "bases_same_sign": 20,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.0,
+     -0.0,
+     -0.0
+    ]
+   },
+   {
+    "layer": 0,
+    "unit": 1925,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.002,
+    "z_pole_adjusted": -0.002,
+    "bases_same_sign": 18,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.001,
+     -0.002,
+     -0.002
+    ]
+   },
+   {
+    "layer": 1,
+    "unit": 62,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.004,
+    "z_pole_adjusted": -0.004,
+    "bases_same_sign": 19,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.005,
+     -0.004,
+     -0.004
+    ]
+   },
+   {
+    "layer": 1,
+    "unit": 2662,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.004,
+    "z_pole_adjusted": -0.004,
+    "bases_same_sign": 20,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.005,
+     -0.004,
+     -0.004
+    ]
+   },
+   {
+    "layer": 1,
+    "unit": 3324,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.002,
+    "z_pole_adjusted": -0.002,
+    "bases_same_sign": 18,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.002,
+     -0.002,
+     -0.002
+    ]
+   },
+   {
+    "layer": 1,
+    "unit": 5058,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.004,
+    "z_pole_adjusted": 0.004,
+    "bases_same_sign": 30,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.002,
+     0.003,
+     0.004
+    ]
+   },
+   {
+    "layer": 2,
+    "unit": 95,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.018,
+    "z_pole_adjusted": 0.018,
+    "bases_same_sign": 31,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.003,
+     0.01,
+     0.018
+    ]
+   },
+   {
+    "layer": 2,
+    "unit": 204,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.095,
+    "z_pole_adjusted": -0.095,
+    "bases_same_sign": 12,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.044,
+     -0.07,
+     -0.095
+    ]
+   },
+   {
+    "layer": 2,
+    "unit": 927,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.026,
+    "z_pole_adjusted": -0.026,
+    "bases_same_sign": 17,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.012,
+     -0.019,
+     -0.026
+    ]
+   },
+   {
+    "layer": 2,
+    "unit": 2281,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.059,
+    "z_pole_adjusted": -0.059,
+    "bases_same_sign": 15,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.026,
+     -0.043,
+     -0.059
+    ]
+   },
+   {
+    "layer": 3,
+    "unit": 1124,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.008,
+    "z_pole_adjusted": -0.008,
+    "bases_same_sign": 26,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.004,
+     -0.005,
+     -0.008
+    ]
+   },
+   {
+    "layer": 3,
+    "unit": 1403,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.012,
+    "z_pole_adjusted": -0.012,
+    "bases_same_sign": 20,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.014,
+     -0.011,
+     -0.012
+    ]
+   },
+   {
+    "layer": 3,
+    "unit": 1761,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.022,
+    "z_pole_adjusted": 0.022,
+    "bases_same_sign": 27,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.01,
+     0.019,
+     0.022
+    ]
+   },
+   {
+    "layer": 3,
+    "unit": 2233,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.011,
+    "z_pole_adjusted": 0.011,
+    "bases_same_sign": 24,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.003,
+     -0.004,
+     0.011
+    ]
+   },
+   {
+    "layer": 4,
+    "unit": 1093,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.01,
+    "z_pole_adjusted": 0.01,
+    "bases_same_sign": 25,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.012,
+     0.009,
+     0.01
+    ]
+   },
+   {
+    "layer": 4,
+    "unit": 2534,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.044,
+    "z_pole_adjusted": 0.044,
+    "bases_same_sign": 33,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.018,
+     0.035,
+     0.044
+    ]
+   },
+   {
+    "layer": 4,
+    "unit": 2778,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.012,
+    "z_pole_adjusted": -0.012,
+    "bases_same_sign": 19,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.006,
+     -0.008,
+     -0.012
+    ]
+   },
+   {
+    "layer": 4,
+    "unit": 4741,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.077,
+    "z_pole_adjusted": 0.077,
+    "bases_same_sign": 32,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.036,
+     0.056,
+     0.077
+    ]
+   },
+   {
+    "layer": 5,
+    "unit": 20,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.056,
+    "z_pole_adjusted": 0.056,
+    "bases_same_sign": 31,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.034,
+     0.059,
+     0.056
+    ]
+   },
+   {
+    "layer": 5,
+    "unit": 44,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.024,
+    "z_pole_adjusted": -0.024,
+    "bases_same_sign": 24,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.006,
+     -0.013,
+     -0.024
+    ]
+   },
+   {
+    "layer": 5,
+    "unit": 1984,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.102,
+    "z_pole_adjusted": 0.102,
+    "bases_same_sign": 29,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.083,
+     0.096,
+     0.102
+    ]
+   },
+   {
+    "layer": 5,
+    "unit": 4147,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.106,
+    "z_pole_adjusted": -0.106,
+    "bases_same_sign": 13,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.039,
+     -0.076,
+     -0.106
+    ]
+   },
+   {
+    "layer": 6,
+    "unit": 635,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.016,
+    "z_pole_adjusted": 0.016,
+    "bases_same_sign": 26,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.031,
+     0.029,
+     0.016
+    ]
+   },
+   {
+    "layer": 6,
+    "unit": 3941,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.004,
+    "z_pole_adjusted": -0.004,
+    "bases_same_sign": 25,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.036,
+     0.009,
+     -0.004
+    ]
+   },
+   {
+    "layer": 6,
+    "unit": 4118,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.023,
+    "z_pole_adjusted": -0.023,
+    "bases_same_sign": 22,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.023,
+     -0.015,
+     -0.023
+    ]
+   },
+   {
+    "layer": 6,
+    "unit": 4701,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.12,
+    "z_pole_adjusted": 0.12,
+    "bases_same_sign": 29,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.038,
+     0.086,
+     0.12
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 584,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.059,
+    "z_pole_adjusted": -0.059,
+    "bases_same_sign": 25,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.009,
+     -0.02,
+     -0.059
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 1648,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.012,
+    "z_pole_adjusted": -0.012,
+    "bases_same_sign": 24,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.025,
+     0.004,
+     -0.012
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 1902,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.078,
+    "z_pole_adjusted": -0.078,
+    "bases_same_sign": 21,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.033,
+     -0.062,
+     -0.078
+    ]
+   },
+   {
+    "layer": 7,
+    "unit": 4230,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.09,
+    "z_pole_adjusted": 0.09,
+    "bases_same_sign": 29,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.055,
+     0.08,
+     0.09
+    ]
+   },
+   {
+    "layer": 8,
+    "unit": 2982,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.488,
+    "z_pole_adjusted": 0.488,
+    "bases_same_sign": 47,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.501,
+     0.501,
+     0.488
+    ]
+   },
+   {
+    "layer": 8,
+    "unit": 3421,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.617,
+    "z_pole_adjusted": 0.617,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.587,
+     0.634,
+     0.617
+    ]
+   },
+   {
+    "layer": 8,
+    "unit": 3532,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.246,
+    "z_pole_adjusted": 0.246,
+    "bases_same_sign": 41,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.221,
+     0.243,
+     0.246
+    ]
+   },
+   {
+    "layer": 8,
+    "unit": 4468,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.134,
+    "z_pole_adjusted": 0.134,
+    "bases_same_sign": 37,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.165,
+     0.157,
+     0.134
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 634,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.726,
+    "z_pole_adjusted": 0.726,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.943,
+     0.848,
+     0.726
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 733,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.161,
+    "z_pole_adjusted": 0.161,
+    "bases_same_sign": 32,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.187,
+     0.153,
+     0.161
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 1300,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.45,
+    "z_pole_adjusted": -0.45,
+    "bases_same_sign": 9,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.409,
+     -0.487,
+     -0.45
+    ]
+   },
+   {
+    "layer": 9,
+    "unit": 3396,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.63,
+    "z_pole_adjusted": -0.63,
+    "bases_same_sign": 6,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.369,
+     -0.517,
+     -0.63
+    ]
+   },
+   {
+    "layer": 10,
+    "unit": 1433,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.071,
+    "z_pole_adjusted": -0.071,
+    "bases_same_sign": 21,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.143,
+     -0.101,
+     -0.071
+    ]
+   },
+   {
+    "layer": 10,
+    "unit": 2308,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.454,
+    "z_pole_adjusted": -0.454,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.025,
+     -0.202,
+     -0.454
+    ]
+   },
+   {
+    "layer": 10,
+    "unit": 3213,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 1.876,
+    "z_pole_adjusted": 1.876,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     1.24,
+     1.662,
+     1.876
+    ]
+   },
+   {
+    "layer": 10,
+    "unit": 4642,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.177,
+    "z_pole_adjusted": -0.177,
+    "bases_same_sign": 18,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.112,
+     -0.165,
+     -0.177
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 1713,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.983,
+    "z_pole_adjusted": 0.983,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.978,
+     1.148,
+     0.983
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 1897,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.555,
+    "z_pole_adjusted": 0.555,
+    "bases_same_sign": 41,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.461,
+     0.471,
+     0.555
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 3566,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.243,
+    "z_pole_adjusted": -0.243,
+    "bases_same_sign": 12,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.219,
+     -0.212,
+     -0.243
+    ]
+   },
+   {
+    "layer": 11,
+    "unit": 3703,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.173,
+    "z_pole_adjusted": 0.173,
+    "bases_same_sign": 30,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.602,
+     0.516,
+     0.173
+    ]
+   },
+   {
+    "layer": 12,
+    "unit": 261,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.329,
+    "z_pole_adjusted": 0.329,
+    "bases_same_sign": 34,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.012,
+     0.256,
+     0.329
+    ]
+   },
+   {
+    "layer": 12,
+    "unit": 472,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.582,
+    "z_pole_adjusted": -0.582,
+    "bases_same_sign": 3,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.29,
+     -0.429,
+     -0.582
+    ]
+   },
+   {
+    "layer": 12,
+    "unit": 1733,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.493,
+    "z_pole_adjusted": -0.493,
+    "bases_same_sign": 8,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.038,
+     -0.299,
+     -0.493
+    ]
+   },
+   {
+    "layer": 12,
+    "unit": 2596,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 1.061,
+    "z_pole_adjusted": 1.061,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.6,
+     0.811,
+     1.061
+    ]
+   },
+   {
+    "layer": 13,
+    "unit": 451,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.623,
+    "z_pole_adjusted": -0.623,
+    "bases_same_sign": 6,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.459,
+     -0.521,
+     -0.623
+    ]
+   },
+   {
+    "layer": 13,
+    "unit": 3695,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.925,
+    "z_pole_adjusted": -0.925,
+    "bases_same_sign": 2,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.348,
+     -0.735,
+     -0.925
+    ]
+   },
+   {
+    "layer": 13,
+    "unit": 4542,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.054,
+    "z_pole_adjusted": -0.054,
+    "bases_same_sign": 21,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.141,
+     0.073,
+     -0.054
+    ]
+   },
+   {
+    "layer": 13,
+    "unit": 5092,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.215,
+    "z_pole_adjusted": -0.215,
+    "bases_same_sign": 13,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.015,
+     -0.029,
+     -0.215
+    ]
+   },
+   {
+    "layer": 14,
+    "unit": 1148,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 1.274,
+    "z_pole_adjusted": 1.274,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     1.152,
+     1.253,
+     1.274
+    ]
+   },
+   {
+    "layer": 14,
+    "unit": 1590,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.7,
+    "z_pole_adjusted": 0.7,
+    "bases_same_sign": 42,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.135,
+     0.467,
+     0.7
+    ]
+   },
+   {
+    "layer": 14,
+    "unit": 2955,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.31,
+    "z_pole_adjusted": 0.31,
+    "bases_same_sign": 36,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.019,
+     0.065,
+     0.31
+    ]
+   },
+   {
+    "layer": 14,
+    "unit": 3505,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.188,
+    "z_pole_adjusted": 0.188,
+    "bases_same_sign": 36,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.396,
+     0.332,
+     0.188
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 893,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.365,
+    "z_pole_adjusted": -0.365,
+    "bases_same_sign": 9,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.344,
+     -0.329,
+     -0.365
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 1884,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.58,
+    "z_pole_adjusted": -0.58,
+    "bases_same_sign": 6,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.493,
+     -0.528,
+     -0.58
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 2366,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.712,
+    "z_pole_adjusted": -0.712,
+    "bases_same_sign": 1,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.463,
+     -0.507,
+     -0.712
+    ]
+   },
+   {
+    "layer": 15,
+    "unit": 3867,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.008,
+    "z_pole_adjusted": -0.008,
+    "bases_same_sign": 24,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.016,
+     0.022,
+     -0.008
+    ]
+   },
+   {
+    "layer": 16,
+    "unit": 165,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.437,
+    "z_pole_adjusted": -0.437,
+    "bases_same_sign": 8,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.315,
+     -0.427,
+     -0.437
+    ]
+   },
+   {
+    "layer": 16,
+    "unit": 358,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.222,
+    "z_pole_adjusted": 0.222,
+    "bases_same_sign": 37,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.276,
+     0.31,
+     0.222
+    ]
+   },
+   {
+    "layer": 16,
+    "unit": 3284,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.415,
+    "z_pole_adjusted": 0.415,
+    "bases_same_sign": 38,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.038,
+     0.204,
+     0.415
+    ]
+   },
+   {
+    "layer": 16,
+    "unit": 4380,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.327,
+    "z_pole_adjusted": 0.327,
+    "bases_same_sign": 35,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.493,
+     0.479,
+     0.327
+    ]
+   },
+   {
+    "layer": 17,
+    "unit": 676,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.36,
+    "z_pole_adjusted": -0.36,
+    "bases_same_sign": 10,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.422,
+     -0.39,
+     -0.36
+    ]
+   },
+   {
+    "layer": 17,
+    "unit": 3071,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.411,
+    "z_pole_adjusted": 0.411,
+    "bases_same_sign": 41,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.258,
+     0.386,
+     0.411
+    ]
+   },
+   {
+    "layer": 17,
+    "unit": 3731,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.206,
+    "z_pole_adjusted": -0.206,
+    "bases_same_sign": 17,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.109,
+     -0.155,
+     -0.206
+    ]
+   },
+   {
+    "layer": 17,
+    "unit": 4898,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.07,
+    "z_pole_adjusted": -0.07,
+    "bases_same_sign": 23,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.229,
+     0.086,
+     -0.07
+    ]
+   },
+   {
+    "layer": 18,
+    "unit": 198,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.286,
+    "z_pole_adjusted": 0.286,
+    "bases_same_sign": 38,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.168,
+     0.249,
+     0.286
+    ]
+   },
+   {
+    "layer": 18,
+    "unit": 533,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.314,
+    "z_pole_adjusted": 0.314,
+    "bases_same_sign": 40,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.322,
+     0.301,
+     0.314
+    ]
+   },
+   {
+    "layer": 18,
+    "unit": 1714,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.8,
+    "z_pole_adjusted": -0.8,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.53,
+     -0.61,
+     -0.8
+    ]
+   },
+   {
+    "layer": 18,
+    "unit": 4910,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.292,
+    "z_pole_adjusted": 0.292,
+    "bases_same_sign": 38,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.221,
+     0.224,
+     0.292
+    ]
+   },
+   {
+    "layer": 19,
+    "unit": 111,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.201,
+    "z_pole_adjusted": 0.201,
+    "bases_same_sign": 35,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.25,
+     0.27,
+     0.201
+    ]
+   },
+   {
+    "layer": 19,
+    "unit": 1676,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.448,
+    "z_pole_adjusted": -0.448,
+    "bases_same_sign": 8,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.108,
+     -0.314,
+     -0.448
+    ]
+   },
+   {
+    "layer": 19,
+    "unit": 2547,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.204,
+    "z_pole_adjusted": 0.204,
+    "bases_same_sign": 35,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.084,
+     0.137,
+     0.204
+    ]
+   },
+   {
+    "layer": 19,
+    "unit": 3885,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.349,
+    "z_pole_adjusted": 0.349,
+    "bases_same_sign": 38,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.15,
+     0.308,
+     0.349
+    ]
+   },
+   {
+    "layer": 20,
+    "unit": 2293,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.219,
+    "z_pole_adjusted": -0.219,
+    "bases_same_sign": 12,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.148,
+     -0.206,
+     -0.219
+    ]
+   },
+   {
+    "layer": 20,
+    "unit": 2822,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.58,
+    "z_pole_adjusted": -0.58,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.222,
+     -0.395,
+     -0.58
+    ]
+   },
+   {
+    "layer": 20,
+    "unit": 3915,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.341,
+    "z_pole_adjusted": 0.341,
+    "bases_same_sign": 35,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.279,
+     0.41,
+     0.341
+    ]
+   },
+   {
+    "layer": 20,
+    "unit": 4153,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.659,
+    "z_pole_adjusted": -0.659,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.498,
+     -0.63,
+     -0.659
+    ]
+   },
+   {
+    "layer": 21,
+    "unit": 2364,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.256,
+    "z_pole_adjusted": 0.256,
+    "bases_same_sign": 36,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.053,
+     0.027,
+     0.256
+    ]
+   },
+   {
+    "layer": 21,
+    "unit": 2824,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.642,
+    "z_pole_adjusted": -0.642,
+    "bases_same_sign": 3,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.245,
+     -0.485,
+     -0.642
+    ]
+   },
+   {
+    "layer": 21,
+    "unit": 2930,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.763,
+    "z_pole_adjusted": -0.763,
+    "bases_same_sign": 3,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.486,
+     -0.636,
+     -0.763
+    ]
+   },
+   {
+    "layer": 21,
+    "unit": 4710,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.457,
+    "z_pole_adjusted": 0.457,
+    "bases_same_sign": 41,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.513,
+     0.456,
+     0.457
+    ]
+   },
+   {
+    "layer": 22,
+    "unit": 200,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.831,
+    "z_pole_adjusted": 0.831,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.562,
+     0.734,
+     0.831
+    ]
+   },
+   {
+    "layer": 22,
+    "unit": 3327,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.222,
+    "z_pole_adjusted": 0.222,
+    "bases_same_sign": 37,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.225,
+     0.25,
+     0.222
+    ]
+   },
+   {
+    "layer": 22,
+    "unit": 3644,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.15,
+    "z_pole_adjusted": -0.15,
+    "bases_same_sign": 15,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.061,
+     -0.095,
+     -0.15
+    ]
+   },
+   {
+    "layer": 22,
+    "unit": 4423,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.527,
+    "z_pole_adjusted": 0.527,
+    "bases_same_sign": 41,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.403,
+     0.506,
+     0.527
+    ]
+   },
+   {
+    "layer": 23,
+    "unit": 792,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.33,
+    "z_pole_adjusted": 0.33,
+    "bases_same_sign": 41,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.439,
+     0.374,
+     0.33
+    ]
+   },
+   {
+    "layer": 23,
+    "unit": 1567,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.186,
+    "z_pole_adjusted": 0.186,
+    "bases_same_sign": 32,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.249,
+     0.175,
+     0.186
+    ]
+   },
+   {
+    "layer": 23,
+    "unit": 4117,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.252,
+    "z_pole_adjusted": -0.252,
+    "bases_same_sign": 12,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.101,
+     -0.125,
+     -0.252
+    ]
+   },
+   {
+    "layer": 23,
+    "unit": 5001,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.21,
+    "z_pole_adjusted": 0.21,
+    "bases_same_sign": 30,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.116,
+     0.165,
+     0.21
+    ]
+   },
+   {
+    "layer": 24,
+    "unit": 2107,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.098,
+    "z_pole_adjusted": -0.098,
+    "bases_same_sign": 19,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.087,
+     -0.078,
+     -0.098
+    ]
+   },
+   {
+    "layer": 24,
+    "unit": 2362,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.077,
+    "z_pole_adjusted": -0.077,
+    "bases_same_sign": 14,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.005,
+     -0.061,
+     -0.077
+    ]
+   },
+   {
+    "layer": 24,
+    "unit": 2920,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.996,
+    "z_pole_adjusted": 0.996,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.71,
+     0.842,
+     0.996
+    ]
+   },
+   {
+    "layer": 24,
+    "unit": 3897,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.261,
+    "z_pole_adjusted": -0.261,
+    "bases_same_sign": 13,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.119,
+     -0.149,
+     -0.261
+    ]
+   },
+   {
+    "layer": 25,
+    "unit": 232,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.232,
+    "z_pole_adjusted": -0.232,
+    "bases_same_sign": 12,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.161,
+     -0.16,
+     -0.232
+    ]
+   },
+   {
+    "layer": 25,
+    "unit": 2957,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.095,
+    "z_pole_adjusted": 0.095,
+    "bases_same_sign": 27,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.139,
+     0.124,
+     0.095
+    ]
+   },
+   {
+    "layer": 25,
+    "unit": 3866,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.076,
+    "z_pole_adjusted": 0.076,
+    "bases_same_sign": 24,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.13,
+     0.024,
+     0.076
+    ]
+   },
+   {
+    "layer": 25,
+    "unit": 4321,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.272,
+    "z_pole_adjusted": 0.272,
+    "bases_same_sign": 36,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.265,
+     0.244,
+     0.272
+    ]
+   },
+   {
+    "layer": 26,
+    "unit": 3046,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.781,
+    "z_pole_adjusted": 0.781,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.565,
+     0.684,
+     0.781
+    ]
+   },
+   {
+    "layer": 26,
+    "unit": 3174,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.664,
+    "z_pole_adjusted": 0.664,
+    "bases_same_sign": 44,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.443,
+     0.639,
+     0.664
+    ]
+   },
+   {
+    "layer": 26,
+    "unit": 3690,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.382,
+    "z_pole_adjusted": -0.382,
+    "bases_same_sign": 9,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.136,
+     -0.283,
+     -0.382
+    ]
+   },
+   {
+    "layer": 26,
+    "unit": 4281,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.42,
+    "z_pole_adjusted": -0.42,
+    "bases_same_sign": 6,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.536,
+     -0.483,
+     -0.42
+    ]
+   },
+   {
+    "layer": 27,
+    "unit": 839,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.065,
+    "z_pole_adjusted": 0.065,
+    "bases_same_sign": 23,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.128,
+     0.137,
+     0.065
+    ]
+   },
+   {
+    "layer": 27,
+    "unit": 1953,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.281,
+    "z_pole_adjusted": -0.281,
+    "bases_same_sign": 10,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.155,
+     -0.23,
+     -0.281
+    ]
+   },
+   {
+    "layer": 27,
+    "unit": 2944,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.128,
+    "z_pole_adjusted": -0.128,
+    "bases_same_sign": 23,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.142,
+     -0.141,
+     -0.128
+    ]
+   },
+   {
+    "layer": 27,
+    "unit": 3017,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.893,
+    "z_pole_adjusted": -0.893,
+    "bases_same_sign": 2,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.778,
+     -0.793,
+     -0.893
+    ]
+   },
+   {
+    "layer": 28,
+    "unit": 267,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.007,
+    "z_pole_adjusted": 0.007,
+    "bases_same_sign": 22,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.061,
+     0.069,
+     0.007
+    ]
+   },
+   {
+    "layer": 28,
+    "unit": 615,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.349,
+    "z_pole_adjusted": -0.349,
+    "bases_same_sign": 6,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.198,
+     -0.248,
+     -0.349
+    ]
+   },
+   {
+    "layer": 28,
+    "unit": 2362,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.161,
+    "z_pole_adjusted": -0.161,
+    "bases_same_sign": 20,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.371,
+     -0.323,
+     -0.161
+    ]
+   },
+   {
+    "layer": 28,
+    "unit": 2979,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.998,
+    "z_pole_adjusted": 0.998,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.59,
+     0.763,
+     0.998
+    ]
+   },
+   {
+    "layer": 29,
+    "unit": 3250,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.106,
+    "z_pole_adjusted": 0.106,
+    "bases_same_sign": 28,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.065,
+     0.112,
+     0.106
+    ]
+   },
+   {
+    "layer": 29,
+    "unit": 3737,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.692,
+    "z_pole_adjusted": -0.692,
+    "bases_same_sign": 5,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.455,
+     -0.508,
+     -0.692
+    ]
+   },
+   {
+    "layer": 29,
+    "unit": 3835,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.144,
+    "z_pole_adjusted": 0.144,
+    "bases_same_sign": 31,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.319,
+     0.22,
+     0.144
+    ]
+   },
+   {
+    "layer": 29,
+    "unit": 4602,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 1.101,
+    "z_pole_adjusted": 1.101,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.688,
+     0.905,
+     1.101
+    ]
+   },
+   {
+    "layer": 30,
+    "unit": 3316,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 1.205,
+    "z_pole_adjusted": 1.205,
+    "bases_same_sign": 48,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.976,
+     1.099,
+     1.205
+    ]
+   },
+   {
+    "layer": 30,
+    "unit": 3348,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.017,
+    "z_pole_adjusted": -0.017,
+    "bases_same_sign": 20,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.097,
+     -0.071,
+     -0.017
+    ]
+   },
+   {
+    "layer": 30,
+    "unit": 3619,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.471,
+    "z_pole_adjusted": 0.471,
+    "bases_same_sign": 45,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.396,
+     0.411,
+     0.471
+    ]
+   },
+   {
+    "layer": 30,
+    "unit": 3927,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.723,
+    "z_pole_adjusted": 0.723,
+    "bases_same_sign": 46,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.421,
+     0.555,
+     0.723
+    ]
+   },
+   {
+    "layer": 31,
+    "unit": 1154,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -1.52,
+    "z_pole_adjusted": -1.52,
+    "bases_same_sign": 0,
+    "dose_z (c0..c3)": [
+     0.0,
+     -1.302,
+     -1.425,
+     -1.52
+    ]
+   },
+   {
+    "layer": 31,
+    "unit": 1666,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.404,
+    "z_pole_adjusted": -0.404,
+    "bases_same_sign": 4,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.434,
+     -0.489,
+     -0.404
+    ]
+   },
+   {
+    "layer": 31,
+    "unit": 1936,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.018,
+    "z_pole_adjusted": -0.018,
+    "bases_same_sign": 23,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.043,
+     0.001,
+     -0.018
+    ]
+   },
+   {
+    "layer": 31,
+    "unit": 4768,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.346,
+    "z_pole_adjusted": -0.346,
+    "bases_same_sign": 8,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.384,
+     -0.406,
+     -0.346
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 3550,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": -0.395,
+    "z_pole_adjusted": -0.395,
+    "bases_same_sign": 9,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.268,
+     -0.278,
+     -0.395
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 4519,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.111,
+    "z_pole_adjusted": 0.111,
+    "bases_same_sign": 25,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.277,
+     0.137,
+     0.111
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 4632,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.077,
+    "z_pole_adjusted": 0.077,
+    "bases_same_sign": 26,
+    "dose_z (c0..c3)": [
+     0.0,
+     -0.051,
+     -0.046,
+     0.077
+    ]
+   },
+   {
+    "layer": 32,
+    "unit": 4956,
+    "pole": 0,
+    "kind": "comparison",
+    "z_c3_vs_c0": 0.196,
+    "z_pole_adjusted": 0.196,
+    "bases_same_sign": 33,
+    "dose_z (c0..c3)": [
+     0.0,
+     0.064,
+     0.142,
+     0.196
+    ]
+   }
+  ],
+  "by_kind": {
+   "ubq": {
+    "n": 40,
+    "median_z": 0.294,
+    "q90_z": 4.601,
+    "n_z_gt_2": 8,
+    "n_z_gt_5": 3
+   },
+   "comparison": {
+    "n": 132,
+    "median_z": -0.0,
+    "q90_z": 0.659,
+    "n_z_gt_2": 0,
+    "n_z_gt_5": 0
+   }
+  },
+  "u2087_profile_unmasked": {
+   "c0_0": {
+    "ref_mean": -1.973,
+    "share_ref_positions_gt_q99": 0.005,
+    "share_gt_q99.9": 0.0,
+    "ref_max_mean_over_bases": 0.23
+   },
+   "c0_1": {
+    "ref_mean": -1.961,
+    "share_ref_positions_gt_q99": 0.006,
+    "share_gt_q99.9": 0.0,
+    "ref_max_mean_over_bases": 0.311
+   },
+   "c1_0": {
+    "ref_mean": -0.548,
+    "share_ref_positions_gt_q99": 0.385,
+    "share_gt_q99.9": 0.067,
+    "ref_max_mean_over_bases": 3.371
+   },
+   "c2_0": {
+    "ref_mean": -0.538,
+    "share_ref_positions_gt_q99": 0.42,
+    "share_gt_q99.9": 0.119,
+    "ref_max_mean_over_bases": 3.744
+   },
+   "c3": {
+    "ref_mean": -0.572,
+    "share_ref_positions_gt_q99": 0.433,
+    "share_gt_q99.9": 0.167,
+    "ref_max_mean_over_bases": 4.054
+   },
+   "c3: share of reference positions above q99.9, by residue (n)": {
+    "H": [
+     0.91,
+     100
+    ],
+    "N": [
+     0.567,
+     178
+    ],
+    "P": [
+     0.508,
+     179
+    ],
+    "Q": [
+     0.444,
+     144
+    ],
+    "S": [
+     0.426,
+     256
+    ],
+    "Y": [
+     0.411,
+     151
+    ],
+    "D": [
+     0.322,
+     258
+    ],
+    "C": [
+     0.304,
+     56
+    ]
+   }
+  },
+  "u2087_refmean_masked_c1_c2": {
+   "c1": -0.55,
+   "c2": -0.544
+  }
+ },
+ "intervention": {
+  "group": [
+   2087,
+   4330,
+   1493,
+   1284,
+   1659,
+   1526,
+   3318,
+   4544,
+   4133,
+   2481,
+   1444,
+   1148,
+   2600,
+   3743,
+   4759,
+   4449,
+   4645,
+   3775,
+   4531,
+   704
+  ],
+  "agree": {
+   "u2087_a0.25": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 28
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 28
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a0.75": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 29
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 29
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1_refblock": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 16
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1_otherblocks": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 29
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0001,
+      0.0005
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0003,
+     "median": -0.0,
+     "ci95": [
+      -0.001,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0003
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0004,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": 0.0,
+     "ci95": [
+      -0.0001,
+      0.0009
+     ],
+     "bases": 48,
+     "bases_positive": 25
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0004,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": 0.0,
+     "ci95": [
+      -0.0001,
+      0.0008
+     ],
+     "bases": 48,
+     "bases_positive": 26
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0003,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "group_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0003,
+     "median": -0.0,
+     "ci95": [
+      -0.0007,
+      -0.0
+     ],
+     "bases": 48,
+     "bases_positive": 21
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "group_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0002,
+     "ci95": [
+      0.0,
+      0.0006
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0005,
+     "median": -0.0001,
+     "ci95": [
+      -0.0013,
+      -0.0
+     ],
+     "bases": 48,
+     "bases_positive": 21
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0001,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0008,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0004,
+     "median": -0.0,
+     "ci95": [
+      -0.0005,
+      0.0018
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0001,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0011,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0005,
+     "median": -0.0,
+     "ci95": [
+      -0.0007,
+      0.0024
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0001,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0004,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": -0.0001,
+     "ci95": [
+      -0.0003,
+      0.0009
+     ],
+     "bases": 48,
+     "bases_positive": 20
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0001,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0003,
+     "ci95": [
+      -0.0013,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0008,
+     "median": -0.0001,
+     "ci95": [
+      -0.0005,
+      0.0029
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0001,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0002,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0002,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0005
+     ],
+     "bases": 48,
+     "bases_positive": 20
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layer15_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.001,
+     "ci95": [
+      -0.0024,
+      -0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0022,
+     "median": 0.0009,
+     "ci95": [
+      0.0004,
+      0.0052
+     ],
+     "bases": 48,
+     "bases_positive": 38
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0004,
+     "median": 0.0002,
+     "ci95": [
+      0.0002,
+      0.0006
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layer15_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0021,
+     "ci95": [
+      -0.0053,
+      -0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0047,
+     "median": 0.0015,
+     "ci95": [
+      0.0007,
+      0.0114
+     ],
+     "bases": 48,
+     "bases_positive": 38
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0019,
+     "median": 0.0006,
+     "ci95": [
+      0.0009,
+      0.0033
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0007,
+     "ci95": [
+      -0.0001,
+      0.0019
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0015,
+     "median": -0.0004,
+     "ci95": [
+      -0.0043,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 18
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0006,
+     "median": 0.0003,
+     "ci95": [
+      0.0004,
+      0.0009
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0006,
+     "ci95": [
+      -0.0021,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0014,
+     "median": -0.0001,
+     "ci95": [
+      -0.0007,
+      0.0046
+     ],
+     "bases": 48,
+     "bases_positive": 21
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0006,
+     "median": 0.0003,
+     "ci95": [
+      0.0004,
+      0.0008
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0002,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0009,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0005,
+     "median": -0.0,
+     "ci95": [
+      -0.0004,
+      0.0019
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0001,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 20
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0003,
+      0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0008,
+      0.0006
+     ],
+     "bases": 48,
+     "bases_positive": 25
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0006,
+     "median": 0.0003,
+     "ci95": [
+      0.0004,
+      0.0008
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "_recipient": {
+    "lp_t_rec": {
+     "mean": -0.022,
+     "median": -0.0134,
+     "ci95": [
+      -0.0344,
+      -0.0144
+     ],
+     "bases": 48,
+     "bases_positive": 0
+    },
+    "advantage (lp_t_rec - lp_t_don)": {
+     "mean": 2.2373,
+     "median": 2.4595,
+     "ci95": [
+      2.0267,
+      2.4288
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    },
+    "u2087_target_rec / don": [
+     -1.08,
+     -2.043
+    ],
+    "u2087_mean_rec / don": [
+     -0.766,
+     -1.92
+    ],
+    "group_control_norm_ratio_mean": 0.856
+   }
+  },
+  "b4_c3": {
+   "u2087_a0.25": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 34
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 32
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a0.75": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 32
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 32
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1_refblock": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 12
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1_otherblocks": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 36
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 26
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 34
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 29
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 19
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "group_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0001,
+     "ci95": [
+      -0.0001,
+      -0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "group_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": -0.0001,
+     "ci95": [
+      -0.0002,
+      -0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 30
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 30
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 29
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 28
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ],
+     "bases": 48,
+     "bases_positive": 10
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 17
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layer15_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 28
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layer15_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0003,
+     "median": -0.0002,
+     "ci95": [
+      -0.0005,
+      -0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 18
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0002,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0003
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": -0.0001,
+     "ci95": [
+      -0.0002,
+      -0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": -0.0001,
+     "ci95": [
+      -0.0002,
+      -0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 29
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 31
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ],
+     "bases": 48,
+     "bases_positive": 9
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": -0.0001,
+     "ci95": [
+      -0.0002,
+      -0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "_recipient": {
+    "lp_t_rec": {
+     "mean": -0.0017,
+     "median": -0.0017,
+     "ci95": [
+      -0.0019,
+      -0.0016
+     ],
+     "bases": 48,
+     "bases_positive": 0
+    },
+    "advantage (lp_t_rec - lp_t_don)": {
+     "mean": 2.3979,
+     "median": 2.6204,
+     "ci95": [
+      2.2257,
+      2.5532
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    },
+    "u2087_target_rec / don": [
+     -1.028,
+     -2.11
+    ],
+    "u2087_mean_rec / don": [
+     -0.564,
+     -2.074
+    ],
+    "group_control_norm_ratio_mean": 0.73
+   }
+  },
+  "disagree": {
+   "u2087_a0.25": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0003,
+     "ci95": [
+      -0.0004,
+      -0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.002,
+     "median": -0.0016,
+     "ci95": [
+      -0.0028,
+      -0.0012
+     ],
+     "bases": 48,
+     "bases_positive": 9
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0006,
+     "ci95": [
+      -0.0008,
+      -0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0041,
+     "median": -0.0033,
+     "ci95": [
+      -0.0058,
+      -0.0025
+     ],
+     "bases": 48,
+     "bases_positive": 9
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a0.75": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0009,
+     "ci95": [
+      -0.0012,
+      -0.0006
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0063,
+     "median": -0.0051,
+     "ci95": [
+      -0.0089,
+      -0.0038
+     ],
+     "bases": 48,
+     "bases_positive": 9
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0012,
+     "ci95": [
+      -0.0017,
+      -0.0008
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0086,
+     "median": -0.007,
+     "ci95": [
+      -0.012,
+      -0.0053
+     ],
+     "bases": 48,
+     "bases_positive": 9
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1_refblock": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0005,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0016,
+     "median": -0.0015,
+     "ci95": [
+      -0.0039,
+      0.0006
+     ],
+     "bases": 48,
+     "bases_positive": 21
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "u2087_a1_otherblocks": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0009,
+     "ci95": [
+      -0.0012,
+      -0.0007
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0066,
+     "median": -0.0066,
+     "ci95": [
+      -0.0082,
+      -0.005
+     ],
+     "bases": 48,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0005,
+      0.0005
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": 0.0,
+     "ci95": [
+      -0.0036,
+      0.0038
+     ],
+     "bases": 48,
+     "bases_positive": 26
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0004,
+      0.0005
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0007,
+     "median": -0.0011,
+     "ci95": [
+      -0.0022,
+      0.0038
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0006,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0005,
+     "median": 0.0012,
+     "ci95": [
+      -0.004,
+      0.0026
+     ],
+     "bases": 48,
+     "bases_positive": 26
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0006,
+      0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": 0.0024,
+     "ci95": [
+      -0.0036,
+      0.0029
+     ],
+     "bases": 48,
+     "bases_positive": 27
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0003,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0006,
+     "ci95": [
+      -0.0018,
+      0.0018
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0003,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      -0.0017,
+      0.0019
+     ],
+     "bases": 48,
+     "bases_positive": 25
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "group_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0004,
+     "ci95": [
+      -0.0004,
+      0.0013
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0023,
+     "median": 0.0006,
+     "ci95": [
+      -0.0036,
+      0.0081
+     ],
+     "bases": 48,
+     "bases_positive": 25
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "group_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0008,
+     "ci95": [
+      -0.0009,
+      0.0024
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.004,
+     "median": -0.0002,
+     "ci95": [
+      -0.0077,
+      0.0156
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0005,
+     "median": 0.0003,
+     "ci95": [
+      0.0003,
+      0.0006
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0025,
+     "ci95": [
+      -0.0041,
+      -0.0011
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0164,
+     "median": -0.0146,
+     "ci95": [
+      -0.0279,
+      -0.0067
+     ],
+     "bases": 48,
+     "bases_positive": 17
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0004,
+     "median": 0.0002,
+     "ci95": [
+      0.0002,
+      0.0005
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0021,
+     "ci95": [
+      -0.0034,
+      -0.0008
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0144,
+     "median": -0.0116,
+     "ci95": [
+      -0.0229,
+      -0.0056
+     ],
+     "bases": 48,
+     "bases_positive": 17
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0005,
+     "median": 0.0001,
+     "ci95": [
+      0.0002,
+      0.0008
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0008,
+     "ci95": [
+      -0.0022,
+      0.0006
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0064,
+     "median": -0.0108,
+     "ci95": [
+      -0.0165,
+      0.0036
+     ],
+     "bases": 48,
+     "bases_positive": 18
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0003,
+     "median": 0.0002,
+     "ci95": [
+      0.0002,
+      0.0005
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0022,
+     "ci95": [
+      -0.0038,
+      -0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0143,
+     "median": -0.0163,
+     "ci95": [
+      -0.0245,
+      -0.0032
+     ],
+     "bases": 48,
+     "bases_positive": 16
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0005,
+     "median": 0.0002,
+     "ci95": [
+      0.0003,
+      0.0009
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0009,
+      0.0011
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.001,
+     "median": 0.0005,
+     "ci95": [
+      -0.0066,
+      0.0083
+     ],
+     "bases": 48,
+     "bases_positive": 25
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0002,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0003
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0004,
+     "ci95": [
+      -0.0012,
+      0.0005
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0033,
+     "median": -0.0042,
+     "ci95": [
+      -0.0088,
+      0.0029
+     ],
+     "bases": 48,
+     "bases_positive": 20
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0002,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0002
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layer15_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0129,
+     "ci95": [
+      -0.0165,
+      -0.0095
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.094,
+     "median": -0.0809,
+     "ci95": [
+      -0.116,
+      -0.0743
+     ],
+     "bases": 48,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0031,
+     "median": 0.0008,
+     "ci95": [
+      0.0015,
+      0.005
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layer15_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0326,
+     "ci95": [
+      -0.0405,
+      -0.0249
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.2317,
+     "median": -0.1773,
+     "ci95": [
+      -0.2858,
+      -0.1818
+     ],
+     "bases": 48,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0141,
+     "median": 0.0028,
+     "ci95": [
+      0.0063,
+      0.0271
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0058,
+     "ci95": [
+      -0.0127,
+      0.0005
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0234,
+     "median": -0.0055,
+     "ci95": [
+      -0.0658,
+      0.015
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.012,
+     "median": 0.0014,
+     "ci95": [
+      0.004,
+      0.0235
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.001,
+     "ci95": [
+      -0.0063,
+      0.0042
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0126,
+     "median": -0.0024,
+     "ci95": [
+      -0.0472,
+      0.0196
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0071,
+     "median": 0.0022,
+     "ci95": [
+      0.0042,
+      0.0109
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "unitctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0003,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0001,
+     "ci95": [
+      -0.002,
+      0.002
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "randdir_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0002,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0013,
+      0.0013
+     ],
+     "bases": 48,
+     "bases_positive": 24
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "groupctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0019,
+     "ci95": [
+      -0.0029,
+      -0.0009
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0129,
+     "median": -0.012,
+     "ci95": [
+      -0.0193,
+      -0.0061
+     ],
+     "bases": 48,
+     "bases_positive": 13
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0004,
+     "median": 0.0002,
+     "ci95": [
+      0.0003,
+      0.0006
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "grouprand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0008,
+      0.0006
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0011,
+     "median": -0.0026,
+     "ci95": [
+      -0.0061,
+      0.0038
+     ],
+     "bases": 48,
+     "bases_positive": 23
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0002,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0003
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "layerrand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0034,
+     "ci95": [
+      -0.0083,
+      0.0012
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.018,
+     "median": 0.0014,
+     "ci95": [
+      -0.0516,
+      0.0126
+     ],
+     "bases": 48,
+     "bases_positive": 27
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0096,
+     "median": 0.0018,
+     "ci95": [
+      0.0044,
+      0.0165
+     ],
+     "bases": 48,
+     "bases_positive": 48
+    }
+   },
+   "_recipient": {
+    "lp_t_rec": {
+     "mean": -6.3486,
+     "median": -6.6032,
+     "ci95": [
+      -6.6234,
+      -6.0621
+     ],
+     "bases": 48,
+     "bases_positive": 0
+    },
+    "advantage (lp_t_rec - lp_t_don)": {
+     "mean": -4.0892,
+     "median": -4.1034,
+     "ci95": [
+      -4.3206,
+      -3.8601
+     ],
+     "bases": 48,
+     "bases_positive": 0
+    },
+    "u2087_target_rec / don": [
+     -0.906,
+     -2.043
+    ],
+    "u2087_mean_rec / don": [
+     -0.766,
+     -1.92
+    ],
+    "group_control_norm_ratio_mean": 0.855
+   }
+  }
+ }
+}

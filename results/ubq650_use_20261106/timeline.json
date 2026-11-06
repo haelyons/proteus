@@ -1,0 +1,142 @@
+{
+ "run": "atlas-use-20261106-1330",
+ "type": "gpu_1x_a10",
+ "region": "us-east-1",
+ "events": [
+  {
+   "t": 1793971695.550056,
+   "event": "target",
+   "type": "gpu_1x_a10",
+   "region": "us-east-1",
+   "price_per_h": 1.29,
+   "fs": "esm-atlas-results"
+  },
+  {
+   "t": 1793971697.200264,
+   "event": "launched",
+   "instance_id": "eab20032d2e04b769fb86563c0cc02c8"
+  },
+  {
+   "t": 1793971697.475065,
+   "event": "status",
+   "status": "booting",
+   "first_healthy": null
+  },
+  {
+   "t": 1793971961.396205,
+   "event": "status",
+   "status": "active",
+   "first_healthy": "2026-11-06T13:32:28.940154Z"
+  },
+  {
+   "t": 1793972133.3829625,
+   "event": "runner_alive"
+  },
+  {
+   "t": 1793972135.993667,
+   "event": "submitted",
+   "bytes": 360499,
+   "job_deadline": 1793980395.5503426
+  },
+  {
+   "t": 1793974237.5802166,
+   "event": "job_done",
+   "rc": 0,
+   "end": 1793974228.1957116
+  },
+  {
+   "t": 1793974238.7978241,
+   "event": "fetched",
+   "file": "fresh/behaviour.pt",
+   "bytes": 25078931
+  },
+  {
+   "t": 1793974241.7255793,
+   "event": "fetched",
+   "file": "fresh/screen.pt",
+   "bytes": 75463185
+  },
+  {
+   "t": 1793974242.1697376,
+   "event": "fetched",
+   "file": "fresh/intervention.pt",
+   "bytes": 6561909
+  },
+  {
+   "t": 1793974242.3495018,
+   "event": "fetched",
+   "file": "fresh/progress.log",
+   "bytes": 2928
+  },
+  {
+   "t": 1793974242.5400515,
+   "event": "fetched",
+   "file": "fresh/run_done.json",
+   "bytes": 69
+  },
+  {
+   "t": 1793974242.7770612,
+   "event": "fetched",
+   "file": "fresh_analysis/summary.json",
+   "bytes": 92605
+  },
+  {
+   "t": 1793974243.0206482,
+   "event": "fetched",
+   "file": "fresh_analysis/items.csv",
+   "bytes": 427107
+  },
+  {
+   "t": 1793974243.35751,
+   "event": "fetched",
+   "file": "fresh_analysis/intervention_items.csv",
+   "bytes": 2424654
+  },
+  {
+   "t": 1793974243.521003,
+   "event": "fetched",
+   "file": "fresh_analysis.log",
+   "bytes": 20001
+  },
+  {
+   "t": 1793974243.7293916,
+   "event": "fetched",
+   "file": "disc_iv/intervention.pt",
+   "bytes": 550013
+  },
+  {
+   "t": 1793974243.9222672,
+   "event": "fetched",
+   "file": "disc_iv/progress.log",
+   "bytes": 167
+  },
+  {
+   "t": 1793974244.0725129,
+   "event": "fetched",
+   "file": "smoke/gpu_vs_cpu.json",
+   "bytes": 188
+  },
+  {
+   "t": 1793974244.2495456,
+   "event": "fetched",
+   "file": "smoke/behaviour.pt",
+   "bytes": 68857
+  },
+  {
+   "t": 1793974244.4082348,
+   "event": "fetched",
+   "file": "smoke/intervention.pt",
+   "bytes": 21407
+  },
+  {
+   "t": 1793974245.2460358,
+   "event": "terminate_called",
+   "prior_status": "active"
+  },
+  {
+   "t": 1793974383.5616553,
+   "event": "final_status",
+   "status": "terminated"
+  }
+ ]
+}

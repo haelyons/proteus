@@ -1,0 +1,2648 @@
+{
+ "intervention": {
+  "group": [
+   2087,
+   4330,
+   1493,
+   1284,
+   1659,
+   1526,
+   3318,
+   4544,
+   4133,
+   2481,
+   1444,
+   1148,
+   2600,
+   3743,
+   4759,
+   4449,
+   4645,
+   3775,
+   4531,
+   704
+  ],
+  "agree": {
+   "u2087_a0.25": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a0.75": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1_refblock": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1_otherblocks": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0003,
+     "ci95": [
+      -0.0,
+      0.0008
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0004,
+     "median": -0.0,
+     "ci95": [
+      -0.0013,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0002,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "group_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0005,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0007
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "group_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0003,
+     "ci95": [
+      -0.0009,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0004,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0013
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0002,
+     "ci95": [
+      -0.0002,
+      0.0007
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": -0.0,
+     "ci95": [
+      -0.0009,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0003
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0001,
+     "ci95": [
+      -0.0003,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0002,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0004
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0002,
+     "ci95": [
+      -0.0001,
+      0.0006
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0003,
+     "median": -0.0,
+     "ci95": [
+      -0.001,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0001,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0001,
+     "ci95": [
+      -0.0002,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0001,
+     "ci95": [
+      -0.0003,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layer15_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0006,
+     "ci95": [
+      -0.0012,
+      -0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0009,
+     "median": 0.0002,
+     "ci95": [
+      0.0002,
+      0.0018
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layer15_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0013,
+     "ci95": [
+      -0.0026,
+      -0.0005
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0018,
+     "median": 0.0004,
+     "ci95": [
+      0.0006,
+      0.0032
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0005,
+     "median": 0.0002,
+     "ci95": [
+      0.0002,
+      0.0008
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0003,
+     "ci95": [
+      -0.0006,
+      0.0021
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0004,
+     "median": -0.0006,
+     "ci95": [
+      -0.0018,
+      0.0011
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0003,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0007
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0009,
+     "ci95": [
+      -0.0004,
+      0.0052
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0013,
+     "median": -0.0003,
+     "ci95": [
+      -0.0042,
+      0.0006
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0007,
+     "median": 0.0002,
+     "ci95": [
+      0.0001,
+      0.0018
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0003,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": 0.0,
+     "ci95": [
+      -0.0003,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0001,
+     "ci95": [
+      -0.0001,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0006,
+     "ci95": [
+      -0.0004,
+      0.0036
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0008,
+     "median": -0.0007,
+     "ci95": [
+      -0.003,
+      0.0008
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0005,
+     "median": 0.0002,
+     "ci95": [
+      0.0001,
+      0.0012
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "_recipient": {
+    "lp_t_rec": {
+     "mean": -0.0115,
+     "median": -0.0084,
+     "ci95": [
+      -0.0203,
+      -0.0053
+     ],
+     "bases": 8,
+     "bases_positive": 0
+    },
+    "advantage (lp_t_rec - lp_t_don)": {
+     "mean": 1.3609,
+     "median": 1.2276,
+     "ci95": [
+      0.7201,
+      1.9858
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    },
+    "u2087_target_rec / don": [
+     -1.438,
+     -2.328
+    ],
+    "u2087_mean_rec / don": [
+     -0.998,
+     -2.294
+    ],
+    "group_control_norm_ratio_mean": 0.917
+   }
+  },
+  "b4_c3": {
+   "u2087_a0.25": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a0.75": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1_refblock": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1_otherblocks": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "group_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0001,
+     "ci95": [
+      -0.0001,
+      -0.0
+     ],
+     "bases": 8,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "group_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      0.0,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0002,
+     "ci95": [
+      -0.0002,
+      -0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": 0.0,
+     "ci95": [
+      -0.0002,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layer15_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0,
+     "ci95": [
+      -0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layer15_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0001,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0003,
+     "ci95": [
+      -0.0003,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0002,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0002,
+     "ci95": [
+      -0.0,
+      0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0002,
+     "median": -0.0004,
+     "ci95": [
+      -0.0004,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0001,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0002,
+     "ci95": [
+      -0.0002,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      -0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0,
+     "ci95": [
+      -0.0001,
+      -0.0
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0,
+     "median": -0.0,
+     "ci95": [
+      -0.0001,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0001,
+     "median": -0.0002,
+     "ci95": [
+      -0.0003,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0001,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "_recipient": {
+    "lp_t_rec": {
+     "mean": -0.0019,
+     "median": -0.0018,
+     "ci95": [
+      -0.0023,
+      -0.0015
+     ],
+     "bases": 8,
+     "bases_positive": 0
+    },
+    "advantage (lp_t_rec - lp_t_don)": {
+     "mean": 1.5793,
+     "median": 1.3929,
+     "ci95": [
+      0.9915,
+      2.1587
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    },
+    "u2087_target_rec / don": [
+     -1.196,
+     -2.168
+    ],
+    "u2087_mean_rec / don": [
+     -0.657,
+     -2.277
+    ],
+    "group_control_norm_ratio_mean": 0.731
+   }
+  },
+  "disagree": {
+   "u2087_a0.25": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0006,
+      0.0001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0009,
+     "median": -0.0004,
+     "ci95": [
+      -0.004,
+      0.0016
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0004,
+     "ci95": [
+      -0.0012,
+      0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.002,
+     "median": -0.0009,
+     "ci95": [
+      -0.0082,
+      0.0031
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a0.75": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0006,
+     "ci95": [
+      -0.0018,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0031,
+     "median": -0.0015,
+     "ci95": [
+      -0.0123,
+      0.0044
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0008,
+     "ci95": [
+      -0.0023,
+      0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0043,
+     "median": -0.0021,
+     "ci95": [
+      -0.0166,
+      0.0055
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1_refblock": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0014,
+      0.0013
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0022,
+     "median": 0.0018,
+     "ci95": [
+      -0.0099,
+      0.0113
+     ],
+     "bases": 8,
+     "bases_positive": 7
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "u2087_a1_otherblocks": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0008,
+     "ci95": [
+      -0.0017,
+      -0.0002
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0061,
+     "median": -0.0059,
+     "ci95": [
+      -0.0104,
+      -0.0023
+     ],
+     "bases": 8,
+     "bases_positive": 1
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0004,
+     "ci95": [
+      -0.0006,
+      0.0015
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0047,
+     "median": 0.0032,
+     "ci95": [
+      -0.0034,
+      0.0131
+     ],
+     "bases": 8,
+     "bases_positive": 6
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0001,
+     "ci95": [
+      0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0011,
+     "ci95": [
+      -0.003,
+      0.0006
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0086,
+     "median": -0.0029,
+     "ci95": [
+      -0.0207,
+      0.0025
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0006,
+     "ci95": [
+      -0.0008,
+      0.0024
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0044,
+     "median": -0.0036,
+     "ci95": [
+      -0.008,
+      0.0182
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0001,
+     "ci95": [
+      -0.0013,
+      0.0015
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0029,
+     "median": 0.001,
+     "ci95": [
+      -0.0062,
+      0.013
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0003,
+     "ci95": [
+      -0.0012,
+      0.0004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.002,
+     "median": -0.0029,
+     "ci95": [
+      -0.0087,
+      0.0036
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0002,
+     "ci95": [
+      -0.0012,
+      0.0007
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0009,
+     "median": -0.0039,
+     "ci95": [
+      -0.0087,
+      0.0075
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "group_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0015,
+     "ci95": [
+      -0.0041,
+      0.0007
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0077,
+     "median": 0.0005,
+     "ci95": [
+      -0.027,
+      0.0106
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0002
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "group_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0033,
+     "ci95": [
+      -0.009,
+      0.0012
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.019,
+     "median": -0.0034,
+     "ci95": [
+      -0.0602,
+      0.0202
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0006,
+     "median": 0.0001,
+     "ci95": [
+      0.0002,
+      0.001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0006,
+     "ci95": [
+      -0.0047,
+      0.0031
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0019,
+     "median": -0.0039,
+     "ci95": [
+      -0.027,
+      0.0227
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0006,
+     "median": 0.0002,
+     "ci95": [
+      0.0002,
+      0.0011
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0007,
+     "ci95": [
+      -0.0013,
+      0.0025
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0003,
+     "median": 0.0098,
+     "ci95": [
+      -0.0202,
+      0.0194
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0003,
+     "median": 0.0003,
+     "ci95": [
+      0.0002,
+      0.0005
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl2": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0006,
+     "ci95": [
+      -0.0017,
+      0.0028
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0023,
+     "median": 0.0155,
+     "ci95": [
+      -0.0202,
+      0.0212
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0003,
+     "median": 0.0002,
+     "ci95": [
+      0.0001,
+      0.0006
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl3": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0034,
+     "ci95": [
+      -0.0092,
+      0.0018
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0284,
+     "median": -0.0323,
+     "ci95": [
+      -0.0697,
+      0.0112
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0006,
+     "median": 0.0003,
+     "ci95": [
+      0.0002,
+      0.0011
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0017,
+     "ci95": [
+      0.0002,
+      0.0037
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0082,
+     "median": -0.0004,
+     "ci95": [
+      -0.004,
+      0.0227
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0004,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0007
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0009,
+     "ci95": [
+      -0.0018,
+      0.0036
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0001,
+     "median": -0.0163,
+     "ci95": [
+      -0.0199,
+      0.0203
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0004,
+     "median": 0.0001,
+     "ci95": [
+      0.0001,
+      0.0007
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layer15_a0.5": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.011,
+     "ci95": [
+      -0.0237,
+      0.001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0908,
+     "median": -0.0833,
+     "ci95": [
+      -0.1803,
+      -0.004
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0055,
+     "median": 0.0011,
+     "ci95": [
+      0.0017,
+      0.0099
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layer15_a1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0316,
+     "ci95": [
+      -0.0601,
+      -0.0055
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.2432,
+     "median": -0.2562,
+     "ci95": [
+      -0.4437,
+      -0.0386
+     ],
+     "bases": 8,
+     "bases_positive": 2
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0229,
+     "median": 0.0094,
+     "ci95": [
+      0.0063,
+      0.0424
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand0": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0049,
+     "ci95": [
+      -0.0268,
+      0.0138
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0153,
+     "median": 0.0555,
+     "ci95": [
+      -0.1926,
+      0.1456
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0206,
+     "median": 0.0027,
+     "ci95": [
+      0.0043,
+      0.0404
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand1": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0145,
+     "ci95": [
+      -0.0311,
+      0.004
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.1179,
+     "median": -0.0184,
+     "ci95": [
+      -0.2849,
+      0.0365
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0109,
+     "median": 0.0048,
+     "ci95": [
+      0.003,
+      0.0204
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "unitctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0,
+     "ci95": [
+      -0.0008,
+      0.001
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0008,
+     "median": -0.0021,
+     "ci95": [
+      -0.0054,
+      0.0077
+     ],
+     "bases": 8,
+     "bases_positive": 3
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0001,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "randdir_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0003,
+     "ci95": [
+      -0.0008,
+      0.0003
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0015,
+     "median": 0.0003,
+     "ci95": [
+      -0.0057,
+      0.0027
+     ],
+     "bases": 8,
+     "bases_positive": 5
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0,
+     "median": 0.0,
+     "ci95": [
+      0.0,
+      0.0001
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "groupctl_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0007,
+     "ci95": [
+      -0.0028,
+      0.0016
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.007,
+     "median": -0.0243,
+     "ci95": [
+      -0.0248,
+      0.0122
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0005,
+     "median": 0.0004,
+     "ci95": [
+      0.0002,
+      0.0008
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "grouprand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": 0.0013,
+     "ci95": [
+      0.0003,
+      0.0023
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": 0.0041,
+     "median": -0.0006,
+     "ci95": [
+      -0.0027,
+      0.012
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0004,
+     "median": 0.0001,
+     "ci95": [
+      0.0002,
+      0.0007
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "layerrand_mean": {
+    "fraction_removed (ratio of sums)": {
+     "ratio": -0.0097,
+     "ci95": [
+      -0.0251,
+      0.0066
+     ]
+    },
+    "d_lp_true (nats, per-base mean)": {
+     "mean": -0.0666,
+     "median": -0.0723,
+     "ci95": [
+      -0.2034,
+      0.0628
+     ],
+     "bases": 8,
+     "bases_positive": 4
+    },
+    "kl_rec_to_patched": {
+     "mean": 0.0157,
+     "median": 0.0037,
+     "ci95": [
+      0.0042,
+      0.0301
+     ],
+     "bases": 8,
+     "bases_positive": 8
+    }
+   },
+   "_recipient": {
+    "lp_t_rec": {
+     "mean": -5.4338,
+     "median": -5.9391,
+     "ci95": [
+      -6.6645,
+      -4.2298
+     ],
+     "bases": 8,
+     "bases_positive": 0
+    },
+    "advantage (lp_t_rec - lp_t_don)": {
+     "mean": -4.0614,
+     "median": -4.1829,
+     "ci95": [
+      -4.9846,
+      -3.1589
+     ],
+     "bases": 8,
+     "bases_positive": 0
+    },
+    "u2087_target_rec / don": [
+     -0.984,
+     -2.328
+    ],
+    "u2087_mean_rec / don": [
+     -0.999,
+     -2.294
+    ],
+    "group_control_norm_ratio_mean": 0.911
+   }
+  }
+ }
+}

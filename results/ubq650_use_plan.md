@@ -324,3 +324,89 @@ i.e. 2% of that recipient's behavioural contrast:
   effects at positions not read out here."
 - *If even the whole layer-15 FFN is excluded:* the repeat use is carried elsewhere (attention, or FFNs in
   other layers). Readers stay deferred until a contrast worth explaining exists at some layer.
+
+
+## Results: fresh run (A10 us-east-1, job `atlas-use-20261106-1330`, 13:28-14:13 UTC, about $0.9)
+
+**Run checks:**
+- GPU vs CPU on the smoke constructs: |d log p| <= 1.1e-5; identical control units and group.
+- Raw outputs: `ubq650_use_20261106/fresh/` (`behaviour.pt`, `screen.pt`, `intervention.pt`, `items.csv`,
+  `intervention_items.csv`, `summary.json`). The local re-analysis equals the instance's.
+- Stage 1b (discovery intervention on GPU, amended controls): `discovery_gpu_intervention/`.
+
+**Behaviour** (48 fresh bases; per-base means, 95% CI over bases):
+
+| contrast | predicted | observed | verdict |
+|---|---|---|---|
+| agree | effect +, mean 0.8-2.5 | **+2.26 (2.08 to 2.44)**, 48 / 48 | held |
+| disagree preference shift | effect +, >= 5 | **+7.89 (7.65 to 8.15)**, 48 / 48 | held |
+| disagree log p(t) | effect - | -4.04 (-4.26 to -3.82) | held |
+| masked-all | effect - (weakly held) | -0.25 (-0.35 to -0.16); 9 / 48 bases positive | held |
+| scramble block vs R alone | excluded (+-0.1) | -0.035 (-0.089 to 0.011) | held |
+| 4 blocks, c = 3 vs c = 0 | effect + | +2.36 (2.18 to 2.52) | held |
+| order RX vs XR | within 0.3 | 2.24 vs 2.28 | held |
+| p(t) with copy | >= 0.95 | 0.980 | held |
+| p(t) with scramble | 0.25-0.6 | **0.193** | **failed** (lower than the pilot's 0.43) |
+| 2087 at the masked target | below q90 (-0.96); copy minus scramble 0.5-1.5 | -1.08 vs -2.04 (difference 0.96) | held |
+| 2087 reference-block mean, copy minus scramble | >= 0.8 | 1.22 | held |
+
+At the masked target's visible counterpart, 2087 is -1.86 (copy) vs -1.92 (scramble): not active.
+
+**Screen:**
+
+| prediction | observed | verdict |
+|---|---|---|
+| 2087 > q99: <= 2% at c = 0, >= 20% at c = 1, 2, 3 | 0.5-0.6%; 38.5%, 42%, 43% | held |
+| reference-block mean, c >= 1 minus c = 0, >= 1.0 | 1.42 | held |
+| H, C or P among the top three residues above q99.9 at c = 3 | H 0.91 (n 100), N 0.57, P 0.51 | held |
+| masked vs unmasked mean within 0.1 | c = 1: -0.550 vs -0.548 | held |
+| ubiquitin-selected columns enriched | z > 2: 8 / 40 vs 0 / 132; median 0.29 vs 0.00 | held |
+
+- Strongest constant-length repeat responders: all ubiquitin-selected and outside layer 15. They are 32/1659 (z
+  7.4), 31/1508 (6.2), 20/2491 (5.8), 10/3519 (5.0) and 9/2946 (4.6), each in 48 / 48 bases.
+- 2087: z 1.40, 48 / 48 bases.
+
+**Intervention.** f is the fraction of the contrast removed (ratio of sums, CI over 48 bases); delta_i = 0.02.
+
+| patch | agree | disagree (copying preference) | 4 blocks, c = 3 | predicted | verdict |
+|---|---|---|---|---|---|
+| 2087, alpha = 1, all positions | -0.0000 (-0.0001, 0.0000) | **-0.0012 (-0.0017, -0.0008)** | -0.0000 | excluded | held (all three) |
+| 2087, reference block only | +0.0000 | -0.0002 (-0.0005, 0.0001) | +0.0000 | excluded | held |
+| 2087, other blocks only | -0.0000 | -0.0009 (-0.0012, -0.0007) | -0.0000 | excluded | held |
+| 20-unit group, alpha = 1 | +0.0002 (0.0000, 0.0006) | +0.0008 (-0.0009, 0.0024) | +0.0001 | excluded | held (all three) |
+| whole layer-15 FFN, alpha = 1 (secondary) | -0.0021 (-0.0053, -0.0003) | **-0.0326 (-0.0405, -0.0249)** | +0.0001 | f in (0, 0.2) | **failed: the sign is reversed** |
+
+Controls (pooled means, disagree):
+- unit controls +0.0000 (-0.0003, 0.0003);
+- random directions +0.0000 (-0.0002, 0.0002);
+- matched groups -0.0019 (-0.0029, -0.0009);
+- group random directions -0.0001 (-0.0008, 0.0006);
+- layer random directions -0.0034 (-0.0083, 0.0012).
+
+KL at the target: 2087 <= 1e-4 everywhere; group 5e-4; layer 15 0.014 (disagree).
+
+**Reading the four conclusions separately:**
+- **Moves predictions:**
+  - 2087: yes, detectably, but only in disagree. Log p(t) changes by -0.0086 nats (CI -0.012 to -0.0053) at
+    alpha = 1, graded -0.0020 / -0.0041 / -0.0063 / -0.0086 over alpha 0.25-1. That is beyond the unit and
+    random-direction controls, and mostly from the copy blocks.
+  - Its size is 0.12% of the copying preference, with KL about 1e-4.
+- **Helps prediction:** no. In agree, removing 2087's repeat state leaves log p(t) unchanged (+0.0000, CI
+  -0.0001 to 0.0001). The agree recipient was near ceiling (p 0.978), but a fall was possible and did not
+  happen.
+- **Reduces copying when removed:** no. The small change goes the other way: without 2087's repeat state the
+  model follows the copy very slightly more.
+- **Accounts for part of the repeat effect:** excluded at 2% for 2087 and for its 19 strongest layer-15
+  co-responders, in all three recipients.
+- **Layer 15 as a whole (secondary, prediction failed):** patching every layer-15 FFN unit toward its scramble
+  value *increases* copying by 3.3% of the preference (CI 2.5-4.1%), beyond its random-direction control.
+  - So the repeat-induced state of layer 15's FFN slightly restrains copying. 2087's patch has the same sign and
+    is about 4% of the layer's size.
+  - Where the 96-97% of the copying effect that layer 15 doesn't touch is carried was not tested here
+    (attention, or FFNs in other layers).
+
+**Limitations:**
+- Group controls drawn from high-change pools matched the group's combined norm within 10% in only 52% of
+  draws (2-block recipients) and 6% (4-block; median ratio 0.72). The group random-direction controls are
+  matched exactly and agree with the conclusion.
+- One construct family (tandem 80-residue blocks, exact copies); targets read one at a time.
