@@ -1,0 +1,52 @@
+[atlas] excluded 10010 of 10010 listed accessions (lists/heldout_created_after_2021-11-17.tsv)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/582 [00:00<?, ?it/s]Loading weights: 100%|██████████| 582/582 [00:00<00:00, 17717.14it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t36_3B_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.decoder.weight    | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[atlas] seeded thresholds for n_total=194177125: reservoir bins seeded 3512793/4423680
+[atlas] checkpoint at batch 1500/12219 (12.8s, 4.70 GB)
+[atlas] checkpoint at batch 3000/12219 (11.7s, 4.70 GB)
+[atlas] checkpoint at batch 4500/12219 (12.5s, 4.70 GB)
+[atlas] checkpoint at batch 6000/12219 (12.0s, 4.70 GB)
+[atlas] checkpoint at batch 7500/12219 (12.0s, 4.70 GB)
+[atlas] checkpoint at batch 9000/12219 (12.2s, 4.70 GB)
+[atlas] checkpoint at batch 10500/12219 (11.9s, 4.70 GB)
+[atlas] checkpoint at batch 12000/12219 (11.3s, 4.70 GB)
+[atlas] done: final save 70.2s (34.53 GB); seed verification: 0 of 3512793 seeded bins short, top-K groups short 0
+{
+ "model": {
+  "hf": "facebook/esm2_t36_3B_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 36,
+  "d_model": 2560,
+  "d_ff": 10240,
+  "n_params": 2832444321,
+  "control_seed": 0
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "seconds": {
+  "load": 15.043965339660645,
+  "pilot": 169.55812048912048,
+  "stream_this_process": 10464.889936685562
+ },
+ "n_seen": 194177125
+}
+stats {'batches': 12219, 'dense_layer_batches': 14, 'redo_layers': 14, 'compacted': 2083635401, 'elements': 143162910720000, 'top_cand': 462703380, 'res_cand': 261583455, 'bulk_rows_in': 1941370, 'bulk_rows_kept': 1941370}

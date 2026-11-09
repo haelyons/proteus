@@ -1,0 +1,43 @@
+[box 22:46:57] launching gpu_1x_a10 in us-east-1 with esm-atlas-results
+[box 22:46:59] instance 9ce183f12da646cfb33ce8772eccffab
+[box 22:46:59] watchdog armed: terminate after 5400s (pid 1822999)
+[box 22:47:51] status booting
+[box 22:48:53] status booting
+[box 22:49:55] status booting
+[box 22:50:57] status booting
+[box 22:51:18] active at 129.213.23.150
+[export 22:54:02] L=33 D=5120 K=64 B=6 Kr=64 R=8 n_seen=194177125 n_sub=9715300
+[export 22:54:06] co-activation peers done
+[export 22:54:06] enrichment done
+[export 22:54:09] loading weights facebook/esm2_t33_650M_UR50D
+Loading weights:   0%|          | 0/534 [00:00<?, ?it/s]Loading weights:   3%|▎         | 16/534 [00:00<00:23, 22.38it/s]Loading weights: 100%|██████████| 534/534 [00:00<00:00, 725.75it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t33_650M_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[export 22:54:30] wiring done
+[export 22:54:36] descriptors done; coverage top 0.955 res 0.941
+[export 22:54:36] saved /home/ubuntu/out/firstread_650M.pt 0.524 GB in 121 s
+total 548796
+drwxrwxr-x 2 ubuntu ubuntu      4096 Nov  8 22:54 .
+drwxr-x--- 9 ubuntu ubuntu      4096 Nov  8 22:51 ..
+-rw-rw-r-- 1 ubuntu ubuntu 524463741 Nov  8 22:54 firstread_650M.pt
+-rw-rw-r-- 1 ubuntu ubuntu  37491199 Nov  8 22:52 firstread_8M.pt
+REMOTE-DONE
+[box 22:54:37] fetching bundles
+total 690004
+drwxrwxr-x 2 hal hal      4096 Nov  8 22:57 .
+drwxrwxr-x 5 hal hal      4096 Nov  8 22:46 ..
+-rw-rw-r-- 1 hal hal 524463741 Nov  8 22:57 firstread_650M.pt
+-rw-rw-r-- 1 hal hal  37491199 Nov  8 22:57 firstread_8M.pt
+-rw-rw-r-- 1 hal hal 144586318 Nov  8 22:45 sequences.npz
+[box 22:57:33] done
+[box 22:57:33] exit: terminating 9ce183f12da646cfb33ce8772eccffab
+terminate: ['terminating']

@@ -1,0 +1,60 @@
+== inputs
+-rw-r--r-- 1 ubuntu ubuntu   324894837 Nov  3 15:27 /lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt
+-rw-rw-r-- 1 ubuntu ubuntu  4514251315 Nov  4 22:11 /lambda/nfs/esm-atlas-results/descriptors_swissprot_2026_03.pt
+-rw-rw-r-- 1 ubuntu ubuntu   214219971 Nov  5 03:34 /lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_pre/slim.pt
+-rw-rw-r-- 1 ubuntu ubuntu   214219971 Nov  5 03:34 /lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_shuf2/slim.pt
+-rw-rw-r-- 1 ubuntu ubuntu 10850621849 Nov  4 15:54 /lambda/nfs/esm-atlas-results/runs/atlas-fu650-20261104-1425/full/atlas.pt
+models--facebook--esm2_t33_650M_UR50D
+models--facebook--esm2_t6_8M_UR50D
+30
+               total        used        free      shared  buff/cache   available
+Mem:             222           0         219           0           1         219
+pipx 1.0.0 requires argcomplete>=1.9.4, but you have argcomplete 1.8.1 which is incompatible.
+preflight: EsmModel import ok
+[export 22:51:41] loading atlas /lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_pre/slim.pt 0.21 GB
+[export 22:51:43] L=6 D=1280 K=64 B=6 Kr=256 R=16 n_seen=194177125 n_sub=9715300
+[export 22:51:43] co-activation peers done
+[export 22:51:43] enrichment done
+[export 22:51:45] loading weights facebook/esm2_t6_8M_UR50D
+Loading weights:   0%|          | 0/102 [00:00<?, ?it/s]Loading weights:  16%|█▌        | 16/102 [00:00<00:00, 112.95it/s]Loading weights: 100%|██████████| 102/102 [00:00<00:00, 703.19it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t6_8M_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[export 22:51:46] wiring done
+[export 22:52:32] descriptors done; coverage top 0.962 res 0.955
+[export 22:52:32] loading control /lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_shuf2/slim.pt
+[export 22:52:34] saved /home/ubuntu/out/firstread_8M.pt 0.037 GB in 53 s
+[export 22:52:35] loading atlas /lambda/nfs/esm-atlas-results/runs/atlas-fu650-20261104-1425/full/atlas.pt 10.85 GB
+[export 22:54:02] L=33 D=5120 K=64 B=6 Kr=64 R=8 n_seen=194177125 n_sub=9715300
+[export 22:54:06] co-activation peers done
+[export 22:54:06] enrichment done
+[export 22:54:09] loading weights facebook/esm2_t33_650M_UR50D
+Loading weights:   0%|          | 0/534 [00:00<?, ?it/s]Loading weights:   3%|▎         | 16/534 [00:00<00:23, 22.38it/s]Loading weights: 100%|██████████| 534/534 [00:00<00:00, 725.75it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t33_650M_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[export 22:54:30] wiring done
+[export 22:54:36] descriptors done; coverage top 0.955 res 0.941
+[export 22:54:36] saved /home/ubuntu/out/firstread_650M.pt 0.524 GB in 121 s
+total 548796
+drwxrwxr-x 2 ubuntu ubuntu      4096 Nov  8 22:54 .
+drwxr-x--- 9 ubuntu ubuntu      4096 Nov  8 22:51 ..
+-rw-rw-r-- 1 ubuntu ubuntu 524463741 Nov  8 22:54 firstread_650M.pt
+-rw-rw-r-- 1 ubuntu ubuntu  37491199 Nov  8 22:52 firstread_8M.pt
+REMOTE-DONE

@@ -1,0 +1,22 @@
+[export 18:04:09] loading atlas /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/full/atlas.pt 34.53 GB
+[export 18:08:38] L=36 D=10240 K=64 B=6 Kr=16 R=8 n_seen=194177125 n_sub=9715300
+[export 18:09:06] co-activation peers done
+[export 18:09:09] enrichment done
+[export 18:09:15] loading weights facebook/esm2_t36_3B_UR50D
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/582 [00:00<?, ?it/s]Loading weights: 100%|██████████| 582/582 [00:00<00:00, 17620.45it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t36_3B_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+lm_head.decoder.weight    | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[export 18:10:29] wiring done
+[export 18:11:18] descriptors done; coverage top 0.926 res 0.933
+[export 18:11:21] saved /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/export/firstread_3B.pt 1.144 GB in 432 s

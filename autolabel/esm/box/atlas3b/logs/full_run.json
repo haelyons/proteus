@@ -1,0 +1,118 @@
+{
+ "args": {
+  "model": "facebook/esm2_t36_3B_UR50D",
+  "control": "none",
+  "control_seed": null,
+  "data": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+  "out": "/lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/full",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 16384,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 131072,
+  "K": 64,
+  "Kr": 16,
+  "backend": "triton",
+  "cap_frac_early": 0.0,
+  "stats_impl": "v3",
+  "merge_impl": "stacked",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 1500,
+  "gram_flush_every": 1000,
+  "resume": false,
+  "stop_after": 0,
+  "seed_thresholds": true,
+  "pair_forward": false,
+  "pair_every": 0,
+  "plan_offset": 0,
+  "prefetch": 2,
+  "only_acc": null,
+  "edges_from": null,
+  "exclude_acc": "lists/heldout_created_after_2021-11-17.tsv",
+  "edge_q": [
+   0.5,
+   0.9,
+   0.99,
+   0.999,
+   0.9999,
+   0.99999
+  ],
+  "profile_at": [],
+  "max_batches": 0,
+  "deadline": 1794270832.0
+ },
+ "model": {
+  "hf": "facebook/esm2_t36_3B_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 36,
+  "d_model": 2560,
+  "d_ff": 10240,
+  "n_params": 2832444321,
+  "control_seed": 0
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "n_excluded": 10010,
+ "n_batches_plan": 12219,
+ "next_batch": 12219,
+ "complete": true,
+ "seconds": {
+  "load": 15.043965339660645,
+  "pilot": 169.55812048912048,
+  "stream_this_process": 10464.871355772018
+ },
+ "n_seen": 194177125,
+ "stats": {
+  "batches": 12219,
+  "dense_layer_batches": 14,
+  "redo_layers": 14,
+  "compacted": 2083635401,
+  "elements": 143162910720000,
+  "top_cand": 462703380,
+  "res_cand": 261583455,
+  "bulk_rows_in": 1941370,
+  "bulk_rows_kept": 1941370
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": true
+  },
+  "mm_out_dtype": {
+   "ok": null
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ },
+ "digests": {
+  "top_val": "054eae6cef42279ae9f7e1e3f3e3758ff7ef5768213c78be660abb1fc47142d6",
+  "top_tok": "fc60ec14a7f4ec64a7444fd0177b4d29df2dea59d4cedef661e619c94e29a357",
+  "res_tok": "195fa30372d95fea6936ffa449f4a01324ff973fa34426b528db2ff52a8e601f",
+  "res_val": "6d0edbab47bad12426a6adfb8fe9113729616056c093fa810e5603b01de1eadd",
+  "res_key": "5ab2bdc8763d5ebedad1896672e1d50c0f52a48f2fe58ec83725b89280a773fa",
+  "sub_bin": "2296219bce1a9286008d844fa65d7fd4f24b3332f3884dee1b19dda168c6065c",
+  "enr": "dd20ad3b2a6072a476759fb3aa87a0ca87315f317db7a3e36863f10db2942a13",
+  "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+  "edges": "1e09f8fdfca651617368212c1efd62262bf35e55e050bff0504edb77a46c8468"
+ },
+ "final_save_s": 70.19091582298279,
+ "atlas_pt_GB": 34.526833049,
+ "gram_rows": 9715300,
+ "res_seeded_bins": 3512793,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

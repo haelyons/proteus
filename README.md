@@ -101,6 +101,7 @@ release 2021_04 (17 Nov 2021), the UniRef50 release ESM-2 was trained on (2.06% 
 - `scripts/bench_gram.py` - subsample GEMMs (TF32 vs bf16, int8 enrichment) and the one-pass read floor at the per-layer shape
 - `scripts/compare_atlas.py` - two checkpoints of the same stream: exact fields bitwise, sums by relative difference
 - `atlas/proftrace.py` - per-range attribution from a profiler trace: span vs busy device time, top kernels per range
+- `autolabel/` - first-read notebooks (InceptionV1 replay; ESM-2 8M/650M/3B from the atlases), the 3B atlas job, and notes on applying Cammarata's approach to automated labelling (`autolabel/README.md`)
 - `tests/` - exactness (fp32/bf16, overflow redo, seeded, too-tight seeds, tie-heavy shuffled order),
   Triton kernels (compaction; statistics and Gram, interpreter or `--cuda`), merge, resume
 - `jobs/` - GPU jobs; each `run.sh` supports `SMOKE=1` (same steps, ESM-2 8M, CPU): `a10_profile`

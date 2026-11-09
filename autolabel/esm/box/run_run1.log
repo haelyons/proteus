@@ -1,0 +1,41 @@
+[box 22:37:47] launching gpu_1x_a10 in us-east-1 with esm-atlas-results
+[box 22:37:54] instance b3b5d8f1dc614413b81c8417edc8e6d6
+[box 22:37:54] watchdog armed: terminate after 5400s (pid 1813539)
+[box 22:38:46] status booting
+[box 22:39:48] status booting
+[box 22:40:50] status booting
+[box 22:41:52] status booting
+[box 22:42:33] active at 141.148.9.170
+    from .image_utils import (
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/transformers/image_utils.py", line 53, in <module>
+    PILImageResampling = PIL.Image.Resampling
+  File "/usr/lib/python3/dist-packages/PIL/Image.py", line 65, in __getattr__
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+AttributeError: module 'PIL.Image' has no attribute 'Resampling'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/export_firstread.py", line 277, in <module>
+    main()
+  File "/home/ubuntu/export_firstread.py", line 273, in main
+    {"bundle": bundle, "sequences": sequences, "selftest": lambda a: selftest()}[a.cmd](a)
+  File "/home/ubuntu/export_firstread.py", line 163, in bundle
+    from transformers import EsmModel
+  File "/home/ubuntu/.local/lib/python3.10/site-packages/transformers/utils/import_utils.py", line 2688, in __getattr__
+    raise ModuleNotFoundError(import_error_message) from e
+ModuleNotFoundError: Could not import module 'EsmModel'. Are this object's requirements defined correctly? Set the logging verbosity to DEBUG for the original import error.
+BUNDLE 650M FAILED rc=1
+total 141208
+drwxrwxr-x 2 ubuntu ubuntu      4096 Nov  8 22:42 .
+drwxr-x--- 9 ubuntu ubuntu      4096 Nov  8 22:42 ..
+-rw-rw-r-- 1 ubuntu ubuntu 144586318 Nov  8 22:43 sequences.npz
+REMOTE-DONE
+[box 22:45:03] fetching bundles
+total 141212
+drwxrwxr-x 2 hal hal      4096 Nov  8 22:45 .
+drwxrwxr-x 5 hal hal      4096 Nov  8 22:40 ..
+-rw-rw-r-- 1 hal hal 144586318 Nov  8 22:45 sequences.npz
+[box 22:45:53] done
+[box 22:45:53] exit: terminating b3b5d8f1dc614413b81c8417edc8e6d6
+terminate: ['terminating']

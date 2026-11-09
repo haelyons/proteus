@@ -1,0 +1,73 @@
+{
+ "a": "/lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/gate_A/ckpt/ckpt_20.pt",
+ "b": "/lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/gate_B/ckpt/ckpt_20.pt",
+ "fields": {
+  "top_s": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_t": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_k": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_s": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_t": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_v": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_bin": {
+   "exact": true,
+   "n_diff": null
+  },
+  "enr": {
+   "exact": true,
+   "n_diff": null
+  },
+  "ann_tot": {
+   "exact": true,
+   "n_diff": null
+  },
+  "E": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_seed": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_seed": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_sum": {
+   "bitwise": false,
+   "max_rel_diff": 9.7611298284661e-09
+  },
+  "sub_sq": {
+   "bitwise": false,
+   "max_rel_diff": 1.9670185304219698e-08
+  },
+  "n_seen": {
+   "a": 318401,
+   "b": 318401,
+   "equal": true
+  },
+  "n_sub": {
+   "a": 16132,
+   "b": 16132,
+   "equal": true
+  }
+ },
+ "ok": true
+}

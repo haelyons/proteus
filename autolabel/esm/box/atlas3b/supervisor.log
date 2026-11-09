@@ -1,0 +1,65 @@
+[3b-sup 14:53:49] launching gpu_1x_a100_sxm4 in us-east-1 with esm-atlas-results; out /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453
+[3b-sup 14:53:52] instance 63c4a5e836f242da81046606f5822d33
+[3b-sup 14:53:52] watchdog: terminate after 36000s
+[3b-sup 14:54:45] status booting
+[3b-sup 14:55:47] status booting
+[3b-sup 14:56:49] status booting
+[3b-sup 14:57:51] status booting
+[3b-sup 14:58:01] active at 132.145.140.2
+[3b-sup 14:58:25] ssh stable after 3 probes
+started
+[3b-sup 14:58:34] job started; deadline 00:33 UTC
+[3b-sup 15:03:35] RUN [3b 14:59:42] gate at tokens-per-batch 16384: fast (--stats-impl v3 --merge-impl stacked) vs reference (stats v1, merge | batches 0 | 7765 MiB, 0 %
+[3b-sup 15:08:36] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 0 | 12363 MiB, 100 %
+[3b-sup 15:13:37] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 276 | 39239 MiB, 100 %
+[3b-sup 15:18:38] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 635 | 39251 MiB, 96 %
+[3b-sup 15:23:39] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 994 | 39251 MiB, 100 %
+[3b-sup 15:28:41] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 1339 | 39251 MiB, 100 %
+[3b-sup 15:33:42] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 1687 | 39251 MiB, 100 %
+[3b-sup 15:38:43] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 2032 | 39251 MiB, 100 %
+[3b-sup 15:43:44] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 2398 | 39251 MiB, 100 %
+[3b-sup 15:48:45] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 2764 | 39251 MiB, 97 %
+[3b-sup 15:53:47] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 3096 | 39251 MiB, 100 %
+[3b-sup 15:58:48] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 3459 | 39251 MiB, 100 %
+[3b-sup 16:03:49] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 3827 | 39261 MiB, 96 %
+[3b-sup 16:08:50] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 4174 | 39261 MiB, 95 %
+[3b-sup 16:13:51] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 4526 | 39261 MiB, 100 %
+[3b-sup 16:18:52] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 4893 | 39261 MiB, 100 %
+[3b-sup 16:23:54] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 5240 | 39261 MiB, 100 %
+[3b-sup 16:28:55] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 5609 | 39261 MiB, 99 %
+[3b-sup 16:33:56] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 5975 | 39261 MiB, 100 %
+[3b-sup 16:38:57] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 6307 | 39307 MiB, 100 %
+[3b-sup 16:43:58] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 6675 | 39311 MiB, 95 %
+[3b-sup 16:48:59] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 7021 | 39311 MiB, 100 %
+[3b-sup 16:54:01] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 7388 | 39311 MiB, 100 %
+[3b-sup 16:59:02] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 7740 | 39311 MiB, 95 %
+[3b-sup 17:04:03] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 8087 | 39311 MiB, 100 %
+[3b-sup 17:09:04] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 8452 | 39311 MiB, 100 %
+[3b-sup 17:14:05] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 8820 | 39311 MiB, 100 %
+[3b-sup 17:19:07] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 9152 | 39311 MiB, 100 %
+[3b-sup 17:24:08] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 9520 | 39311 MiB, 100 %
+[3b-sup 17:29:09] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 9887 | 39311 MiB, 100 %
+[3b-sup 17:34:10] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 10234 | 39311 MiB, 100 %
+[3b-sup 17:39:11] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 10586 | 39311 MiB, 100 %
+[3b-sup 17:44:12] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 10953 | 39311 MiB, 100 %
+[3b-sup 17:49:14] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 11300 | 39311 MiB, 100 %
+[3b-sup 17:54:15] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 11668 | 39311 MiB, 100 %
+[3b-sup 17:59:16] RUN [3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384 | batches 12002 | 39311 MiB, 100 %
+[3b-sup 18:04:17] RUN -rw-rw-r-- 1 ubuntu ubuntu 34526833049 Nov 9 18:03 /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/f | batches 12219 | 0 MiB, 0 %
+[3b-sup 18:09:18] RUN -rw-rw-r-- 1 ubuntu ubuntu 34526833049 Nov 9 18:03 /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/f | batches 12219 | 0 MiB, 0 %
+[3b-sup 18:14:20] DONE
+[3b-sup 18:19:14] bundle fetched: 1.1G
+pipx 1.0.0 requires argcomplete>=1.9.4, but you have argcomplete 1.8.1 which is incompatible.
+preflight: torch 2.7.0 triton 3.3.0 EsmModel ok
+[3b 14:59:42] gpu tests ok
+[3b 14:59:42] gate at tokens-per-batch 16384: fast (--stats-impl v3 --merge-impl stacked) vs reference (stats v1, merge loop), 20 batches, pilot 32768
+[3b 15:06:26] gate rc=0 at tokens-per-batch 16384 ok True
+[3b 15:06:28] full pass, pilot 131072, Kr 16, tokens-per-batch 16384
+[3b 18:04:08] full pass rc=0 wall 10660s
+-rw-rw-r-- 1 ubuntu ubuntu 34526833049 Nov  9 18:03 /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/full/atlas.pt
+[export 18:10:29] wiring done
+[export 18:11:18] descriptors done; coverage top 0.926 res 0.933
+[export 18:11:21] saved /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1453/export/firstread_3B.pt 1.144 GB in 432 s
+[3b 18:11:23] DONE atlas 33G, bundle 1.1G
+[3b-sup 18:19:14] exit (DONE): terminating 63c4a5e836f242da81046606f5822d33
+terminate: ['terminating']

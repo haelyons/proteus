@@ -1,0 +1,18 @@
+[atlas] excluded 10010 of 10010 listed accessions (lists/heldout_created_after_2021-11-17.tsv)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/582 [00:00<?, ?it/s]Loading weights: 100%|██████████| 582/582 [00:00<00:00, 17199.94it/s]
+[transformers] [1mEsmModel LOAD REPORT[0m from: facebook/esm2_t36_3B_UR50D
+Key                       | Status     |  | 
+--------------------------+------------+--+-
+lm_head.decoder.weight    | UNEXPECTED |  | 
+lm_head.layer_norm.weight | UNEXPECTED |  | 
+lm_head.layer_norm.bias   | UNEXPECTED |  | 
+lm_head.dense.weight      | UNEXPECTED |  | 
+lm_head.dense.bias        | UNEXPECTED |  | 
+lm_head.bias              | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[atlas] seeded thresholds for n_total=194177125: reservoir bins seeded 2804687/4423680
+[atlas] checkpoint at batch 20/12219 (11.3s, 4.70 GB)
+[atlas] stopping after 20 batches (simulated cap)

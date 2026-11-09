@@ -1,0 +1,11 @@
+[3b-sup 14:35:24] launching gpu_1x_a100_sxm4 in us-east-1 with esm-atlas-results; out /lambda/nfs/esm-atlas-results/runs/autolabel-atlas3b-20261109-1435
+[3b-sup 14:35:26] instance 269465072e7d418c826f3c75f4db2d4a
+[3b-sup 14:35:26] watchdog: terminate after 36000s
+[3b-sup 14:36:18] status booting
+[3b-sup 14:37:21] status booting
+[3b-sup 14:38:23] status booting
+[3b-sup 14:39:25] status booting
+[3b-sup 14:40:17] active at 129.213.94.9
+scp: Connection closed
+[3b-sup 14:40:41] exit (scp-failed): terminating 269465072e7d418c826f3c75f4db2d4a
+terminate: ['terminating']

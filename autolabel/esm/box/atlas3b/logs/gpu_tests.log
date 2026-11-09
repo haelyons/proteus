@@ -1,0 +1,12 @@
+kernel OK on cuda torch.float32: T=777 D=300, tile 32x128 (75 tiles), 21975 survivors, overflow detected (count 21975 > cap 64)
+kernel OK on cuda torch.float32: T=777 D=300, tile 32x128 (75 tiles), 4 survivors, no overflow case (few survivors)
+kernel OK on cuda torch.float32: T=777 D=300, tile 16x256 (98 tiles), 4 survivors, no overflow case (few survivors)
+kernel OK on cuda torch.float32: T=777 D=300, tile 8x512 (98 tiles), 21975 survivors, overflow detected (count 21975 > cap 64)
+kernel OK on cuda torch.float32: T=777 D=300, tile 8x512 (98 tiles), 4 survivors, no overflow case (few survivors)
+kernel OK on cuda torch.bfloat16: T=777 D=300, tile 32x128 (75 tiles), 21993 survivors, overflow detected (count 21993 > cap 64)
+kernel OK on cuda torch.bfloat16: T=777 D=300, tile 32x128 (75 tiles), 4 survivors, no overflow case (few survivors)
+kernel OK on cuda torch.bfloat16: T=777 D=300, tile 16x256 (98 tiles), 4 survivors, no overflow case (few survivors)
+kernel OK on cuda torch.bfloat16: T=777 D=300, tile 8x512 (98 tiles), 21993 survivors, overflow detected (count 21993 > cap 64)
+kernel OK on cuda torch.bfloat16: T=777 D=300, tile 8x512 (98 tiles), 4 survivors, no overflow case (few survivors)
+[torch.bfloat16, triton, cuda, stats v3, merge stacked] OK  N=73529 tokens, L=3, D=96, K=8, Kr=4, 55 batches, 8.44s; dense layer-batches=7, redo layers=4; compacted fraction 2.04e-03
+[torch.bfloat16, torch, cuda, stats v3, merge stacked] OK  N=73529 tokens, L=3, D=96, K=8, Kr=4, 55 batches, 2.31s; dense layer-batches=7, redo layers=4; compacted fraction 2.04e-03

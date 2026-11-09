@@ -1,0 +1,18 @@
+# Kept locally, not committed: working data (rebuilt by esm/box_run.sh and esm/box_atlas3b.sh), readings from the
+# notebooks, the owner's private notes, browser and marimo caches, and per-launch machine files.
+context/
+esm/data/
+esm/readings/
+marimo/readings/
+marimo/checks/chrome/
+**/__marimo__/
+**/__pycache__/
+esm/box/**/known_hosts
+esm/box/**/ip
+esm/box/**/instance_id
+esm/box/**/watchdog.pid
+esm/box/**/watchdog.out
+esm/box/**/proteus.tar.gz
+esm/box/**/run_copy.sh
+# the box logs are provenance for the exports and the 3B atlas (the repo root ignores *.log)
+!esm/box/**/*.log
