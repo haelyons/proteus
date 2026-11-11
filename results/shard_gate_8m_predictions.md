@@ -26,3 +26,24 @@ from it; `merge_atlas.py`; `compare_atlas.py merged single`. All numbers come fr
 
 Decision: the gate passes at 8M when 1, 2, 3 (as a tolerance pass) and 5 hold. 4, 6 and 7 are
 calibration for the 650M predictions and do not gate.
+
+## Outcome of the first run, and a second measurement (added 2026-11-11, before the second run)
+
+First run (config above): predictions 1, 3, 5, 6, 7 held; 2 held more strongly than predicted
+(`sub_sum`, `sub_sq` bitwise equal); `gram` max relative difference 4.3e-8 to 5.7e-8; merge peak
+RSS 0.83–0.91 GB. Prediction 4 could not be evaluated, and the run exposed a weakness of the
+gate itself: in the single run 358 of 390 layer-batches overflowed the candidate buffer and were
+redone densely (all 390 in the shards), because on a 245k-residue stream most reservoir bins
+never fill and the filter threshold stays at a low bin edge. That gate therefore tested the merge
+against the dense path, hardly the filtered path. `stats.compacted` only counts batches that did
+not overflow, so its ratio was meaningless there.
+
+Second measurement, same data and procedure, chosen so that reservoirs can fill from the fully
+examined 1% of rows: `--K 16 --Kr 4 --edge-q 0.5 0.9 0.99` (other arguments unchanged).
+
+| # | Quantity | Prediction | Wrong if |
+| --- | --- | --- | --- |
+| 8 | Share of layer-batches redone densely in the single run | below 20% (otherwise this config does not exercise the filter either, and the measurement says so) | 20% or more |
+| 9 | Predictions 1, 2 (bitwise or at most 1e-12), 3 (at most 1e-5), 5 | hold for N = 2, 4, 8 | any fails |
+| 10 | Over shards, the sum of per-batch candidate counts on batches without redo, per such layer-batch, relative to the single run | at least 1.0 for every N and non-decreasing in N | below 1.0 or decreasing |
+| 11 | Sum of shard stream seconds over the single run's | between 0.9 and 1.3 | outside |
