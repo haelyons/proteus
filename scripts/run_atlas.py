@@ -368,14 +368,14 @@ def main():
             n_done += 1
             batches_done += 1
             last_ckpt_s = None
-            if (bi + 1) % a.ckpt_every == 0:
+            if (shard_pos + 1) % a.ckpt_every == 0:
                 save_ckpt(bi + 1)
             rec["ckpt_s"] = last_ckpt_s
             logf.write(json.dumps(rec) + "\n")
             logf.flush()
             batch_s = max(batch_s, rec["seconds"]) if n_done > 2 else batch_s
             if a.deadline and bi + 1 < len(plan) and time.time() > a.deadline - 2 * (batch_s + max(ckpt_s, 30.0)):
-                if (bi + 1) % a.ckpt_every:
+                if (shard_pos + 1) % a.ckpt_every:
                     save_ckpt(bi + 1)
                 print(f"[atlas] deadline approaching: stopped cleanly at batch {bi + 1}; rerun with --resume", flush=True)
                 return
@@ -384,9 +384,13 @@ def main():
                 (out / "run.json").write_text(json.dumps(summary(False, bi + 1), indent=1))
                 return
     logf.close()
-    res = atlas.result()
-    res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed,
-                "n_total_plan": n_total, "n_batches": len(plan)})
+    if a.shard is None:
+        res = atlas.result()
+        res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed,
+                    "n_total_plan": n_total, "n_batches": len(plan)})
+    else:
+        res = atlas.verify_seeds()
+        res["gram_rows"] = atlas.gram_rows
     tf = time.time()
     output_path = out / ("shard.pt" if a.shard is not None else "atlas.pt")
     if a.shard is None:
@@ -395,16 +399,19 @@ def main():
         atomic_save({"atlas": atlas.state_dict(include_gram=True), "shard": a.shard,
                      "plan_sha256": plan_sha256, "n_batches_plan": len(plan), "n_total_plan": n_total,
                      "batches_done": batches_done, "args_key": _args_key(a),
-                     "model": info, "coverage": res["coverage"], "vocab": ds.vocab,
+                     "model": info, "coverage": ds.coverage(order), "vocab": ds.vocab,
                      "order_seed": a.seed}, output_path)
     final_s = time.time() - tf
-    digests = result_digests(res)
+    digests = result_digests(res) if a.shard is None else None
     sm = summary(True, len(plan))
-    sm.update({"digests": digests, "final_save_s": final_s, "atlas_pt_GB": output_path.stat().st_size / 1e9,
+    size_key = "atlas_pt_GB" if a.shard is None else "shard_pt_GB"
+    if a.shard is None:
+        sm["digests"] = digests
+    sm.update({"final_save_s": final_s, size_key: output_path.stat().st_size / 1e9,
                "gram_rows": res.get("gram_rows"), "res_seeded_bins": res["res_seeded_bins"],
                "res_seed_limited_bins": res["res_seed_limited_bins"], "top_seed_short_groups": res["top_seed_short_groups"]})
     (out / "run.json").write_text(json.dumps(sm, indent=1))
-    print(f"[atlas] done: final save {final_s:.1f}s ({sm['atlas_pt_GB']:.2f} GB); seed verification: "
+    print(f"[atlas] done: final save {final_s:.1f}s ({sm[size_key]:.2f} GB); seed verification: "
           f"{res['res_seed_limited_bins']} of {res['res_seeded_bins']} seeded bins short, top-K groups short {res['top_seed_short_groups']}", flush=True)
     print(json.dumps({k: v for k, v in summary(True, len(plan)).items() if k in ("model", "coverage", "seconds", "n_seen")}, indent=1))
     print("stats", atlas.stats)
