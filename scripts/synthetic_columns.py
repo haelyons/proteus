@@ -24,9 +24,13 @@ import glob
 import gzip
 import json
 import math
+import multiprocessing as mp
+import pickle
 import sys
 import time
 import zlib
+from collections import deque
+from functools import partial
 from pathlib import Path
 
 import torch
@@ -112,6 +116,72 @@ def signals(p, burial_mu, burial_sd):
             "noise": torch.zeros(n)}
 
 
+def column_block(p, gen, *, bmu, bsd, cols, parts, shape, threshold, weights, mu, sd, noise_seed):
+    C = len(cols)
+    sg = signals(p, bmu, bsd)
+    n = len(p["seq"])
+    if parts:
+        st = state5(p)
+        for t, jobs in parts.items():
+            sg[t] = sum((torch.tensor([c == aa for c in p["seq"]]) & (st == s)).float() for aa, s in jobs)
+    Z = torch.randn(n, C, generator=gen)
+    for i, (t, al, _) in enumerate(cols):
+        if t == "noise" or al == 0:
+            continue
+        Z[:, i] += al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0)
+    if shape == "gelu":
+        return torch.nn.functional.gelu(Z)
+    if shape == "gelu_off":
+        return torch.nn.functional.gelu(Z - 2)
+    if shape == "sae":
+        return torch.relu(Z - threshold)
+    if shape == "randdir":
+        extra = torch.Generator().manual_seed((p["seq_idx"] + (noise_seed << 32)) + (1 << 40))
+        noise = (torch.nn.functional.gelu(torch.randn(C, n, 64, generator=extra)) * weights[:, None, :]).sum(-1)
+        signal = torch.stack([al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0)
+                              if t != "noise" else torch.zeros(n) for t, al, _ in cols])
+        Z = ((signal + noise - mu[:, None]) / sd).T.contiguous()
+    return Z
+
+
+def init_gen_worker(block, noise_seed):
+    global _gen_block, _gen_noise_seed
+    torch.set_num_threads(1)
+    _gen_block, _gen_noise_seed = block, noise_seed
+
+
+def gen_worker(payload):
+    p = pickle.loads(payload)
+    gen = torch.Generator().manual_seed(p["seq_idx"] + (_gen_noise_seed << 32))
+    return pickle.dumps(_gen_block(p, gen), protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def ordered_blocks(prot, block, noise_seed, workers):
+    if workers == 1:
+        for p in prot:
+            yield block(p, torch.Generator().manual_seed(p["seq_idx"] + (noise_seed << 32)))
+        return
+    # Spawn is safe even after torch has started threads in the parent.
+    # Byte payloads avoid torch's socket-based tensor sharing.
+    with mp.get_context("spawn").Pool(workers, initializer=init_gen_worker, initargs=(block, noise_seed)) as pool:
+        def submit(p):
+            # Descriptor slices can share an entire shard's storage; send only this protein.
+            payload = {k: v.clone() if isinstance(v, torch.Tensor) else v for k, v in p.items()}
+            return pool.apply_async(gen_worker, (pickle.dumps(payload, protocol=pickle.HIGHEST_PROTOCOL),))
+
+        proteins = iter(prot)
+        pending = deque()
+        for p in proteins:
+            pending.append(submit(p))
+            if len(pending) == 2 * workers:
+                break
+        while pending:
+            yield pickle.loads(pending.popleft().get())
+            p = next(proteins, None)
+            if p is not None:
+                pending.append(submit(p))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
@@ -128,7 +198,10 @@ def main():
     ap.add_argument("--sae-rate", type=float, default=0.01)
     ap.add_argument("--mixtures", action="store_true")
     ap.add_argument("--noise-columns", type=int, default=0)
+    ap.add_argument("--gen-workers", type=int, default=1)
     a = ap.parse_args()
+    if a.gen_workers < 1:
+        ap.error("--gen-workers must be positive")
     if not 0 < a.sae_rate < 1:
         ap.error("--sae-rate must be between 0 and 1")
     if a.noise_columns < 0:
@@ -152,40 +225,15 @@ def main():
     threshold = float(torch.special.ndtri(torch.tensor(1 - a.sae_rate, dtype=torch.float64)))
     weights, mu, sd = randdir_params(C) if a.shape == "randdir" else (None, None, None)
 
-    def column_block(p, gen):
-        sg = signals(p, bmu, bsd)
-        n = len(p["seq"])
-        if parts:
-            st = state5(p)
-            for t, jobs in parts.items():
-                sg[t] = sum((torch.tensor([c == aa for c in p["seq"]]) & (st == s)).float() for aa, s in jobs)
-        Z = torch.randn(n, C, generator=gen)
-        for i, (t, al, _) in enumerate(cols):
-            if t == "noise" or al == 0:
-                continue
-            Z[:, i] += al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0)
-        if a.shape == "gelu":
-            return torch.nn.functional.gelu(Z)
-        if a.shape == "gelu_off":
-            return torch.nn.functional.gelu(Z - 2)
-        if a.shape == "sae":
-            return torch.relu(Z - threshold)
-        if a.shape == "randdir":
-            extra = torch.Generator().manual_seed(nseed(p) + (1 << 40))
-            for i, (t, al, _) in enumerate(cols):
-                noise = (torch.nn.functional.gelu(torch.randn(n, 64, generator=extra)) * weights[i]).sum(1)
-                signal = al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0) if t != "noise" else 0.0
-                Z[:, i] = (signal + noise - mu[i]) / sd
-        return Z
-
-    nseed = lambda p: p["seq_idx"] + (a.noise_seed << 32)  # noqa: E731
+    block = partial(column_block, bmu=bmu, bsd=bsd, cols=cols, parts=parts, shape=a.shape,
+                    threshold=threshold, weights=weights, mu=mu, sd=sd, noise_seed=a.noise_seed)
     blocks, toks, n_tok = [], [], 0
-    pilot = []
+    pilot_prot = []
     for p in prot:  # pilot: the first tokens of the (shuffled) stream, then streamed again like the model runs
         if n_tok >= a.pilot_tokens:
             break
-        Z = column_block(p, torch.Generator().manual_seed(nseed(p)))
-        pilot.append(Z); n_tok += Z.shape[0]
+        pilot_prot.append(p); n_tok += len(p["seq"])
+    pilot = list(ordered_blocks(pilot_prot, block, a.noise_seed, a.gen_workers))
     E = pilot_edges([torch.cat(pilot)], probs=(0.5, 0.9, 0.99, 0.999, 0.9999, 0.99999))
     at = Atlas(1, C, E, AtlasConfig(K=64, Kr=a.Kr, backend="torch", seed=a.seed, gram=False, cap_frac=0.02), n_annot=0)
     t0 = time.time(); nb = 0
@@ -198,8 +246,7 @@ def main():
         if redo:
             at.begin_batch(ctx, redo_layers=redo); at.observe(0, H); at.end_batch()
     cur = 0
-    for p in prot:
-        Z = column_block(p, torch.Generator().manual_seed(nseed(p)))   # same noise as in the pilot (fixed per protein)
+    for p, Z in zip(prot, ordered_blocks(prot, block, a.noise_seed, a.gen_workers)):
         blocks.append(Z); toks.append(pack_tok(torch.full((Z.shape[0],), p["seq_idx"]), torch.arange(Z.shape[0])))
         cur += Z.shape[0]
         if cur >= a.tokens_per_batch:

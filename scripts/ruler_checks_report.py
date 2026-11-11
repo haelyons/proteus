@@ -53,13 +53,15 @@ def structural(record):
 def report(out):
     shapes = {p.name: shape_report(p) for p in sorted((out / "planted").iterdir()) if p.is_dir()}
     root = out / "pooling"
-    trained = records(root / "scores" / "trained.jsonl")
-    pools = ("trained", "trained,shuf1", "trained,shuf1,shuf2,shuf3")
-    summaries = {pool: read(root / f"summary_{pool}.json") for pool in pools}
-    pooling = {"records_identical": trained == records(root / "scores_4" / "trained.jsonl"),
-               "n_trained": len(trained),
-               "trained_calls": {pool: s["pooled_v12"]["calls"]["trained"] for pool, s in summaries.items()},
-               "trained_share_struct": {pool: s["sources"]["trained"]["share_struct"] for pool, s in summaries.items()}}
+    pooling = None
+    if root.exists():
+        trained = records(root / "scores" / "trained.jsonl")
+        pools = ("trained", "trained,shuf1", "trained,shuf1,shuf2,shuf3")
+        summaries = {pool: read(root / f"summary_{pool}.json") for pool in pools}
+        pooling = {"records_identical": trained == records(root / "scores_4" / "trained.jsonl"),
+                   "n_trained": len(trained),
+                   "trained_calls": {pool: s["pooled_v12"]["calls"]["trained"] for pool, s in summaries.items()},
+                   "trained_share_struct": {pool: s["sources"]["trained"]["share_struct"] for pool, s in summaries.items()}}
     result = {"shapes": shapes, "pooling": pooling,
               "inputs_sha256": {name: v["sha256"] for name, v in read(out / "inputs.json").items()}}
     (out / "checks.json").write_text(json.dumps(result, indent=2) + "\n")
@@ -75,12 +77,13 @@ def report(out):
             lines.append(f"| {key} | {json.dumps(row['calls'])} | {row['k_struct']}/{row['n']} "
                          f"({row['k_struct'] / row['n']:.6g}) | {row['jsd_q50']} | {json.dumps(row['residue_modes'])} |")
         lines.append("")
-    shares = list(pooling["trained_share_struct"].values())
-    lines += ["## Pooling", "", f"Records identical: {pooling['records_identical']}; trained columns: {len(trained)}.",
-              f"Trained share_struct unchanged: {all(s == shares[0] for s in shares)}.", "",
-              "| Pool | Trained calls | Trained share_struct |", "| --- | --- | --- |"]
-    lines += [f"| {pool} | {json.dumps(pooling['trained_calls'][pool])} | {pooling['trained_share_struct'][pool]} |"
-              for pool in pools]
+    if pooling is not None:
+        shares = list(pooling["trained_share_struct"].values())
+        lines += ["## Pooling", "", f"Records identical: {pooling['records_identical']}; trained columns: {len(trained)}.",
+                  f"Trained share_struct unchanged: {all(s == shares[0] for s in shares)}.", "",
+                  "| Pool | Trained calls | Trained share_struct |", "| --- | --- | --- |"]
+        lines += [f"| {pool} | {json.dumps(pooling['trained_calls'][pool])} | {pooling['trained_share_struct'][pool]} |"
+                  for pool in pools]
     (out / "checks.md").write_text("\n".join(lines) + "\n")
 
 
