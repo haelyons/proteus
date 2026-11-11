@@ -23,6 +23,7 @@ import argparse
 import glob
 import gzip
 import json
+import math
 import sys
 import time
 import zlib
@@ -38,6 +39,25 @@ AA = "ACDEFGHIKLMNPQRSTVWY"
 KD = dict(zip(AA, [1.8, 2.5, -3.5, -3.5, 2.8, -0.4, -3.2, 4.5, -3.9, 3.8, 1.9, -3.5, -1.6, -3.5, -4.5, -0.8, -0.7, 4.2, -0.9, -1.3]))
 TYPES = ["helix", "buried", "trp", "lys_helix", "two_job", "ordered", "narrow", "hydro_win", "noise"]
 ALPHAS = [0.0, 0.5, 1.0, 2.0, 3.0, 4.0]
+RES_ORDER = "KEDRLAQSTNVIGFYHMWCP"
+
+
+def mixture_parts():
+    parts = {family: [[aa, 1 if family == "same" else [1, 2, 0][j % 3]]
+                      for j, aa in enumerate(RES_ORDER)] for family in ("same", "diff")}
+    return {**{f"mix_{family}_{m}": parts[family][:m] for family in parts for m in (2, 8, 20)},
+            **{f"part_{family}_{j}": [part] for family in parts for j, part in enumerate(parts[family])}}
+
+
+def randdir_params(C):
+    # Gauss-Hermite quadrature: normal nodes sqrt(2) * x, normalised weights.
+    off = (torch.arange(1, 200, dtype=torch.float64) / 2).sqrt()
+    x, v = torch.linalg.eigh(torch.diag(off, 1) + torch.diag(off, -1))
+    m1 = 1 / (2 * math.sqrt(math.pi))
+    v1 = float((v[0].square() * torch.nn.functional.gelu(math.sqrt(2) * x).square()).sum()) - m1 ** 2
+    weights = torch.stack([torch.randn(64, generator=torch.Generator().manual_seed(1_000_000 + c)) for c in range(C)])
+    weights /= weights.norm(dim=1, keepdim=True)
+    return weights, m1 * weights.sum(1), math.sqrt(v1)
 
 
 def load_subset(desc_dir, data, uniref, heldout=False, max_res=1022):
@@ -104,7 +124,16 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--replicates", type=int, default=3)
     ap.add_argument("--noise-seed", type=int, default=0, help="0: noise seeded by seq_idx (the design set); k > 0: a fresh noise draw")
+    ap.add_argument("--shape", choices=("gauss", "gelu", "gelu_off", "randdir", "sae"), default="gauss")
+    ap.add_argument("--sae-rate", type=float, default=0.01)
+    ap.add_argument("--mixtures", action="store_true")
+    ap.add_argument("--noise-columns", type=int, default=0)
     a = ap.parse_args()
+    if not 0 < a.sae_rate < 1:
+        ap.error("--sae-rate must be between 0 and 1")
+    if a.noise_columns < 0:
+        ap.error("--noise-columns must be non-negative")
+    extended = any(arg.split("=", 1)[0] in {"--shape", "--sae-rate", "--mixtures", "--noise-columns"} for arg in sys.argv[1:])
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     data = torch.load(a.data, weights_only=False)
     prot = load_subset(a.desc_dir, data, a.uniref)
@@ -113,17 +142,40 @@ def main():
     allb = torch.cat([p["burial"][p["plddt"] >= 70] for p in prot])
     bmu, bsd = float(allb.mean()), float(allb.std())
     cols = [(t, al, r) for t in TYPES for al in ALPHAS for r in range(a.replicates)]  # replicates: independent noise
+    parts = mixture_parts() if a.mixtures else {}
+    cols += [(t, al, r) for t in parts for al in ALPHAS for r in range(a.replicates)]
+    cols += [("noise", 0.0, r) for r in range(a.noise_columns)]
     C = len(cols)
-    (out / "columns.json").write_text(json.dumps([{"col": i, "type": t, "alpha": al, "rep": r} for i, (t, al, r) in enumerate(cols)], indent=0))
+    columns = [{"col": i, "type": t, "alpha": al, "rep": r, **({"parts": parts[t]} if t in parts else {})}
+               for i, (t, al, r) in enumerate(cols)]
+    (out / "columns.json").write_text(json.dumps(columns, indent=0))
+    threshold = float(torch.special.ndtri(torch.tensor(1 - a.sae_rate, dtype=torch.float64)))
+    weights, mu, sd = randdir_params(C) if a.shape == "randdir" else (None, None, None)
 
     def column_block(p, gen):
         sg = signals(p, bmu, bsd)
         n = len(p["seq"])
+        if parts:
+            st = state5(p)
+            for t, jobs in parts.items():
+                sg[t] = sum((torch.tensor([c == aa for c in p["seq"]]) & (st == s)).float() for aa, s in jobs)
         Z = torch.randn(n, C, generator=gen)
         for i, (t, al, _) in enumerate(cols):
             if t == "noise" or al == 0:
                 continue
             Z[:, i] += al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0)
+        if a.shape == "gelu":
+            return torch.nn.functional.gelu(Z)
+        if a.shape == "gelu_off":
+            return torch.nn.functional.gelu(Z - 2)
+        if a.shape == "sae":
+            return torch.relu(Z - threshold)
+        if a.shape == "randdir":
+            extra = torch.Generator().manual_seed(nseed(p) + (1 << 40))
+            for i, (t, al, _) in enumerate(cols):
+                noise = (torch.nn.functional.gelu(torch.randn(n, 64, generator=extra)) * weights[i]).sum(1)
+                signal = al * sg[t] + (0.5 * al * sg["narrow_weak"] if t == "narrow" else 0.0) if t != "noise" else 0.0
+                Z[:, i] = (signal + noise - mu[i]) / sd
         return Z
 
     nseed = lambda p: p["seq_idx"] + (a.noise_seed << 32)  # noqa: E731
@@ -155,7 +207,10 @@ def main():
     if blocks:
         flush(blocks, toks); nb += 1
     res = at.result()
-    res.update({"columns": [{"col": i, "type": t, "alpha": al, "rep": r} for i, (t, al, r) in enumerate(cols)], "n_proteins": len(prot)})
+    res.update({"columns": columns, "n_proteins": len(prot)})
+    if extended:
+        res.update({"shape": a.shape, "sae_rate": a.sae_rate, "sae_threshold": threshold,
+                    "randdir_mu": mu, "randdir_s": sd})
     torch.save(res, out / "synthetic_atlas.pt")
     print(json.dumps({"proteins": len(prot), "tokens": at.n_seen, "columns": C, "batches": nb, "seconds": round(time.time() - t0, 1),
                       "stats": at.stats}))
