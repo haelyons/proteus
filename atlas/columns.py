@@ -61,8 +61,8 @@ def parse_sources(spec: str, d_ff: int) -> list[Source]:
     return sources
 
 
-def attach_sources(model, sources, sink):
-    """Call sink(source_index, layer, X), with one hook per requested hook point."""
+def attach_sources(model, sources, sink, *, wants=None):
+    """Call sink(source_index, layer, X) only when wants(source_index), if supplied."""
     handles = []
     for l, layer in enumerate(model.encoder.layer):
         for point, mod in (("pre", layer.intermediate.dense), ("post", layer.intermediate)):
@@ -73,7 +73,8 @@ def attach_sources(model, sources, sink):
             def hook(_m, _inp, out, l=l, readers=readers):
                 H = out.reshape(-1, out.shape[-1])
                 for i, source in readers:
-                    sink(i, l, source(l, H))
+                    if wants is None or wants(i):
+                        sink(i, l, source(l, H))
 
             handles.append(mod.register_forward_hook(hook))
     return handles

@@ -119,7 +119,7 @@ import torch
 root = Path(os.environ['OUT']) / 'smoke_inputs'
 (root / 'desc_subset').mkdir(parents=True)
 data = torch.load('data/swissprot_test500.pt', map_location='cpu', weights_only=False)
-# Retain original sequence indices: run_atlas packs indices from test500.
+# Retain original sequence indices in packed token ids.
 indices = sorted(range(len(data['seq'])), key=lambda i: (len(data['seq'][i]), i))[:32]
 acc = [data['acc'][i] for i in indices]
 seq = {i: data['seq'][i] for i in indices}
@@ -140,6 +140,50 @@ with gzip.open(root / 'uniref50.tsv.gz', 'wt') as f:
     f.write('Entry\tUniRef50\n')
     for a in acc:
         f.write(f'{a}\tUniRef50_{a}\n')
+PY
+}
+
+smoke_atlas() {
+  "$PYTHON" - "$1" <<'PY'
+import os
+import sys
+from pathlib import Path
+import torch
+from atlas.core import Atlas, AtlasConfig, pack_tok
+from atlas.reference import pilot_edges
+root = Path(os.environ['OUT']) / 'smoke_inputs'
+source = sys.argv[1]
+seed = ('trained', 'shuf1', 'shuf2', 'shuf3').index(source)
+data = torch.load(root / 'swissprot.pt', map_location='cpu', weights_only=False)
+lengths = [len(seq) for seq in data['seq'].values()]
+tok = torch.cat([pack_tok(torch.full((len(seq),), i), torch.arange(len(seq)))
+                 for i, seq in data['seq'].items()])
+g = torch.Generator().manual_seed(seed)
+Hs = [torch.randn(tok.numel(), 32, generator=g) for _ in range(2)]
+# Wider bins and Kr >= 10 let the tiny fixture populate the ruler's peak scores.
+edges = pilot_edges(Hs, probs=(0.5, 0.6, 0.7, 0.8, 0.9, 0.95))
+at = Atlas(2, 32, edges, AtlasConfig(K=16, Kr=16, backend='torch', seed=seed, gram=False), n_annot=0)
+n_batches = 0
+for start in range(0, tok.numel(), 4096):
+    tk = tok[start:start + 4096]
+    ctx = at.make_ctx(tk.numel(), torch.arange(tk.numel()), tk, None)
+    at.begin_batch(ctx)
+    for l, H in enumerate(Hs):
+        at.observe(l, H[start:start + 4096])
+    redo = at.end_batch()
+    if redo:
+        at.begin_batch(ctx, redo_layers=redo)
+        for l in redo:
+            at.observe(l, Hs[l][start:start + 4096])
+        assert at.end_batch() == []
+    n_batches += 1
+res = at.result()
+res.update(model={'name': 'smoke', 'n_layers': 2, 'd_ff': 32},
+           coverage={'n_seq': len(lengths), 'n_res_full': sum(lengths), 'n_res_used': sum(lengths),
+                     'n_truncated': 0, 'frac_seq_truncated': 0., 'frac_res_dropped': 0.},
+           vocab=[], order_seed=0, n_total_plan=tok.numel(), n_batches=n_batches)
+(root / source).mkdir()
+torch.save(res, root / source / 'atlas.pt')
 PY
 }
 
@@ -214,7 +258,7 @@ print('adapter equals run_ruler.py --rule v1.2')
 PY
 }
 
-export -f timeline record skip step run_step smoke_descriptors inputs build_columns planted smoke_parity
+export -f timeline record skip step run_step smoke_descriptors smoke_atlas inputs build_columns planted smoke_parity
 if [ "$SMOKE" = 1 ]; then
   step smoke_descriptors smoke_descriptors || exit 1
   DATA="$OUT/smoke_inputs/swissprot.pt"
@@ -222,13 +266,7 @@ if [ "$SMOKE" = 1 ]; then
   DESC_WHOLE="$OUT/smoke_inputs/descriptors.pt"
   UNIREF="$OUT/smoke_inputs/uniref50.tsv.gz"
   for source in trained shuf1 shuf2 shuf3; do
-    extra=()
-    [ "$source" = trained ] || extra=(--control shuffled --control-seed "${source#shuf}")
-    step "smoke_atlas_$source" "$PYTHON" scripts/run_atlas.py --model 8M --device cpu --dtype fp32 \
-      --data data/swissprot_test500.pt --only-acc "$OUT/smoke_inputs/accessions.txt" --tokens-per-batch 512 \
-      --pilot-tokens 512 --max-batches 3 --K 8 --Kr 16 --no-gram --backend torch \
-      --edge-q 0.5 0.9 0.99 0.999 0.9999 0.99999 \
-      "${extra[@]}" --out "$OUT/smoke_inputs/$source" || exit 1
+    step "smoke_atlas_$source" smoke_atlas "$source" || exit 1
   done
   A8_PRE="$OUT/smoke_inputs/trained/atlas.pt"
   A8_SHUF1="$OUT/smoke_inputs/shuf1/atlas.pt"

@@ -265,11 +265,14 @@ def main():
     participating = set(range(len(sources)))
     hooks_enabled = True
 
+    def wants(i):
+        return hooks_enabled and i in participating
+
     def dispatch(i, l, H):
         if hooks_enabled and i in participating:
             atlases[i].observe(l, H)
 
-    handles = attach_sources(model, sources, dispatch)
+    handles = attach_sources(model, sources, dispatch, wants=wants)
     tie_acc = {}
     if a.count_ties:
         orig = atlas.observe
@@ -291,7 +294,7 @@ def main():
 
         for handle in handles:
             handle.remove()
-        attach_sources(model, sources, dispatch_ties)
+        attach_sources(model, sources, dispatch_ties, wants=wants)
 
     def summary(done: bool, bi: int):
         sm = {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_excluded": n_excluded, "n_batches_plan": len(plan),
