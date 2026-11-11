@@ -96,7 +96,7 @@ def run_record(path, smi):
         sizes = {p.name: p.stat().st_size for p in path.glob('*.pt') if p.is_file()}
     return {'seconds': {k: run.get('seconds', {}).get(k) for k in
                         ('load', 'pilot', 'stream_this_process', 'final_save', 'total')},
-            'batches': sums, **{k: v for k, v in sums.items() if k != 'seconds'},
+            'batches': sums,
             'seconds_sum': sums['seconds'], 'batch_count': len(batches) if batches is not None else None,
             'redo_layers': redo, 'redo_batches': redo_batches,
             'filtered_candidates': filtered_candidates, 'filtered_layer_batches': filtered_layer_batches,
@@ -134,9 +134,9 @@ def main():
     records = {}
     for n in sorted(ns):
         root = out / f'n{n}'
-        runs = [single] if n == 1 else [run_record(root / f's{i}', smi) for i in range(n)]
+        runs = [single] if n == 1 else [run_record(root / f's{i}', smi) for i in range(n) if (root / f's{i}').is_dir()]
         streams = [r['seconds']['stream_this_process'] for r in runs]
-        complete = all(s is not None for s in streams)
+        complete = len(runs) == (1 if n == 1 else n) and all(s is not None for s in streams)
         stream = max(streams) if complete else None
         wall = wall_1 if n == 1 else total([pilot_s, duration(steps.get(f'shards_n{n}')),
                                                         duration(steps.get(f'merge_n{n}'))])
@@ -162,6 +162,10 @@ def main():
                               total(r['filtered_layer_batches'] for r in runs))
         single_mean = ratio(single['filtered_candidates'], single['filtered_layer_batches'])
         record['candidates_per_filtered_layer_batch_ratio'] = ratio(filtered_mean, single_mean)
+        if len(runs) != (1 if n == 1 else n):  # some or all shard runs absent: no sums over a partial set
+            for key in ('candidates_ratio', 'top_cand_ratio', 'res_cand_ratio', 'redo_layers_ratio',
+                        'candidates_per_filtered_layer_batch_ratio'):
+                record[key] = None
         pred = predictions.get('n', {}).get(str(n), {})
         if args.predictions:
             record['predictions'] = {}
@@ -186,7 +190,7 @@ def main():
         a = lines(out / 'naive' / pair / 'filtered' / 'batches.jsonl')
         b = lines(out / 'naive' / pair / 'naive' / 'batches.jsonl')
         same = a is not None and b is not None and [r['batch'] for r in a] == [r['batch'] for r in b]
-        naive[pair] = {'filtered': filtered, 'naive': plain, 'same_batches': same,
+        naive[pair] = {'filtered_run': filtered, 'naive_run': plain, 'same_batches': same,
                        **{key + '_ratio': ratio(plain['batches'][key], filtered['batches'][key]) if same else None
                           for key in ('seconds', 'atlas_pass_s')}}
     report = {'pilot_s': pilot_s, 'wall_1': wall_1, 'single': single, 'n': records, 'naive': naive,
