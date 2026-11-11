@@ -84,7 +84,7 @@ C. `randdir:64:0`: two runs bitwise equal; `--shard 0/2` and `1/2` from one pilo
    `--gram-flush-every 1`).
 D. With `PROTEUS_TEST_SOURCES=1`, `--columns neurons_post,randdir_identity`: the two atlases are
    equal (exact fields bitwise; float sums within 1e-9).
-E. `directions_*.pt`: `R_l` columns have unit norm (within 1e-6); `sha256` recomputes; changing
+E. `directions_*.pt`: `R_l` columns have unit norm (within 1e-5; amended from 1e-6, which fp32 rounding over d_ff terms does not meet); `sha256` recomputes; changing
    SEED changes every `R_l`.
 F. In every multi-source run of A-D, each source's `run.json` `n_seen` equals the run's
    `n_total_plan` (the valid tokens streamed), whatever the per-source redo; the number of batches
