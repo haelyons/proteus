@@ -83,7 +83,9 @@ def _assert_equal(actual, expected, path=()):
     assert type(actual) is type(expected), path
     if isinstance(expected, torch.Tensor):
         assert actual.dtype == expected.dtype and actual.shape == expected.shape, path
-        assert torch.equal(actual, expected), path
+        # Bitwise: compare bytes (torch.equal treats the NaN reservoir padding as unequal).
+        assert torch.equal(actual.contiguous().reshape(-1).view(torch.uint8),
+                           expected.contiguous().reshape(-1).view(torch.uint8)), path
     elif isinstance(expected, dict):
         assert actual.keys() == expected.keys(), path
         for key in expected:
@@ -191,7 +193,7 @@ def _sha256(value):
 
 
 def test_calib_smoke_reproduction_and_gate_arithmetic(work):
-    out = _smoke(work, "calib_8m", 480)
+    out = _smoke(work, "calib_8m", int(os.environ.get("CALIB_SMOKE_BUDGET", 480)))
     report = _json(out / "calib.json")
     assert {"repro", "calibration", "calibration_passes", "randdir"} <= report.keys()
     assert set(report["repro"]) == set(RUNS)
