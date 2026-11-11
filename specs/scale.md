@@ -134,3 +134,15 @@ N. `scaling_report.py` on a hand-built `OUT` tree with known numbers reproduces 
 O. `predict_scaling.py` on a synthetic 16-batch `batches.jsonl` gives the hand-computed
    per-shard sums, `stream_pred` and `wall_pred` for N = 1, 2, 4.
 P. `SMOKE=1` never writes outside `$OUT` and `$SCRATCH`, and the job refuses a non-empty `$OUT`.
+
+## Addendum: layout and step names (fixed after the blind tests were written; implementers follow it)
+
+- `$OUT/single/{run.json,batches.jsonl}`, `$OUT/n<N>/s<i>/{run.json,batches.jsonl}`,
+  `$OUT/n<N>/merged/merge.json`, `$OUT/n<N>/gate_compare.json`, `$OUT/n<N>/vs_ref.json`,
+  `$OUT/single_vs_ref.json`, `$OUT/naive/...`, `$OUT/host/...`.
+- `timeline.json` has the envelope of `jobs/shard_gate/run.sh` (`{"job": ..., "steps": [{"step",
+  "start", "end", "rc"}]}`), with steps named `pilot`, `single`, `shards_n<N>`, `merge_n<N>`,
+  `compare_n<N>`, `vs_ref_n<N>` (others free). Step times may be fractional seconds.
+- `scaling.json` holds one record per N under a key that contains N (e.g. `"n": {"2": {...}}`),
+  with the metric names of this spec as keys; N values without inputs appear with `null` metrics.
+- Merge peak RSS applies to N > 1 only (N = 1 is the unsharded run, no merge).
