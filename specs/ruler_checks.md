@@ -11,7 +11,7 @@ Status: frozen at the commit that adds this file. Builds on `specs/planted.md` a
 | Descriptor subset (ruler design proteins) | `runs/atlas-wab-20261105-0140/desc_subset/` | `results/README.md`, measurement #2 |
 | Whole-build descriptors | `descriptors_swissprot_2026_03.pt` | `autolabel/esm/box_run.sh` |
 | 8M trained atlas | `runs/atlas-batch-20261105-0258/a8_pre/atlas.pt` | same |
-| 8M shuffled-weight atlases | `runs/atlas-batch-20261105-0258/a8_shuf{1,2,3}/atlas.pt` | `jobs/batch_20261105/run.sh` |
+| 8M shuffled-weight atlases | `runs/atlas-batch2-20261105-0348/a8_shuf1/atlas.pt`, `runs/atlas-batch-20261105-0258/a8_shuf2/atlas.pt`, `runs/atlas-batch2-20261105-0348/a8_shuf3/atlas.pt` (corrected 2026-11-11 after the first launch found shuf1 and shuf3 absent from the first batch run; listed on the filesystem) | `jobs/batch_20261105/run.sh` |
 | UniRef50 map | `lists/swissprot_2026_03_uniref50.tsv.gz` (in the job) | repo |
 
 The job never writes under `$FS` outside `$OUT` and never deletes there.

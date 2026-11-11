@@ -237,9 +237,9 @@ else
   DESC_WHOLE="$FS/descriptors_swissprot_2026_03.pt"
   UNIREF="lists/swissprot_2026_03_uniref50.tsv.gz"
   A8_PRE="$FS/runs/atlas-batch-20261105-0258/a8_pre/atlas.pt"
-  A8_SHUF1="$FS/runs/atlas-batch-20261105-0258/a8_shuf1/atlas.pt"
+  A8_SHUF1="$FS/runs/atlas-batch2-20261105-0348/a8_shuf1/atlas.pt"
   A8_SHUF2="$FS/runs/atlas-batch-20261105-0258/a8_shuf2/atlas.pt"
-  A8_SHUF3="$FS/runs/atlas-batch-20261105-0258/a8_shuf3/atlas.pt"
+  A8_SHUF3="$FS/runs/atlas-batch2-20261105-0348/a8_shuf3/atlas.pt"
 fi
 export DATA DESC_SUBSET DESC_WHOLE UNIREF A8_PRE A8_SHUF1 A8_SHUF2 A8_SHUF3
 step inputs inputs || exit 1
