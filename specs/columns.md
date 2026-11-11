@@ -1,6 +1,6 @@
 # Spec: column sources (unit 5)
 
-Status: draft for review; frozen at the commit that marks it frozen. Order is fixed: 5a, then 5b,
+Status: draft for review; 5a is superseded by `specs/planted.md` (frozen). Order is fixed: 5a, then 5b,
 then 5c. No real-source result is read before 5a's gate has been run and recorded.
 
 ## Why
