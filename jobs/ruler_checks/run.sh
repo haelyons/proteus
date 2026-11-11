@@ -5,11 +5,12 @@ set -uo pipefail
 PYTHON=${PYTHON:-python3}
 SMOKE=${SMOKE:-0}
 WORKERS=${WORKERS:-$(( $(nproc) > 2 ? $(nproc) - 2 : 1 ))}
+SHAPES_IN=${SHAPES:-}  # SHAPES=none: pooling check only (no planted shapes)
 SHAPES=${SHAPES:-"gauss gelu gelu_off randdir sae:0.1 sae:0.01 sae:0.001"}
 PER_LAYER=${PER_LAYER:-250}
 NOISE=500
 if [ "$SMOKE" = 1 ]; then
-  SHAPES="gauss sae:0.01"; PER_LAYER=8; NOISE=20
+  [ "$SHAPES_IN" = none ] || SHAPES="gauss sae:0.01"; PER_LAYER=8; NOISE=20
   [ "$WORKERS" -le 4 ] || WORKERS=4
 fi
 [[ "$DEADLINE" =~ ^[0-9]+$ && "$WORKERS" =~ ^[1-9][0-9]*$ && "$PER_LAYER" =~ ^[1-9][0-9]*$ ]] || exit 2
@@ -18,7 +19,9 @@ import sys
 from pathlib import Path
 p = Path(sys.argv[1]).absolute()
 shapes = sys.argv[2].split()
-if not shapes or len(shapes) != len(set(shapes)):
+if shapes == ['none']:
+    shapes = []
+elif not shapes or len(shapes) != len(set(shapes)):
     sys.exit("SHAPES must be nonempty and distinct")
 for shape in shapes:
     if shape in ('gauss', 'gelu', 'gelu_off', 'randdir', 'sae'):
@@ -243,9 +246,11 @@ else
 fi
 export DATA DESC_SUBSET DESC_WHOLE UNIREF A8_PRE A8_SHUF1 A8_SHUF2 A8_SHUF3
 step inputs inputs || exit 1
-read -ra shapes <<< "$SHAPES"
-[ "${#shapes[@]}" -gt 0 ] || exit 2
-threads=$(( WORKERS / ${#shapes[@]} )); [ "$threads" -gt 0 ] || threads=1
+mkdir -p "$OUT/planted"
+shapes=()
+[ "$SHAPES" = none ] || read -ra shapes <<< "$SHAPES"
+[ "${#shapes[@]}" -gt 0 ] || [ "$SHAPES" = none ] || exit 2
+threads=$(( WORKERS / (${#shapes[@]} > 0 ? ${#shapes[@]} : 1) )); [ "$threads" -gt 0 ] || threads=1
 for shape in "${shapes[@]}"; do
   planted "$shape" "$threads" &
   PIDS+=("$!")
@@ -253,7 +258,7 @@ done
 for pid in "${PIDS[@]}"; do wait "$pid" || FAILED=1; done
 PIDS=()
 [ "$FAILED" = 0 ] || exit 1
-if [ "$SMOKE" = 1 ]; then step smoke_parity smoke_parity || exit 1; fi
+if [ "$SMOKE" = 1 ] && [ "$SHAPES" != none ]; then step smoke_parity smoke_parity || exit 1; fi
 
 mkdir -p "$OUT/pooling"
 step pooling_sample "$PYTHON" scripts/compare_sources.py sample --atlas "trained=$A8_PRE" "shuf1=$A8_SHUF1" \
