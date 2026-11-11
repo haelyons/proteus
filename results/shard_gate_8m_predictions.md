@@ -47,3 +47,8 @@ examined 1% of rows: `--K 16 --Kr 4 --edge-q 0.5 0.9 0.99` (other arguments unch
 | 9 | Predictions 1, 2 (bitwise or at most 1e-12), 3 (at most 1e-5), 5 | hold for N = 2, 4, 8 | any fails |
 | 10 | Over shards, the sum of per-batch candidate counts on batches without redo, per such layer-batch, relative to the single run | at least 1.0 for every N and non-decreasing in N | below 1.0 or decreasing |
 | 11 | Sum of shard stream seconds over the single run's | between 0.9 and 1.3 | outside |
+
+Correction before any result: `--edge-q 0.5 0.9 0.99` cannot run (the enrichment levels need at
+least five bins; the single run stopped with an IndexError in the first batch, nothing was
+measured). The second measurement uses `--edge-q 0.3 0.5 0.7 0.9 0.99` instead. Predictions 8–11
+are unchanged.
