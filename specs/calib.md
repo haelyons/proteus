@@ -15,6 +15,26 @@ cannot be met because the reduction order differs, keep `.sum(-1)` over a contig
 dimension of 64 (the looped version's reduction) and report the measured maximum difference;
 do not change the stored values' definition.
 
+### 1b. Amendment (2026-11-11, before any run): parallel per-protein generation
+
+A local profile (1,490 columns, one thread) found the `randdir` build dominated by
+`torch.randn` (about 0.7 ms per token, serial per generator) and GELU (about 0.5 ms per token):
+about 10 thread-hours for the 24M-token design set, which vectorising does not reduce. Every
+protein's values depend only on its own generators (`nseed(p)`, `nseed(p) + 2**40`), so blocks of
+different proteins can be computed in parallel without changing any value.
+
+- New argument `--gen-workers W` (default 1: the current code path, unchanged). With W > 1 the
+  per-protein column blocks (`column_block`) of both the pilot pass and the stream pass are
+  computed by W worker processes, each with `torch.set_num_threads(1)`, and consumed strictly in
+  protein order, with at most 2W blocks in flight. Applies to every shape.
+- The `randdir` draw may be split into consecutive column chunks (`randn(c, n, 64)` in column
+  order, same generator) to bound memory; the drawn values and their order are unchanged.
+- Required: `synthetic_atlas.pt` bitwise equal for W = 1 and W > 1, and to the code at the spec
+  commit (section 1's requirement).
+- `jobs/ruler_checks/run.sh` passes `--gen-workers` equal to the shape's thread count.
+- Acceptance addition to (1): the same comparison with `--gen-workers 3` for `randdir` and
+  `gauss`, bitwise.
+
 ## 2. `POOLING` switch (`jobs/ruler_checks/run.sh`)
 
 `POOLING=0` skips the pooling steps (sample, scores, summaries); `checks.json` then has
