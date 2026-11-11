@@ -19,7 +19,7 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from atlas.compare import column_stats, summarise  # noqa: E402
-from atlas.ruler import Tables, calls, score_column  # noqa: E402
+from atlas.ruler import LEVELS, Tables, calls, score_column  # noqa: E402
 from scripts.score_real_units import load_proteins  # noqa: E402
 
 G = {}
@@ -99,8 +99,29 @@ def score(a):
     (out / f"{a.source}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in records))
     torch.save(scores, out / f"{a.source}.scores.pt")
     meta = {"B": a.B, "tables_sha256": tables_hash, "ruler_sha256": sha256(Path(__file__).resolve().parents[1] / "atlas/ruler.py"),
-            "seconds": time.time() - t0, "workers": a.workers}
+            "seconds": time.time() - t0, "workers": a.workers, "residues": G["T"].n}
     (out / f"{a.source}.meta.json").write_text(json.dumps(meta, indent=2))
+
+
+def source_calls(a):
+    t0 = time.time()
+    root = Path(a.scores)
+    scores = torch.load(root / f"{a.source}.scores.pt", map_location="cpu", weights_only=False)
+    records = [json.loads(line) for line in (root / f"{a.source}.jsonl").read_text().splitlines() if line.strip()]
+    if len(scores) != len(records):
+        raise ValueError("score and record counts differ")
+    out = calls(scores, rule=a.rule)
+    for c, s, r in zip(out, scores, records):
+        c["col"] = r["unit"]
+        c["levels"] = {lv: {"n_clusters": s[lv].get("n_clusters", 0),
+                            **({k: {"p": s[lv][k]["p"], "log2": [round(v, 2) for v in s[lv][k]["log2"]]}
+                                for k in ("state5", "burial3", "rama4") if s[lv].get(k)})} for lv in LEVELS}
+    # Restore atlas order, so a full one-layer sample matches run_ruler.py.
+    out = [c for _, c in sorted(zip([r["col"] for r in records], out), key=lambda pair: pair[0])]
+    meta_path = root / f"{a.source}.meta.json"
+    meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
+    Path(a.out).write_text(json.dumps({"rule": a.rule, "calls": out, "residues": meta.get("residues"),
+                                      "seconds": round(time.time() - t0, 1)}, indent=0))
 
 
 def summary(a):
@@ -149,6 +170,11 @@ def main():
     sp.add_argument("--B", type=int, default=2000)
     sp.add_argument("--workers", type=int, default=4)
     sp.set_defaults(run=score)
+    sp = sub.add_parser("calls")
+    for arg in ("scores", "source", "out"):
+        sp.add_argument(f"--{arg}", required=True)
+    sp.add_argument("--rule", default="v1.2", choices=["v1", "v1.1", "v1.2"])
+    sp.set_defaults(run=source_calls)
     sp = sub.add_parser("summarise")
     for arg in ("scores", "pool", "out"):
         sp.add_argument(f"--{arg}", required=True)
