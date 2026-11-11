@@ -23,3 +23,16 @@ Predictions 3 (sae:0.001 part), 4 (randdir), 5 (noise null) and 18 (mixtures not
 | C4 | Records of the sampled trained columns, post-GELU vs pre-GELU (same sample indices) | `score_sha256` identical for at least 60% (bf16 GELU outputs create new ties near bin edges, so not all) | below 60% |
 
 The random-direction atlas is built and its digests recorded; nothing about its content is read.
+
+## Addendum before launch (2026-11-11, after a local profile; no run yet)
+
+A one-thread local profile of the `randdir` build (1,490 columns) found serial `torch.randn`
+about 0.7 ms per token and GELU about 0.5 ms per token: about 10 thread-hours for the 24.4M
+tokens of the design set and its pilot. Vectorising removes only Python overhead (Codex measured
+3.78 s against 3.00 s for the looped version on a small set, so it is no faster). R1 as written
+would have been wrong for `randdir`. The build now also computes protein blocks in parallel worker
+processes (`specs/calib.md` amendment 1b, bitwise equal), 14 per shape on the 30-vCPU A10.
+
+| # | Quantity | Prediction | Wrong if |
+| --- | --- | --- | --- |
+| R1' | Build step times (replaces R1's reason; R1 stands as written) | `randdir` build 40–120 min; `sae:0.001` build 60–200 min (the recorded `sae:0.01` build took 3.2 h at 4 threads with 7 shapes sharing the host; its cost is the atlas, not generation) | outside |
