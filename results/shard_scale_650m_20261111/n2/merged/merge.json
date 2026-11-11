@@ -1,0 +1,94 @@
+{
+ "shards": [
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n2/s0/shard.pt",
+   "shard": [
+    0,
+    2
+   ],
+   "batches_done": 3072,
+   "n_seen": 97042634,
+   "stats": {
+    "batches": 3072,
+    "dense_layer_batches": 52,
+    "redo_layers": 52,
+    "compacted": 2916447816,
+    "elements": 32792646881280,
+    "top_cand": 196649213,
+    "res_cand": 349165985,
+    "bulk_rows_in": 970128,
+    "bulk_rows_kept": 970128
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n2/s1/shard.pt",
+   "shard": [
+    1,
+    2
+   ],
+   "batches_done": 3071,
+   "n_seen": 97134491,
+   "stats": {
+    "batches": 3071,
+    "dense_layer_batches": 58,
+    "redo_layers": 58,
+    "compacted": 2908400876,
+    "elements": 32823687198720,
+    "top_cand": 198082473,
+    "res_cand": 352883950,
+    "bulk_rows_in": 971242,
+    "bulk_rows_kept": 971242
+   },
+   "bytes": 11022961919
+  }
+ ],
+ "steps": [
+  {
+   "load_s": 1.9769730690004508,
+   "merge_s": 0.03915881699958845,
+   "rss_after_bytes": 25933496320
+  },
+  {
+   "load_s": 1.8446694760004902,
+   "merge_s": 6.661326875000668,
+   "rss_after_bytes": 40413978624
+  }
+ ],
+ "validate_s": 0.0835492329997578,
+ "validation": "metadata-only mmap pass; each input loaded twice",
+ "rss_measurement": "process high-water mark after each fold",
+ "result_s": 6.24630340099975,
+ "save_s": 18.266840313000102,
+ "total_s": 40.74561960199935,
+ "peak_rss_bytes": 40413978624,
+ "digests": {
+  "top_val": "89d3df303c9a2f5a98e2bf334c29154a3b7336d9bf6ee2fdcd838dd3fd3599c0",
+  "top_tok": "6121acd0f52404e59783d17fc9af56af21adbcbcc783dab67e123fce11c8724c",
+  "res_tok": "70cb4400dcdd239d2c8a20cf3e98bc0ead3ab7c32e2b3ba4899122efe01817f7",
+  "res_val": "4649d53faf4e95a7f87fd6ed84564c0da62eab5a9888ecc1638dfaf3598bc554",
+  "res_key": "f5f7997f0b49477bc6689a0495d0838730589883ce9144c83b098df37a45fc76",
+  "sub_bin": "f7daf361f50af95752e8000375444363329f63a3604e4ea97819c10d11b9bc4b",
+  "enr": "17811ee048de85b14d6e6919d96279ad27d434eebc9fd7e3ba8411bb56492f55",
+  "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+  "edges": "4fdde23564b09c1864d41865782757f137c6d61f48c2c8a1fb9c26e00531c9d3"
+ },
+ "n_seen": 194177125,
+ "n_sub": 9715300,
+ "gram_rows": 9715300,
+ "stats": {
+  "batches": 6143,
+  "dense_layer_batches": 110,
+  "redo_layers": 110,
+  "compacted": 5824848692,
+  "elements": 65616334080000,
+  "top_cand": 394731686,
+  "res_cand": 702049935,
+  "bulk_rows_in": 1941370,
+  "bulk_rows_kept": 1941370
+ },
+ "atlas_pt_bytes": 10850621849,
+ "res_seeded_bins": 1666065,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

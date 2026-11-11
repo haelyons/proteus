@@ -54,3 +54,35 @@ is retried every 5 minutes for up to 12 hours, on the first available of `gpu_8x
 hold the Swiss-Prot cache). Hard cap 4 h: at most $63.68 on the 40 GB type, $89.28 on the 80 GB
 type. If the 80 GB type is used (same A100 architecture, faster memory): prediction 5's range
 becomes 2,900–4,170 s; every other prediction stands as written.
+
+## Outcome (2026-11-11, `results/shard_scale_650m_20261111/`)
+
+Run `shard-scale-650m-20261111-1817`: `gpu_8x_a100` (8 x A100-SXM4-40GB, driver 570.148.08) in
+us-east-1 on `esm-atlas-results`; healthy 18:24:09Z, job done 20:56:14Z, terminated 20:58:27Z
+(about 2.6 billed hours, about $41). One earlier launch exited at startup (default `SCRATCH`
+parent missing, no measurement; about $2). All numbers below are from `scaling.json`,
+`gate_compare.json`, `digest_compare.json`, `single_vs_ref.json`, `merge.json` and `run.json`.
+
+| # | Predicted | Measured | Held? |
+| --- | --- | --- | --- |
+| 1 | digests equal on 8 GPUs | batches 0 and 1000, every layer, all 8 equal | yes |
+| 2 | exact fields bitwise; `sub_sum`, `sub_sq` bitwise; `gram` <= 1e-5, not bitwise | exact fields bitwise at N = 2, 4, 8; `sub_sum` bitwise; `sub_sq` 4.7e-17 (not bitwise); `gram` 2.6e-7 to 4.0e-7 | no (one detail: `sub_sq` not bitwise); gate passes |
+| 3 | single run equals the 4 Nov reference's 9 digests | equal (also every merged atlas) | yes |
+| 4 | speedup_stream 1.85–2.0 / 3.5–3.95 / 6.0–7.7 | 1.95 / 3.70 / 6.91 | yes |
+| 5 | single stream 3,260–4,170 s | 3,637 s | yes |
+| 6 | speedup_e2e 1.5–1.95 / 2.4–3.6 / 3.0–5.0 | 1.81 / 3.07 / 4.59 | yes |
+| 7 | merge share of wall_8 10–30% | 10.7% (89.8 s of 838 s) | yes |
+| 8 | candidates_ratio 1.2–2.2 / 1.6–3.0 / 1.8–3.5 | 1.66 / 2.33 / 2.64 | yes |
+| 9 | redo layer-batches: single 30–90, N = 8 180–540 | 58 and 351 (script's prediction: 58 and 360) | yes |
+| 10 | merge peak RSS at N = 8 20–45 GB | 40.4 GB (same at N = 2 and 4) | yes |
+| 11 | GPU max allocated equal within 5%, < 40 GB | 20.98–21.07 GiB at every N | yes |
+| 12 | wait_s / seconds < 2% (N = 1), < 5% (N = 8) | 0.04%, 0.07% (host batch building is 842 s of work per pass, hidden by prefetch) | yes |
+| 13 | prefix naive / filtered 1.5–2.2 | 2.00 | yes |
+| 14 | steady naive / filtered >= prefix | 1.27 | no |
+| 15 | `cmp_prefix` ok | ok | yes |
+
+Where N = 8 loses against 8x: of 838 s, the serial pilot is 200 s (24%) and the merge 90 s (11%);
+the shard stream (527 s) is 6.9x faster than the single stream, below the arithmetic 7.6x by the
+repeated warm-up redo (351 against 58 layer-batches) and by 2.6x more candidates per shard.
+Removing the serial pilot (layers split across GPUs) and folding the merge as a tree would, by
+this arithmetic, bring N = 8 to about 6x end to end. Not built; not measured.

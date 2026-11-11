@@ -1,0 +1,250 @@
+{
+ "shards": [
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s0/shard.pt",
+   "shard": [
+    0,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24389029,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 38,
+    "redo_layers": 38,
+    "compacted": 1170323054,
+    "elements": 8241540679680,
+    "top_cand": 158703482,
+    "res_cand": 170783146,
+    "bulk_rows_in": 243650,
+    "bulk_rows_kept": 243650
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s1/shard.pt",
+   "shard": [
+    1,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24276920,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 47,
+    "redo_layers": 47,
+    "compacted": 1147362833,
+    "elements": 8203656806400,
+    "top_cand": 159431957,
+    "res_cand": 174279180,
+    "bulk_rows_in": 242462,
+    "bulk_rows_kept": 242462
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s2/shard.pt",
+   "shard": [
+    2,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24214675,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 40,
+    "redo_layers": 40,
+    "compacted": 1153472295,
+    "elements": 8182622976000,
+    "top_cand": 157140114,
+    "res_cand": 171618829,
+    "bulk_rows_in": 242499,
+    "bulk_rows_kept": 242499
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s3/shard.pt",
+   "shard": [
+    3,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24237388,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 40,
+    "redo_layers": 40,
+    "compacted": 1161441413,
+    "elements": 8190298152960,
+    "top_cand": 157822661,
+    "res_cand": 173922577,
+    "bulk_rows_in": 242246,
+    "bulk_rows_kept": 242246
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s4/shard.pt",
+   "shard": [
+    4,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24294180,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 44,
+    "redo_layers": 44,
+    "compacted": 1156027198,
+    "elements": 8209489305600,
+    "top_cand": 159522324,
+    "res_cand": 174166075,
+    "bulk_rows_in": 242830,
+    "bulk_rows_kept": 242830
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s5/shard.pt",
+   "shard": [
+    5,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24359988,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 39,
+    "redo_layers": 39,
+    "compacted": 1158119025,
+    "elements": 8231727144960,
+    "top_cand": 157137008,
+    "res_cand": 170582979,
+    "bulk_rows_in": 243628,
+    "bulk_rows_kept": 243628
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s6/shard.pt",
+   "shard": [
+    6,
+    8
+   ],
+   "batches_done": 768,
+   "n_seen": 24144750,
+   "stats": {
+    "batches": 768,
+    "dense_layer_batches": 56,
+    "redo_layers": 56,
+    "compacted": 1154617154,
+    "elements": 8158993920000,
+    "top_cand": 164915586,
+    "res_cand": 176986764,
+    "bulk_rows_in": 241149,
+    "bulk_rows_kept": 241149
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n8/s7/shard.pt",
+   "shard": [
+    7,
+    8
+   ],
+   "batches_done": 767,
+   "n_seen": 24260195,
+   "stats": {
+    "batches": 767,
+    "dense_layer_batches": 47,
+    "redo_layers": 47,
+    "compacted": 1150724235,
+    "elements": 8198005094400,
+    "top_cand": 161567232,
+    "res_cand": 176423088,
+    "bulk_rows_in": 242906,
+    "bulk_rows_kept": 242906
+   },
+   "bytes": 11022961919
+  }
+ ],
+ "steps": [
+  {
+   "load_s": 1.9312709020005059,
+   "merge_s": 0.054433928999969794,
+   "rss_after_bytes": 25933492224
+  },
+  {
+   "load_s": 1.869066792999547,
+   "merge_s": 6.700677838000047,
+   "rss_after_bytes": 40415227904
+  },
+  {
+   "load_s": 1.889527745000123,
+   "merge_s": 6.622045258000071,
+   "rss_after_bytes": 40421437440
+  },
+  {
+   "load_s": 1.8870923680005944,
+   "merge_s": 6.605485801999748,
+   "rss_after_bytes": 40421437440
+  },
+  {
+   "load_s": 1.9273993080005312,
+   "merge_s": 6.44950399300069,
+   "rss_after_bytes": 40421437440
+  },
+  {
+   "load_s": 1.7787360789998274,
+   "merge_s": 6.525461714000812,
+   "rss_after_bytes": 40421437440
+  },
+  {
+   "load_s": 1.935751085999982,
+   "merge_s": 6.642773094999939,
+   "rss_after_bytes": 40421437440
+  },
+  {
+   "load_s": 1.8950937409999824,
+   "merge_s": 6.709998416999952,
+   "rss_after_bytes": 40421437440
+  }
+ ],
+ "validate_s": 0.3499745119997897,
+ "validation": "metadata-only mmap pass; each input loaded twice",
+ "rss_measurement": "process high-water mark after each fold",
+ "result_s": 6.39877237499968,
+ "save_s": 16.340175464999447,
+ "total_s": 89.78819024699987,
+ "peak_rss_bytes": 40421437440,
+ "digests": {
+  "top_val": "89d3df303c9a2f5a98e2bf334c29154a3b7336d9bf6ee2fdcd838dd3fd3599c0",
+  "top_tok": "6121acd0f52404e59783d17fc9af56af21adbcbcc783dab67e123fce11c8724c",
+  "res_tok": "70cb4400dcdd239d2c8a20cf3e98bc0ead3ab7c32e2b3ba4899122efe01817f7",
+  "res_val": "4649d53faf4e95a7f87fd6ed84564c0da62eab5a9888ecc1638dfaf3598bc554",
+  "res_key": "f5f7997f0b49477bc6689a0495d0838730589883ce9144c83b098df37a45fc76",
+  "sub_bin": "f7daf361f50af95752e8000375444363329f63a3604e4ea97819c10d11b9bc4b",
+  "enr": "17811ee048de85b14d6e6919d96279ad27d434eebc9fd7e3ba8411bb56492f55",
+  "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+  "edges": "4fdde23564b09c1864d41865782757f137c6d61f48c2c8a1fb9c26e00531c9d3"
+ },
+ "n_seen": 194177125,
+ "n_sub": 9715300,
+ "gram_rows": 9715300,
+ "stats": {
+  "batches": 6143,
+  "dense_layer_batches": 351,
+  "redo_layers": 351,
+  "compacted": 9252087207,
+  "elements": 65616334080000,
+  "top_cand": 1276240364,
+  "res_cand": 1388762638,
+  "bulk_rows_in": 1941370,
+  "bulk_rows_kept": 1941370
+ },
+ "atlas_pt_bytes": 10850621849,
+ "res_seeded_bins": 1666065,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

@@ -1,0 +1,135 @@
+{
+ "args": {
+  "model": "650M",
+  "control": "none",
+  "control_seed": null,
+  "data": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+  "out": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/naive/prefix/filtered",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 262144,
+  "K": 64,
+  "Kr": 64,
+  "backend": "triton",
+  "cap_frac_early": 0.0,
+  "stats_impl": "v3",
+  "merge_impl": "stacked",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 1000000,
+  "gram_flush_every": 1000,
+  "resume": false,
+  "stop_after": 0,
+  "seed_thresholds": true,
+  "pair_forward": false,
+  "pair_every": 0,
+  "plan_offset": 0,
+  "prefetch": 2,
+  "only_acc": null,
+  "edges_from": null,
+  "exclude_acc": "heldout_created_after_2021-11-17.tsv",
+  "edge_q": [
+   0.5,
+   0.9,
+   0.99,
+   0.999,
+   0.9999,
+   0.99999
+  ],
+  "profile_at": [],
+  "max_batches": 60,
+  "deadline": 1794435163.0,
+  "shard": null,
+  "pilot_out": null,
+  "pilot_only": false,
+  "pilot_from": null
+ },
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981,
+  "control_seed": 0
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "n_excluded": 10010,
+ "n_batches_plan": 60,
+ "next_batch": 60,
+ "complete": true,
+ "seconds": {
+  "load": 7.9297027587890625,
+  "pilot": 214.78650403022766,
+  "stream_this_process": 423.27764225006104,
+  "final_save": 16.38635563850403,
+  "total": 647.2184851169586
+ },
+ "n_seen": 1876042,
+ "stats": {
+  "batches": 60,
+  "dense_layer_batches": 869,
+  "redo_layers": 869,
+  "compacted": 410140601,
+  "elements": 633952112640,
+  "top_cand": 159585812,
+  "res_cand": 339174507,
+  "bulk_rows_in": 11828,
+  "bulk_rows_kept": 11828
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": true
+  },
+  "mm_out_dtype": {
+   "ok": null
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ },
+ "host": {
+  "cpus": 124,
+  "peak_rss_bytes": 179612508160
+ },
+ "gpu": {
+  "name": "NVIDIA A100-SXM4-40GB",
+  "total_memory": 42406903808,
+  "max_memory_allocated": 22616997888,
+  "max_memory_reserved": 24769462272,
+  "uuid": "7a84f14d-0107-b961-3672-9a5b17fd3f5e"
+ },
+ "digests": {
+  "top_val": "1ddce3e37cc5171d5140a9e9ca5e95e91039bd46e9f4fd8ba3cffae1fd323313",
+  "top_tok": "9777da4db4c3b68876623530993e2be2673022efbfc622a47d36260fa6ae6802",
+  "res_tok": "e848fa0fbde593b2997c6291f9f51266090fdf499e24224da77ca797bc39a516",
+  "res_val": "751cdb77c468e01cfb388f8b9f4cf1a7d15e2d56b6ff72af61264784ef48bc8a",
+  "res_key": "538a687a9db5e78c89d23de29d2cb13a6ca224898da7cefdab24098e3b31b092",
+  "sub_bin": "9e9ef366553645f15f20c1cdded6129807fb5f32582573e527b535bf9ae6b252",
+  "enr": "96250491c9d8bd3ddb01d854df624000264255cf086aff03060f3a972ec0ecfe",
+  "ann_tot": "af530cb46a7302a4bcf7277bbb2d94dc3f6037a69383f10a4064e45d7e192b43",
+  "edges": "5b49b5f8c13393a5242dba1d0309cf5707a780f31e399a947e3aa6f65f52e931"
+ },
+ "final_save_s": 16.38635563850403,
+ "atlas_pt_GB": 10.850621849,
+ "gram_rows": 93969,
+ "res_seeded_bins": 1335440,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

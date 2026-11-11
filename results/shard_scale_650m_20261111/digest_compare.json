@@ -1,0 +1,40 @@
+{
+ "all_equal": true,
+ "pairs": [
+  {
+   "gpu": 1,
+   "equal": true,
+   "first_diff": null
+  },
+  {
+   "gpu": 2,
+   "equal": true,
+   "first_diff": null
+  },
+  {
+   "gpu": 3,
+   "equal": true,
+   "first_diff": null
+  },
+  {
+   "gpu": 4,
+   "equal": true,
+   "first_diff": null
+  },
+  {
+   "gpu": 5,
+   "equal": true,
+   "first_diff": null
+  },
+  {
+   "gpu": 6,
+   "equal": true,
+   "first_diff": null
+  },
+  {
+   "gpu": 7,
+   "equal": true,
+   "first_diff": null
+  }
+ ]
+}

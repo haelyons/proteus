@@ -1,0 +1,39 @@
+{
+ "kernel": {
+  "system": "Linux",
+  "node": "132-145-192-11",
+  "release": "6.8.0-60-generic",
+  "version": "#63~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Apr 22 19:00:15 UTC 2",
+  "machine": "x86_64",
+  "processor": "x86_64"
+ },
+ "versions": {
+  "torch": "2.7.0",
+  "cuda": "12.8",
+  "cudnn": 90800,
+  "triton": "3.3.0",
+  "transformers": "5.20.2"
+ },
+ "omp_threads": 15,
+ "lscpu": {
+  "rc": 0,
+  "stdout": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        48 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               124\nOn-line CPU(s) list:                  0-123\nVendor ID:                            AuthenticAMD\nModel name:                           AMD EPYC 7542 32-Core Processor\nCPU family:                           23\nModel:                                49\nThread(s) per core:                   1\nCore(s) per socket:                   62\nSocket(s):                            2\nStepping:                             0\nBogoMIPS:                             5799.99\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm rep_good nopl cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw perfctr_core ssbd ibrs ibpb stibp vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves clzero xsaveerptr wbnoinvd arat npt nrip_save umip rdpid arch_capabilities\nVirtualization:                       AMD-V\nHypervisor vendor:                    KVM\nVirtualization type:                  full\nL1d cache:                            7.8 MiB (124 instances)\nL1i cache:                            7.8 MiB (124 instances)\nL2 cache:                             62 MiB (124 instances)\nL3 cache:                             1.9 GiB (124 instances)\nNUMA node(s):                         2\nNUMA node0 CPU(s):                    0-61\nNUMA node1 CPU(s):                    62-123\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Mitigation; untrained return thunk; SMT disabled\nVulnerability Spec rstack overflow:   Vulnerable: Safe RET, no microcode\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Retpolines; IBPB conditional; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected\n",
+  "stderr": ""
+ },
+ "numactl": null,
+ "free": {
+  "rc": 0,
+  "stdout": "               total        used        free      shared  buff/cache   available\nMem:     1902371356672  3191988224 1893825982464     6041600  5353385984 1891122409472\nSwap:              0           0           0\n",
+  "stderr": ""
+ },
+ "df": {
+  "rc": 0,
+  "stdout": "Filesystem                                     1B-blocks         Used           Available Use% Mounted on\n/dev/vda1                                  6243666210816  29440012288       6214209421312   1% /\ne525abc0-0f61-46b6-ada2-8e150cad5e08 9223372036854775808 165988532224 9223371870866243584   1% /lambda/nfs/esm-atlas-results\n",
+  "stderr": ""
+ },
+ "fs_mount": {
+  "rc": 0,
+  "stdout": "TARGET                        SOURCE                               FSTYPE   OPTIONS\n/lambda/nfs/esm-atlas-results e525abc0-0f61-46b6-ada2-8e150cad5e08 virtiofs rw,nosuid,nodev,relatime\n",
+  "stderr": ""
+ }
+}

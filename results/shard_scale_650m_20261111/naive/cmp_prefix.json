@@ -1,0 +1,78 @@
+{
+ "a": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/naive/prefix/filtered/atlas.pt",
+ "b": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/naive/prefix/naive/atlas.pt",
+ "fields": {
+  "sub_bin": {
+   "exact": true,
+   "n_diff": null
+  },
+  "enr": {
+   "exact": true,
+   "n_diff": null
+  },
+  "ann_tot": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_val": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_tok": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_tok": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_val": {
+   "exact": true,
+   "n_diff": null
+  },
+  "res_key": {
+   "exact": true,
+   "n_diff": null
+  },
+  "edges": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_sum": {
+   "bitwise": true,
+   "max_rel_diff": 0.0,
+   "ok": true
+  },
+  "sub_sq": {
+   "bitwise": true,
+   "max_rel_diff": 0.0,
+   "ok": true
+  },
+  "gram": {
+   "bitwise": true,
+   "max_rel_diff": 0.0,
+   "ok": true
+  },
+  "n_seen": {
+   "a": 1876042,
+   "b": 1876042,
+   "equal": true
+  },
+  "n_sub": {
+   "a": 93969,
+   "b": 93969,
+   "equal": true
+  },
+  "gram_rows": {
+   "a": 93969,
+   "b": 93969,
+   "equal": true
+  }
+ },
+ "missing": [],
+ "exact_all": true,
+ "close_all": true,
+ "scalars_all": true,
+ "rtol": 1e-05,
+ "ok": true
+}

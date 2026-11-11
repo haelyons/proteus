@@ -1,0 +1,146 @@
+{
+ "shards": [
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n4/s0/shard.pt",
+   "shard": [
+    0,
+    4
+   ],
+   "batches_done": 1536,
+   "n_seen": 48683209,
+   "stats": {
+    "batches": 1536,
+    "dense_layer_batches": 48,
+    "redo_layers": 48,
+    "compacted": 2045840061,
+    "elements": 16451029985280,
+    "top_cand": 179115751,
+    "res_cand": 256274191,
+    "bulk_rows_in": 486480,
+    "bulk_rows_kept": 486480
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n4/s1/shard.pt",
+   "shard": [
+    1,
+    4
+   ],
+   "batches_done": 1536,
+   "n_seen": 48636908,
+   "stats": {
+    "batches": 1536,
+    "dense_layer_batches": 51,
+    "redo_layers": 51,
+    "compacted": 2031647258,
+    "elements": 16435383951360,
+    "top_cand": 177429420,
+    "res_cand": 256362791,
+    "bulk_rows_in": 486090,
+    "bulk_rows_kept": 486090
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n4/s2/shard.pt",
+   "shard": [
+    2,
+    4
+   ],
+   "batches_done": 1536,
+   "n_seen": 48359425,
+   "stats": {
+    "batches": 1536,
+    "dense_layer_batches": 55,
+    "redo_layers": 55,
+    "compacted": 2034572085,
+    "elements": 16341616896000,
+    "top_cand": 180522781,
+    "res_cand": 258702717,
+    "bulk_rows_in": 483648,
+    "bulk_rows_kept": 483648
+   },
+   "bytes": 11022961919
+  },
+  {
+   "path": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n4/s3/shard.pt",
+   "shard": [
+    3,
+    4
+   ],
+   "batches_done": 1535,
+   "n_seen": 48497583,
+   "stats": {
+    "batches": 1535,
+    "dense_layer_batches": 59,
+    "redo_layers": 59,
+    "compacted": 2033605113,
+    "elements": 16388303247360,
+    "top_cand": 182007455,
+    "res_cand": 263828377,
+    "bulk_rows_in": 485152,
+    "bulk_rows_kept": 485152
+   },
+   "bytes": 11022961919
+  }
+ ],
+ "steps": [
+  {
+   "load_s": 1.7829119280004306,
+   "merge_s": 0.04325828499986528,
+   "rss_after_bytes": 25935511552
+  },
+  {
+   "load_s": 1.8831293809998897,
+   "merge_s": 6.837143615999594,
+   "rss_after_bytes": 40415354880
+  },
+  {
+   "load_s": 1.840116129999842,
+   "merge_s": 6.6273201520007206,
+   "rss_after_bytes": 40416481280
+  },
+  {
+   "load_s": 1.820081597999888,
+   "merge_s": 6.610554621999654,
+   "rss_after_bytes": 40416481280
+  }
+ ],
+ "validate_s": 0.20228470900019602,
+ "validation": "metadata-only mmap pass; each input loaded twice",
+ "rss_measurement": "process high-water mark after each fold",
+ "result_s": 6.36916123499941,
+ "save_s": 15.36928177000027,
+ "total_s": 54.63055236699984,
+ "peak_rss_bytes": 40416481280,
+ "digests": {
+  "top_val": "89d3df303c9a2f5a98e2bf334c29154a3b7336d9bf6ee2fdcd838dd3fd3599c0",
+  "top_tok": "6121acd0f52404e59783d17fc9af56af21adbcbcc783dab67e123fce11c8724c",
+  "res_tok": "70cb4400dcdd239d2c8a20cf3e98bc0ead3ab7c32e2b3ba4899122efe01817f7",
+  "res_val": "4649d53faf4e95a7f87fd6ed84564c0da62eab5a9888ecc1638dfaf3598bc554",
+  "res_key": "f5f7997f0b49477bc6689a0495d0838730589883ce9144c83b098df37a45fc76",
+  "sub_bin": "f7daf361f50af95752e8000375444363329f63a3604e4ea97819c10d11b9bc4b",
+  "enr": "17811ee048de85b14d6e6919d96279ad27d434eebc9fd7e3ba8411bb56492f55",
+  "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+  "edges": "4fdde23564b09c1864d41865782757f137c6d61f48c2c8a1fb9c26e00531c9d3"
+ },
+ "n_seen": 194177125,
+ "n_sub": 9715300,
+ "gram_rows": 9715300,
+ "stats": {
+  "batches": 6143,
+  "dense_layer_batches": 213,
+  "redo_layers": 213,
+  "compacted": 8145664517,
+  "elements": 65616334080000,
+  "top_cand": 719075407,
+  "res_cand": 1035168076,
+  "bulk_rows_in": 1941370,
+  "bulk_rows_kept": 1941370
+ },
+ "atlas_pt_bytes": 10850621849,
+ "res_seeded_bins": 1666065,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

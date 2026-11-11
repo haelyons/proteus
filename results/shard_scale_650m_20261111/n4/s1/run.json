@@ -1,0 +1,133 @@
+{
+ "args": {
+  "model": "650M",
+  "control": "none",
+  "control_seed": null,
+  "data": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+  "out": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/n4/s1",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 262144,
+  "K": 64,
+  "Kr": 64,
+  "backend": "triton",
+  "cap_frac_early": 0.0,
+  "stats_impl": "v3",
+  "merge_impl": "stacked",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 1000000,
+  "gram_flush_every": 1000,
+  "resume": false,
+  "stop_after": 0,
+  "seed_thresholds": true,
+  "pair_forward": false,
+  "pair_every": 0,
+  "plan_offset": 0,
+  "prefetch": 2,
+  "only_acc": null,
+  "edges_from": null,
+  "exclude_acc": "heldout_created_after_2021-11-17.tsv",
+  "edge_q": [
+   0.5,
+   0.9,
+   0.99,
+   0.999,
+   0.9999,
+   0.99999
+  ],
+  "profile_at": [],
+  "max_batches": 0,
+  "deadline": 1794435163.0,
+  "shard": [
+   1,
+   4
+  ],
+  "pilot_out": null,
+  "pilot_only": false,
+  "pilot_from": "/home/ubuntu/scratch/shard-scale-650m-20261111-1817/pilot.pt"
+ },
+ "model": {
+  "hf": "facebook/esm2_t33_650M_UR50D",
+  "control": "none",
+  "attn": "sdpa",
+  "n_layers": 33,
+  "d_model": 1280,
+  "d_ff": 5120,
+  "n_params": 649400981,
+  "control_seed": 0
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "n_excluded": 10010,
+ "n_batches_plan": 6143,
+ "next_batch": 6143,
+ "complete": true,
+ "seconds": {
+  "load": 9.774320840835571,
+  "pilot": 0.02196478843688965,
+  "stream_this_process": 981.8809058666229,
+  "final_save": 33.38678979873657,
+  "total": 993.1023142337799
+ },
+ "n_seen": 48636908,
+ "stats": {
+  "batches": 1536,
+  "dense_layer_batches": 51,
+  "redo_layers": 51,
+  "compacted": 2031647258,
+  "elements": 16435383951360,
+  "top_cand": 177429420,
+  "res_cand": 256362791,
+  "bulk_rows_in": 486090,
+  "bulk_rows_kept": 486090
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": true
+  },
+  "mm_out_dtype": {
+   "ok": null
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ },
+ "host": {
+  "cpus": 124,
+  "peak_rss_bytes": 19933704192
+ },
+ "shard": [
+  1,
+  4
+ ],
+ "plan_sha256": "33569deb4549441e9eda353d2767be37cf92c88c804b56323e2904f25f16caf1",
+ "batches_done": 1536,
+ "gpu": {
+  "name": "NVIDIA A100-SXM4-40GB",
+  "total_memory": 42406903808,
+  "max_memory_allocated": 22615542784,
+  "max_memory_reserved": 24698159104,
+  "uuid": "a5ada316-8d63-fa68-2dd5-ddebe47f4c83"
+ },
+ "final_save_s": 33.38678979873657,
+ "shard_pt_GB": 11.022961919,
+ "gram_rows": 2432862,
+ "res_seeded_bins": 1666065,
+ "res_seed_limited_bins": 199545,
+ "top_seed_short_groups": 0
+}
