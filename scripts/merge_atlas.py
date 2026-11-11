@@ -46,6 +46,7 @@ def merge(paths, out: Path, device, allow_partial):
                 raise ValueError(f"{path}: invalid shard index {i}/{n}")
             metadata = {k: loaded[k] for k in
                         ("plan_sha256", "n_batches_plan", "n_total_plan")}
+            metadata["source"] = loaded.get("source", "neurons_pre")
             metadata["args_key"] = {k: v for k, v in loaded["args_key"].items() if k != "shard"}
             if reference is None:
                 reference = metadata
