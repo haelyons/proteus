@@ -22,7 +22,7 @@ PY
 )
 mkdir -p "$OUT"
 export OUT JOB
-export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 HF_HUB_OFFLINE=1
+export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 export PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 export HF_HOME=${HF_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/huggingface}
 export TMPDIR="$OUT/tmp" XDG_CACHE_HOME="$OUT/cache" TRITON_CACHE_DIR="$OUT/cache/triton"
@@ -84,16 +84,23 @@ PY
 }
 
 if [ "$SMOKE" = 1 ]; then
+  export HF_HUB_OFFLINE=1
+  K=16; KR=8
   MODEL=8M; DEV=cpu; DT=fp32; BACKEND=torch; TPB=4096; PT=4096
   DATA=${SMOKE_DATA:-data/swissprot_test500.pt}
   LIMITS=(--max-seqs 32 --max-batches 4)
 else
-  MODEL=650M; DEV=cuda; DT=bf16; BACKEND=triton; TPB=8192; PT=32768
+  unset HF_HUB_OFFLINE
+  K=${K:-16}; KR=${KR:-8}
+  MODEL=650M; DEV=cuda; DT=bf16; BACKEND=triton; TPB=${TPB:-8192}; PT=${PT:-32768}
   DATA=$FS/cache/swissprot_2026_03.pt
-  LIMITS=(--max-seqs 200 --max-batches 8)
-  export HF_HOME=$FS/cache/hf
-  # Offline preflight, with any installs confined to OUT.
-  "$PYTHON" -m pip install --no-index --user -q -U "pillow>=10" "transformers>=4.46" "pydssp" 2>&1 | tail -1
+  LIMITS=(--max-seqs "${MAX_SEQS:-200}" --max-batches "${MAX_BATCHES:-8}")
+  # Online Hugging Face metadata updates must stay inside OUT.
+  export HF_HOME="$OUT/cache/hf" HF_HUB_CACHE="$OUT/cache/hf/hub"
+  mkdir -p "$HF_HOME"
+  if [ -d "$FS/cache/hf" ]; then cp -a "$FS/cache/hf/." "$HF_HOME/"; fi
+  # Online preflight, with any installs confined to OUT.
+  "$PYTHON" -m pip install --user -q -U "pillow>=10" "transformers>=4.46" "pydssp" 2>&1 | tail -1
   "$PYTHON" -c "import torch, triton, transformers, PIL, pydssp; from transformers import EsmModel; print('[atlas] preflight ok')"
   nvidia-smi --query-gpu=name,memory.total,driver_version,power.limit,clocks.max.sm --format=csv,noheader
   Q="timestamp,index,power.draw,power.limit,clocks.sm,clocks.max.sm,clocks.mem,temperature.gpu,utilization.gpu,memory.used"
@@ -103,7 +110,7 @@ else
 fi
 [ -f "$DATA" ] || { echo "missing dataset: $DATA"; exit 3; }
 COMMON=(--model "$MODEL" --data "$DATA" --device "$DEV" --dtype "$DT" --backend "$BACKEND"
-        --tokens-per-batch "$TPB" --pilot-tokens "$PT" --K 16 --Kr 8 --seed-thresholds
+        --tokens-per-batch "$TPB" --pilot-tokens "$PT" --K "$K" --Kr "$KR" --seed-thresholds
         --gram-flush-every 1 --deadline "$DEADLINE" "${LIMITS[@]}")
 RUN=("$PYTHON")
 if [ "$SMOKE" != 1 ]; then RUN=(env CUDA_VISIBLE_DEVICES=0 "$PYTHON"); fi
