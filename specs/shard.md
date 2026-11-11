@@ -169,6 +169,10 @@ F. For N in {1, 2, 4}, ESM-2 8M, CPU, fp32, one thread, seeded thresholds, share
    artifact: merged `atlas.pt` equals the single-run `atlas.pt` bitwise in every exact field and
    scalar, and `sub_sum, sub_sq, gram` agree to relative 1e-9 or better (fp64 sums of identical
    per-batch terms).
+   *Erratum (after freeze, before any implementation was seen by the test writers):* the Gram
+   is accumulated in fp32 across batches between flushes, so its per-flush terms are identical
+   only with `--gram-flush-every 1`. The 1e-9 bound for `gram` applies to runs made with that
+   flag; with a longer flush interval `gram` is held to `--rtol` (default 1e-5) only.
 G. Merging the same shards in a different command-line order gives a bitwise identical
    `atlas.pt` in all compared fields, float sums included (the script sorts by `i`).
 H. Each refusal case above exits non-zero and leaves `DIR` without `atlas.pt`.

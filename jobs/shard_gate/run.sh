@@ -38,7 +38,7 @@ import json
 import os
 from pathlib import Path
 out = Path(os.environ["OUT"])
-steps = [json.loads(p.read_text()) for p in (out / "timing").glob("*.json")]
+steps = [json.loads(p.read_text()) for p in (out / "timing").glob("step_*.json")]
 (out / "timeline.json").write_text(json.dumps({"job": os.environ["JOB"],
                                             "steps": sorted(steps, key=lambda s: (s["start"], s["step"]))}, indent=1))
 PY
@@ -76,7 +76,7 @@ import os
 import sys
 from pathlib import Path
 name, start, end, rc = sys.argv[1:]
-(Path(os.environ["OUT"]) / "timing" / (name + ".json")).write_text(
+(Path(os.environ["OUT"]) / "timing" / ("step_" + name + ".json")).write_text(
     json.dumps({"step": name, "start": int(start), "end": int(end), "rc": int(rc)}))
 PY
   echo "[atlas] $name rc=$rc wall=$(( end - start ))s"
