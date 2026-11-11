@@ -146,3 +146,17 @@ P. `SMOKE=1` never writes outside `$OUT` and `$SCRATCH`, and the job refuses a n
 - `scaling.json` holds one record per N under a key that contains N (e.g. `"n": {"2": {...}}`),
   with the metric names of this spec as keys; N values without inputs appear with `null` metrics.
 - Merge peak RSS applies to N > 1 only (N = 1 is the unsharded run, no merge).
+
+## Addendum 2 (after review of the first implementation)
+
+- Every per-N record in `scaling.json` also carries `wall_1` and `pilot_s` (the spec defines them;
+  the blind tests read them per record).
+- `candidates_ratio` stays as defined (raw sums); 0/0 is `null`, never 1.
+- `candidates_per_filtered_layer_batch_ratio`: per run, `stats.compacted / (stats.batches * L -
+  stats.dense_layer_batches)` from `run.json` (`L` = `model.n_layers`), summed numerator and
+  denominator over shards, divided by the single run's; `null` when a denominator is 0. This
+  replaces the per-record definition of the first implementation (a record with one redo layer
+  still has filtered layers).
+- `SMOKE=1` must finish in under 10 minutes on four idle cores. Shard processes and the two runs of
+  each filtered-vs-naive pair run concurrently also under `SMOKE` (separate single-threaded CPU
+  processes), as they do on GPUs.
