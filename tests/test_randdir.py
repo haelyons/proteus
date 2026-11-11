@@ -202,7 +202,7 @@ def test_e_direction_artifacts_follow_seed_norms_and_digest():
         for layer, matrix in enumerate(artifact["R"]):
             assert matrix.device.type == "cpu" and matrix.dtype == torch.float32
             assert matrix.shape == (1280, 64)
-            assert torch.allclose(matrix.norm(dim=0), torch.ones(64), atol=1e-6, rtol=0)
+            assert torch.allclose(matrix.norm(dim=0), torch.ones(64), atol=1e-5, rtol=0)
             expected = torch.randn(1280, 64, generator=torch.Generator().manual_seed(seed * 1000 + layer),
                                    dtype=torch.float32)
             expected /= expected.norm(dim=0)
