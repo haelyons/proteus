@@ -4,7 +4,9 @@ set -uo pipefail
 : "${JOB:?}" "${OUT:?}" "${FS:?}" "${DEADLINE:?}"
 PYTHON=${PYTHON:-python3}
 SMOKE=${SMOKE:-0}
-SCRATCH=${SCRATCH:-$HOME/scratch/$JOB}
+if [ -z "${SCRATCH:-}" ]; then  # default: local disk under HOME; its parent does not exist on a fresh instance
+  SCRATCH=$HOME/scratch/$JOB; mkdir -p "$HOME/scratch" || exit 2
+fi
 NS=${NS:-"1 2 4 8"}
 REF_RUN_JSON=$("$PYTHON" - "${REF_RUN_JSON:-$(dirname "$0")/ref_run.json}" <<'PYREF'
 import sys

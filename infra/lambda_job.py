@@ -125,8 +125,11 @@ def fetch_after_done(jup, base, out, files, ev):
                 ev("fetched", file=f, bytes=len(data))
                 break
             except Exception as e:  # noqa: BLE001
-                if attempt == 2:
+                missing = getattr(e, "code", None) == 404  # absent file: retrying only keeps the instance billed
+                if attempt == 2 or missing:
                     ev("fetch_failed", file=f, error=str(e)[:200])
+                if missing:
+                    break
                 time.sleep(5)
 
 
