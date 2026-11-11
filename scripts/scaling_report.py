@@ -83,6 +83,14 @@ def run_record(path, smi):
             for key in ('atlas_pass_s', 'build_s', 'wait_s', 'seconds')}
     redo = None if batches is None else sum(len(b['redo_layers']) if isinstance(b.get('redo_layers'), list)
                                             else b.get('redo_layers', 0) for b in batches)
+    redo_batches = None if batches is None else sum(bool(b.get('redo_layers')) for b in batches)
+    model = run.get('model', {})
+    d, layers = model.get('d_ff'), model.get('n_layers')
+    filtered = [b for b in batches if not b.get('redo_layers')] if batches is not None else None
+    filtered_candidates = (total(b.get('compacted_frac') * 2 * b['n_valid'] * d * layers
+                                 if b.get('compacted_frac') is not None else None for b in filtered)
+                           if filtered is not None and d is not None and layers is not None else None)
+    filtered_layer_batches = len(filtered) * layers if filtered is not None and layers is not None else None
     sizes = read(path / 'output_files.json')
     if sizes is None:
         sizes = {p.name: p.stat().st_size for p in path.glob('*.pt') if p.is_file()}
@@ -90,7 +98,9 @@ def run_record(path, smi):
                         ('load', 'pilot', 'stream_this_process', 'final_save', 'total')},
             'batches': sums, **{k: v for k, v in sums.items() if k != 'seconds'},
             'seconds_sum': sums['seconds'], 'batch_count': len(batches) if batches is not None else None,
-            'redo_layers': redo, 'stats': {k: run.get('stats', {}).get(k) for k in ('compacted', 'top_cand', 'res_cand')},
+            'redo_layers': redo, 'redo_batches': redo_batches,
+            'filtered_candidates': filtered_candidates, 'filtered_layer_batches': filtered_layer_batches,
+            'stats': {k: run.get('stats', {}).get(k) for k in ('compacted', 'top_cand', 'res_cand')},
             'gpu': {k: run.get('gpu', {}).get(k) for k in ('max_memory_allocated', 'max_memory_reserved', 'uuid')},
             'host': {'peak_rss_bytes': run.get('host', {}).get('peak_rss_bytes')},
             'output_file_bytes': sizes or None, 'smi': telemetry(smi, batches, run.get('gpu', {}))}
@@ -100,11 +110,6 @@ def gate(path):
     g = read(path, {})
     return {**{k: g.get(k) for k in ('ok', 'exact_all', 'close_all')},
             'max_rel_diff': {k: v['max_rel_diff'] for k, v in g.get('fields', {}).items() if 'max_rel_diff' in v}}
-
-
-def candidate_ratio(a, b):
-    # CPU's reference backend records no compactions: no increase means ratio 1.
-    return 1.0 if a == b == 0 else ratio(a, b)
 
 
 def main():
@@ -151,14 +156,20 @@ def main():
                   'vs_ref_s': duration(steps.get('single_vs_ref' if n == 1 else f'vs_ref_n{n}'))}
         for key in ('compacted', 'top_cand', 'res_cand'):
             name = 'candidates_ratio' if key == 'compacted' else key + '_ratio'
-            record[name] = candidate_ratio(total(r['stats'][key] for r in runs), single['stats'][key])
+            record[name] = ratio(total(r['stats'][key] for r in runs), single['stats'][key])
+        record['redo_layers_ratio'] = ratio(total(r['redo_layers'] for r in runs), single['redo_layers'])
+        filtered_mean = ratio(total(r['filtered_candidates'] for r in runs),
+                              total(r['filtered_layer_batches'] for r in runs))
+        single_mean = ratio(single['filtered_candidates'], single['filtered_layer_batches'])
+        record['candidates_per_filtered_layer_batch_ratio'] = ratio(filtered_mean, single_mean)
         pred = predictions.get('n', {}).get(str(n), {})
         if args.predictions:
             record['predictions'] = {}
             for key, measured in (('stream_pred', stream), ('wall_pred', wall),
                                   ('speedup_stream_pred', record['speedup_stream']),
                                   ('speedup_e2e_pred', record['speedup_e2e']),
-                                  ('candidates_ratio_pred', record['candidates_ratio'])):
+                                  ('candidates_ratio_pred', record['candidates_ratio']),
+                                  ('redo_layer_batches_pred', total(r['redo_layers'] for r in runs))):
                 value = pred.get(key)
                 record['predictions'][key] = {'predicted': value, 'measured': measured,
                                                'measured_over_predicted': ratio(measured, value)}
@@ -179,8 +190,7 @@ def main():
                        **{key + '_ratio': ratio(plain['batches'][key], filtered['batches'][key]) if same else None
                           for key in ('seconds', 'atlas_pass_s')}}
     report = {'pilot_s': pilot_s, 'wall_1': wall_1, 'single': single, 'n': records, 'naive': naive,
-              'cross_gpu': read(out / 'digest_compare.json'), 'steps': timeline,
-              'candidate_ratio_convention': '0/0 is 1 (no recorded candidates on either side)'}
+              'cross_gpu': read(out / 'digest_compare.json'), 'steps': timeline}
     (out / 'scaling.json').write_text(json.dumps(report, indent=1) + '\n')
     md = ['# Scaling measurements', '', '## N versus 1', '',
           '| N (`n.N`) | wall_N (s) | speedup_e2e | efficiency | speedup_stream | candidates_ratio | imbalance |',

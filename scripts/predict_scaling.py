@@ -1,4 +1,9 @@
-"""Predict sharding costs from a recorded single-process stream, without a model."""
+"""Predict sharding costs from a recorded single-process stream, without a model.
+
+Warm-up redo is repeated by every shard over its own first 1/N of the stream:
+redo_layer_batches_pred = N * R(n_seen_total / N), where R(x) counts redo layers
+in single-run records with n_seen_before < x.
+"""
 from __future__ import annotations
 
 import argparse
@@ -9,11 +14,6 @@ from pathlib import Path
 
 def ratio(a, b):
     return a / b if a is not None and b else None
-
-
-def candidate_ratio(a, b):
-    # CPU's reference backend records no compactions: no increase means ratio 1.
-    return 1.0 if a == b == 0 else ratio(a, b)
 
 
 def main():
@@ -72,8 +72,12 @@ def main():
         records[str(n)] = {'shard_stream_s': streams, 'stream_pred': stream,
                            'speedup_stream_pred': ratio(stream_1, stream), 'wall_pred': wall,
                            'speedup_e2e_pred': ratio(wall_1, wall),
-                           'candidates_ratio_pred': candidate_ratio(candidates(n), base_candidates)}
-    Path(args.out).write_text(json.dumps({'n': records, 'candidate_ratio_convention': '0/0 is 1'}, indent=1) + '\n')
+                           'candidates_ratio_pred': ratio(candidates(n), base_candidates),
+                           'redo_layer_batches_pred': n * sum(
+                               len(b['redo_layers']) if isinstance(b.get('redo_layers'), list)
+                               else b.get('redo_layers', 0) for b in batches
+                               if b['n_seen_before'] < run['n_seen'] / n)}
+    Path(args.out).write_text(json.dumps({'n': records}, indent=1) + '\n')
 
 
 if __name__ == '__main__':

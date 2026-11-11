@@ -6,7 +6,12 @@ PYTHON=${PYTHON:-python3}
 SMOKE=${SMOKE:-0}
 SCRATCH=${SCRATCH:-$HOME/scratch/$JOB}
 NS=${NS:-"1 2 4 8"}
-REF_RUN_JSON=${REF_RUN_JSON:-jobs/shard_scale/ref_run.json}
+REF_RUN_JSON=$("$PYTHON" - "${REF_RUN_JSON:-$(dirname "$0")/ref_run.json}" <<'PYREF'
+import sys
+from pathlib import Path
+print(Path(sys.argv[1]).resolve())
+PYREF
+) || exit 2
 KEEP=${KEEP:-0}
 [[ "$DEADLINE" =~ ^[0-9]+$ ]] || { echo "invalid DEADLINE"; exit 2; }
 # Require fresh OUT and reject symlinks that could redirect writes.
@@ -37,9 +42,9 @@ export OUT SCRATCH JOB PYTHON SMOKE DEADLINE
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 export PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 export HF_HOME=${HF_HOME:-${XDG_CACHE_HOME:-$HOME/.cache}/huggingface}
-export TMPDIR="$OUT/tmp" XDG_CACHE_HOME="$OUT/cache" TRITON_CACHE_DIR="$OUT/cache/triton"
-export TORCHINDUCTOR_CACHE_DIR="$OUT/cache/inductor" PIP_CACHE_DIR="$OUT/cache/pip"
-export PYTHONUSERBASE="$OUT/python" PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export TMPDIR="$SCRATCH/tmp" XDG_CACHE_HOME="$SCRATCH/cache" TRITON_CACHE_DIR="$SCRATCH/cache/triton"
+export TORCHINDUCTOR_CACHE_DIR="$SCRATCH/cache/inductor" PIP_CACHE_DIR="$SCRATCH/cache/pip"
+export PYTHONUSERBASE="$SCRATCH/python" PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 mkdir -p "$TMPDIR"
 SMI_PID=""; PS_PID=""; PIDS=(); FAILED=0
 
@@ -112,8 +117,6 @@ run_step() { step "$@" || FAILED=1; }
 
 stage_cache() {
   mkdir -p "$SCRATCH/hf" || return
-  # Keep Hugging Face's online metadata updates off the read-only shared cache.
-  if [ -d "$FS/cache/hf" ]; then cp -a "$FS/cache/hf/." "$SCRATCH/hf/"; fi
 }
 preflight() {
   "$PYTHON" -m pip install --user -q -U 'pillow>=10' 'transformers>=4.46' pydssp || return
@@ -144,6 +147,7 @@ for name in ('triton', 'transformers'):
     except ImportError:
         versions[name] = None
 host = {'kernel': platform.uname()._asdict(), 'versions': versions,
+        'omp_threads': int(os.environ['OMP_NUM_THREADS']),
         'lscpu': capture(['lscpu']), 'numactl': capture(['numactl', '-H']),
         'free': capture(['free', '-b']), 'df': capture(['df', '-B1', *sys.argv[1:]]),
         'fs_mount': capture(['findmnt', '-T', sys.argv[2], '-o', 'TARGET,SOURCE,FSTYPE,OPTIONS'])}
@@ -252,11 +256,19 @@ if [ "$SMOKE" = 1 ]; then
   NS="1 2"; GPUS=1
   DATA=${SMOKE_DATA:-data/swissprot_test500.pt}
   HELD=lists/heldout_created_after_2021-11-17.tsv
-  LIMITS=(--max-seqs 64)
+  LIMITS=(--max-seqs 160)
   EDGES=(0.3 0.5 0.7 0.9 0.99)
-  NAIVE_PREFIX=4; NAIVE_OFFSET=4; NAIVE_STEADY=3
+  NAIVE_PREFIX=2; NAIVE_OFFSET=4; NAIVE_STEADY=1
 else
   unset HF_HUB_OFFLINE
+  MAX_N=1
+  for n in $NS; do
+    [[ "$n" =~ ^[1-9][0-9]*$ ]] || { echo "invalid NS"; exit 2; }
+    if [ "$n" -gt "$MAX_N" ]; then MAX_N=$n; fi
+  done
+  THREADS=$(( $(env -u OMP_NUM_THREADS -u OMP_THREAD_LIMIT nproc) / MAX_N ))
+  if [ "$THREADS" -lt 1 ]; then THREADS=1; fi
+  export OMP_NUM_THREADS=$THREADS MKL_NUM_THREADS=$THREADS
   export HF_HOME=$SCRATCH/hf HF_HUB_CACHE=$SCRATCH/hf/hub
   MODEL=${MODEL:-650M}; DEV=cuda; DT=bf16; BACKEND=triton
   TPB=${TPB:-32768}; PT=${PT:-262144}; K=${K:-64}; KR=${KR:-64}
@@ -297,8 +309,8 @@ fi
 run_step pilot "${RUN[@]}" scripts/run_atlas.py "${COMMON[@]}" --out "$SCRATCH/pilot" --pilot-out "$SCRATCH/pilot.pt" --pilot-only
 run_step single "${RUN[@]}" scripts/run_atlas.py "${COMMON[@]}" --pilot-from "$SCRATCH/pilot.pt" --out "$SCRATCH/single"
 run_step archive_single archive "$SCRATCH/single" "$OUT/single" "$OUT/single.log"
-if [ "$SMOKE" = 1 ] && [ ! -f "$REF_RUN_JSON" ]; then
-  skip single_vs_ref 'REF_RUN_JSON absent'
+if [ "$SMOKE" = 1 ]; then
+  skip single_vs_ref 'SMOKE: different workload from reference'
 else
   run_step single_vs_ref "$PYTHON" scripts/compare_atlas.py "$SCRATCH/single/atlas.pt" --digests "$REF_RUN_JSON" --out "$OUT/single_vs_ref.json"
 fi
@@ -310,11 +322,22 @@ for n in $NS; do
   run_step "shards_n$n" shards "$n" "${COMMON[@]}"
   SHARDS=()
   for ((i=0; i<n; i++)); do SHARDS+=("$SCRATCH/n$n/s$i/shard.pt"); done
-  run_step "merge_n$n" /usr/bin/time -v -o "$OUT/n$n/merge_time.txt" "$PYTHON" scripts/merge_atlas.py \
+  TIME=()
+  if [ -x /usr/bin/time ]; then TIME=(/usr/bin/time -v -o "$OUT/n$n/merge_time.txt"); fi
+  run_step "merge_n$n" "${TIME[@]}" "$PYTHON" scripts/merge_atlas.py \
     --out "$SCRATCH/n$n/merged" "${SHARDS[@]}" --device cpu
+  "$PYTHON" - "$OUT/timing/step_merge_n$n.json" "${#TIME[@]}" <<'PYTIME'
+import json
+import sys
+from pathlib import Path
+p = Path(sys.argv[1])
+s = json.loads(p.read_text())
+s['time_v'] = int(sys.argv[2]) > 0
+p.write_text(json.dumps(s))
+PYTIME
   run_step "compare_n$n" "$PYTHON" scripts/compare_atlas.py "$SCRATCH/n$n/merged/atlas.pt" "$SCRATCH/single/atlas.pt" --rtol 1e-5 --out "$OUT/n$n/gate_compare.json"
-  if [ "$SMOKE" = 1 ] && [ ! -f "$REF_RUN_JSON" ]; then
-    skip "vs_ref_n$n" 'REF_RUN_JSON absent'
+  if [ "$SMOKE" = 1 ]; then
+    skip "vs_ref_n$n" 'SMOKE: different workload from reference'
   else
     run_step "vs_ref_n$n" "$PYTHON" scripts/compare_atlas.py "$SCRATCH/n$n/merged/atlas.pt" --digests "$REF_RUN_JSON" --out "$OUT/n$n/vs_ref.json"
   fi

@@ -1,0 +1,16 @@
+{
+  "digests": {
+    "top_val": "89d3df303c9a2f5a98e2bf334c29154a3b7336d9bf6ee2fdcd838dd3fd3599c0",
+    "top_tok": "6121acd0f52404e59783d17fc9af56af21adbcbcc783dab67e123fce11c8724c",
+    "res_tok": "70cb4400dcdd239d2c8a20cf3e98bc0ead3ab7c32e2b3ba4899122efe01817f7",
+    "res_val": "4649d53faf4e95a7f87fd6ed84564c0da62eab5a9888ecc1638dfaf3598bc554",
+    "res_key": "f5f7997f0b49477bc6689a0495d0838730589883ce9144c83b098df37a45fc76",
+    "sub_bin": "f7daf361f50af95752e8000375444363329f63a3604e4ea97819c10d11b9bc4b",
+    "enr": "17811ee048de85b14d6e6919d96279ad27d434eebc9fd7e3ba8411bb56492f55",
+    "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+    "edges": "4fdde23564b09c1864d41865782757f137c6d61f48c2c8a1fb9c26e00531c9d3"
+  },
+  "n_seen": 194177125,
+  "gram_rows": 9715300,
+  "source": "results/followup_650m_20261104/full/run.json"
+}

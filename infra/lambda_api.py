@@ -1,13 +1,14 @@
 """Minimal Lambda Cloud + Jupyter contents client (stdlib only).
 
-Auth to cloud.lambda.ai is injected by the environment's egress proxy, so the
-bearer token here is a placeholder. The Jupyter token is a per-instance secret:
+Auth to cloud.lambda.ai uses LAMBDA_API_KEY when set, otherwise a placeholder
+for the environment's egress proxy. The Jupyter token is a per-instance secret:
 it is kept in memory only and never logged; URLs are logged with the query
 string stripped.
 """
 from __future__ import annotations
 
 import json
+import os
 import time
 import urllib.error
 import urllib.parse
@@ -15,7 +16,7 @@ import urllib.request
 
 API = "https://cloud.lambda.ai/api/v1"
 UA = "esm-atlas/0.1"  # Cloudflare in front of the Lambda API rejects the default Python-urllib UA (error 1010)
-_HDR = {"Authorization": "Bearer placeholder-injected-by-proxy", "Content-Type": "application/json", "User-Agent": UA}
+_HDR = {"Authorization": "Bearer " + os.environ.get("LAMBDA_API_KEY", "placeholder-injected-by-proxy"), "Content-Type": "application/json", "User-Agent": UA}
 
 
 def _req(method: str, url: str, body=None, headers=None, timeout=30):

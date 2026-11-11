@@ -98,7 +98,6 @@ else
   # Online Hugging Face metadata updates must stay inside OUT.
   export HF_HOME="$OUT/cache/hf" HF_HUB_CACHE="$OUT/cache/hf/hub"
   mkdir -p "$HF_HOME"
-  if [ -d "$FS/cache/hf" ]; then cp -a "$FS/cache/hf/." "$HF_HOME/"; fi
   # Online preflight, with any installs confined to OUT.
   "$PYTHON" -m pip install --user -q -U "pillow>=10" "transformers>=4.46" "pydssp" 2>&1 | tail -1
   "$PYTHON" -c "import torch, triton, transformers, PIL, pydssp; from transformers import EsmModel; print('[atlas] preflight ok')"
