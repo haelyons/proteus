@@ -1,0 +1,42 @@
+{
+  "sources": {
+    "gelu_off": {
+      "n_sampled": 1490,
+      "n_scored": 1490,
+      "k_struct": 634,
+      "share_struct": 0.425503355704698,
+      "share_struct_ci": [
+        0.4002312648947318,
+        0.4510696755009219
+      ],
+      "share_struct_all": 0.425503355704698,
+      "jsd": {
+        "n": 1490,
+        "mean": 0.1607008295963462,
+        "q10": 0.005786782293580472,
+        "q25": 0.010497947689145803,
+        "q50": 0.0272260382771492,
+        "q75": 0.351633008569479,
+        "q90": 0.4871852695941925
+      },
+      "share_residue_mode": 0.5140939597315436
+    }
+  },
+  "pooled_v12": {
+    "pool": [
+      "gelu_off"
+    ],
+    "n_columns": 1490,
+    "calls": {
+      "gelu_off": {
+        "context association": 519,
+        "no association found by this procedure": 777,
+        "structural association": 100,
+        "composition association": 94
+      }
+    }
+  },
+  "tables_sha256": "e77cf1a9b07b926607c53fb517131f1edd551ded586e101a4d6f003c293425ff",
+  "ruler_sha256": "add6c0b838c8d478fd3af850e77f62747a7015ccfa954a41a19020be449601f1",
+  "B": 2000
+}

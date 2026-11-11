@@ -77,3 +77,37 @@ If 16 and 17 hold, both qualifying statistics rate the untrained network as more
 than the trained one. They then measure distance from a shuffled-weight network, not "more
 structure", and the decision rule has to be phrased that way. That is for the owner to decide
 before sealing.
+
+## Outcome (2026-11-11, `results/ruler_checks_20261111/`)
+
+Two A10 boxes in us-east-1 read the same inputs (sha256 equal, `inputs.json`): planted shapes on
+`ruler-checks-20261111-1819` (4 h cap reached; `randdir` and `sae:0.001` were still building at
+the deadline and are **not measured**), pooling on `ruler-pooling-20261111-1950` (complete). An
+earlier checks launch failed at its inputs step (wrong recorded paths for two shuffled atlases).
+Spend for the three A10 launches: about $6.
+
+| # | Measured | Held? |
+| --- | --- | --- |
+| 1 | gauss gate: every type within the recorded range (narrow 8/12); 2 of 542 noise and alpha = 0 columns called | no (2 noise columns called) |
+| 2 | gelu: 1,490/1,490 records identical to gauss, gate identical. gelu_off: 78/1,490 identical (GELU maps the far-left tail just above its minimum, into the q90/q99 bins), gate identical except one noise column. sae:0.1: 1,429/1,490 identical, gate identical | no (gelu only) |
+| 3 | sae:0.01: peak calls identical for 98.3%; persistence differs for 18.1% of the columns that have one; "peak only" 194 -> 191. sae:0.001 not measured | no |
+| 4 | randdir not measured (build timed out) | not measured |
+| 5 | noise null rate of `p_struct_corr <= 0.01`: 0.39%, 0.39%, 0.77%, 0.39%, 0.58% (gauss, gelu, gelu_off, sae:0.1, sae:0.01); largest 95% upper bound 1.97% | yes |
+| 6 | parts, alpha >= 2: 360/360 context, 360/360 at `p_struct_corr <= 0.01` | yes |
+| 7 | `mix_same_2`: context 9/9, residue modes E, K | yes |
+| 8 | `mix_same_8`: structural 8/9 | yes |
+| 9 | `mix_same_20`: structural 9/9, one mode | yes |
+| 10 | `mix_diff_2` context 9/9 (several modes 9/9); `mix_diff_8` context 9/9 (several modes 2/9); `mix_diff_20` structural 8/9 | no |
+| 11 | every mixture and part, alpha >= 2: `p_struct_corr <= 0.01` 100% | yes |
+| 12 | `records_identical` true | yes |
+| 13 | trained `share_struct` 0.9847 in all three pools | yes |
+| 14 | trained v1.2 counts identical in all three pools (context 1,400, structural 76, composition 21, none 2, insufficient 1) | yes |
+| 15 | `share_struct` 98.47% trained vs 98.46 / 98.26 / 98.59%: intervals overlap | yes |
+| 16 | `primary_jsd` separates, **trained higher**: medians 0.189 vs 0.140 / 0.147 / 0.156, Cliff's d +0.225 / +0.202 / +0.167, p < 1e-14 | no (direction) |
+| 17 | `share_residue_mode` separates, shuffled higher: 96.9% vs 100 / 100 / 100% | yes |
+| 18 | no statistic rates a mixture above its largest part (all five shapes) | yes |
+| 19 | peak log2 median 1.205 trained vs 1.565 / 1.602 / 1.669 | yes |
+
+Qualifying statistics (separate trained from shuffled, do not rate mixtures above parts, on the
+five measured shapes): **`primary_jsd`** (trained higher) and **`share_residue_mode`** (shuffled
+higher). `share_struct` does not qualify. The randdir and sae:0.001 shapes remain to be checked.
