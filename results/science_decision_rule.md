@@ -1,7 +1,9 @@
-# Science decision rule: DRAFT (not sealed; awaiting the owner's decision)
+# Science decision rule (sealed)
 
 Drafted 2026-11-11 from `results/ruler_checks_20261111/` (outcome in
-`results/ruler_checks_predictions.md`). Nothing here has been applied to any real column source.
+`results/ruler_checks_predictions.md`). **Sealed 2026-11-11 by the owner's decision, unchanged from the
+draft (commit 4f3319f).** Nothing here has been applied to any real column source. Any later change is an
+amendment with its own date and reason, committed before the result it would affect is read.
 
 ## What the checks established
 
@@ -50,7 +52,7 @@ like-for-like (residual-stream hook against MLP hook).
 **Secondary, never decisive:** `share_residue_mode` with intervals; v1.2 call counts from one
 pooled `calls()` over all sources; median peak log2.
 
-## Points for the owner to decide
+## Points the owner decided on (2026-11-11: seal as drafted; both runs below approved)
 
 1. **Mixture sensitivity is the mechanism, not a flaw.** Random directions are mixtures by
    construction, and `primary_jsd` falls with mixing across states. A lower score for directions is
