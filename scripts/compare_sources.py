@@ -116,8 +116,7 @@ def source_calls(a):
         c["levels"] = {lv: {"n_clusters": s[lv].get("n_clusters", 0),
                             **({k: {"p": s[lv][k]["p"], "log2": [round(v, 2) for v in s[lv][k]["log2"]]}
                                 for k in ("state5", "burial3", "rama4") if s[lv].get(k)})} for lv in LEVELS}
-    # Restore atlas order, so a full one-layer sample matches run_ruler.py.
-    out = [c for _, c in sorted(zip([r["col"] for r in records], out), key=lambda pair: pair[0])]
+    # Sample order, as the spec states; a full one-layer sample matches run_ruler.py record by record via col.
     meta_path = root / f"{a.source}.meta.json"
     meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
     Path(a.out).write_text(json.dumps({"rule": a.rule, "calls": out, "residues": meta.get("residues"),

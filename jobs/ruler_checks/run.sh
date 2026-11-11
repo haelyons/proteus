@@ -25,8 +25,8 @@ for shape in shapes:
         continue
     if not shape.startswith('sae:') or not shape[4:].replace('.', '', 1).isdigit() or not 0 < float(shape[4:]) < 1:
         sys.exit(f"invalid shape: {shape}")
-RUNNER_FILES = {'started.json', 'job.log'}  # written into OUT by infra/lambda_job.py's inbox runner before run.sh starts
-if p.is_symlink() or (p.exists() and (not p.is_dir() or any(q.name not in RUNNER_FILES for q in p.iterdir()))):
+RUNNER_FILES = {'started.json', 'job.log'}  # written into OUT by infra/lambda_job.py's inbox runner before run.sh starts; empty directories are also accepted
+if p.is_symlink() or (p.exists() and (not p.is_dir() or any(q.name not in RUNNER_FILES and not (q.is_dir() and not any(q.iterdir())) for q in p.iterdir()))):
     sys.exit("OUT must be a new or empty directory, not a symlink")
 print(p.resolve())
 PYOUT
@@ -204,7 +204,9 @@ import json
 import sys
 from pathlib import Path
 p = Path(sys.argv[1])
-assert json.loads((p / 'calls.json').read_text())['calls'] == json.loads((p / 'reference_calls.json').read_text())['calls']
+a = {c['col']: c for c in json.loads((p / 'calls.json').read_text())['calls']}
+b = {c['col']: c for c in json.loads((p / 'reference_calls.json').read_text())['calls']}
+assert a == b, 'adapter and run_ruler.py differ'  # adapter keeps sample order; compare record by record via col
 print('adapter equals run_ruler.py --rule v1.2')
 PY
 }
