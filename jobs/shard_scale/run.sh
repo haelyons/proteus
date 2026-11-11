@@ -19,7 +19,8 @@ PATHS=$("$PYTHON" - "$OUT" "$SCRATCH" "$FS" <<'PY'
 import sys
 from pathlib import Path
 out, scratch, fs = [Path(p).absolute() for p in sys.argv[1:]]
-if out.is_symlink() or (out.exists() and (not out.is_dir() or any(out.iterdir()))):
+RUNNER_FILES = {'started.json', 'job.log'}  # written into OUT by infra/lambda_job.py's inbox runner before run.sh starts
+if out.is_symlink() or (out.exists() and (not out.is_dir() or any(p.name not in RUNNER_FILES for p in out.iterdir()))):
     sys.exit("OUT must be a new or empty directory, not a symlink")
 if scratch.is_symlink() or (scratch.exists() and not scratch.is_dir()):
     sys.exit("SCRATCH must be a directory, not a symlink")
@@ -274,6 +275,8 @@ else
   NAIVE_PREFIX=${NAIVE_PREFIX:-60}; NAIVE_STEADY=${NAIVE_STEADY:-40}; NAIVE_OFFSET=${NAIVE_OFFSET:-4500}
   run_step stage_cache stage_cache
   run_step preflight preflight
+  # Download the weights once, outside every timed GPU step (the first load would otherwise land in the digest or pilot step).
+  run_step model_download "$PYTHON" -c "import sys; sys.path.insert(0, '.'); from atlas.esm import load; load('$MODEL', device='cpu'); print('model cached')"
   GPU_IDS=$(nvidia-smi --query-gpu=index --format=csv,noheader) || exit 3
   GPUS=$(printf '%s\n' "$GPU_IDS" | wc -l)
 fi
