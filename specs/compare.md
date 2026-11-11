@@ -134,3 +134,8 @@ before it is sealed.
 - Sampling: per-layer counts equal K; same seed gives the same sample; different sources'
   samples do not depend on each other.
 - `atlas/ruler.py` is byte-identical to its blob at the spec commit.
+
+## Clarification (after the blind tests, before implementation)
+
+- `share_residue_mode`: number of non-insufficient columns with at least one residue mode, over the
+  number of non-insufficient columns (same denominator as `share_struct`).
