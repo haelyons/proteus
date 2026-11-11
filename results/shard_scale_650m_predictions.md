@@ -45,3 +45,12 @@ save 25 s` (local NVMe, states of about 10 GB). Output kept as `pred650.json` be
 Estimated job time about 3 h (setup and tests 20 min, single 64 min, N = 2 35 min, N = 4 21 min,
 N = 8 16 min, naive pairs 20 min). Hard cap 4 h: `infra/lambda_job.py --dry-run` gives
 gpu_8x_a100 in us-west-1 at $15.92/h, at most $63.68 billed.
+
+## Addendum before launch (2026-11-11 18:20 UTC)
+
+The first launch attempt found no `gpu_8x_a100` capacity in us-west-1 (nothing launched). The job
+is retried every 5 minutes for up to 12 hours, on the first available of `gpu_8x_a100`, then
+`gpu_8x_a100_80gb_sxm4`, in us-west-1, us-east-1 or asia-south-1 (the regions whose filesystems
+hold the Swiss-Prot cache). Hard cap 4 h: at most $63.68 on the 40 GB type, $89.28 on the 80 GB
+type. If the 80 GB type is used (same A100 architecture, faster memory): prediction 5's range
+becomes 2,900–4,170 s; every other prediction stands as written.
