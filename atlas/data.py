@@ -2,6 +2,8 @@
 max_res residues, packed token ids, per-residue annotation ids from intervals."""
 from __future__ import annotations
 
+import hashlib
+import struct
 from dataclasses import dataclass
 
 import torch
@@ -137,3 +139,12 @@ class SwissProt:
 
 def shuffled_order(n: int, seed: int = 0) -> torch.Tensor:
     return torch.randperm(n, generator=torch.Generator().manual_seed(seed))
+
+
+def plan_digest(plan) -> str:
+    """SHA256 of the length-prefixed global plan as little-endian int64."""
+    digest = hashlib.sha256(struct.pack("<q", len(plan)))
+    for group in plan:
+        digest.update(struct.pack("<q", len(group)))
+        digest.update(struct.pack(f"<{len(group)}q", *group))
+    return digest.hexdigest()

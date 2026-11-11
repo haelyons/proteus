@@ -25,6 +25,7 @@ Merges run once after the forward, stacked over all layers.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 from dataclasses import dataclass, field
 
@@ -190,7 +191,7 @@ class Atlas:
             self.ann_tot = torch.zeros(n_annot, dtype=torch.int64, device=dev)
         self.gram = torch.zeros(L, D, D, dtype=torch.float32, device=dev) if cfg.gram else None
         self.gram64 = torch.zeros(L, D, D, dtype=torch.float64) if cfg.gram else None  # host flush
-        self.gram_rows = 0  # subsample rows in the Gram (not checkpointed: written once at the end)
+        self.gram_rows = 0  # subsample rows in the Gram (optionally checkpointed)
         # seeds (exact-preserving thresholds; see seed()). Unseeded = no-op values.
         self.top_seed = torch.full((G,), NEG_INF, device=dev)              # admit s > top_seed
         self.res_seed = torch.full((G * B,), I64_MIN, dtype=torch.long, device=dev)  # admit -key > res_seed
@@ -602,16 +603,34 @@ class Atlas:
     _STATE = ["top_s", "top_t", "top_k", "res_s", "res_t", "res_v", "sub_sum", "sub_sq", "sub_bin", "E",
               "top_seed", "res_seed"]
 
-    def state_dict(self) -> dict:
-        """Everything needed to continue the stream exactly (CPU tensors). The Gram is NOT
-        included (subsample structure, written once at the end); a resumed run's Gram covers
-        the batches after the resume and says so via gram_rows."""
+    def state_dict(self, include_gram: bool = False) -> dict:
+        """CPU stream state. Gram is omitted by default; include_gram flushes and saves
+        the unsymmetrised fp64 host accumulator and its row count."""
+        if include_gram:
+            self.flush_gram()
         st = {k: getattr(self, k).cpu() for k in self._STATE}
         if self.n_a:
             st["enr"], st["ann_tot"] = self.enr.cpu(), self.ann_tot.cpu()
         st.update(n_seen=self.n_seen, n_sub=self.n_sub, stats=dict(self.stats),
                   dense_layers=sorted(self._dense_layers), cfg=dict(self.cfg.__dict__), n_a=self.n_a)
+        if include_gram:
+            st["gram_rows"] = self.gram_rows
+            if self.gram64 is not None:
+                st["gram64"] = self.gram64
         return st
+
+    @classmethod
+    def from_state(cls, st: dict, device="cpu") -> "Atlas":
+        cfg = AtlasConfig(**st["cfg"])
+        # CPU reconstruction must not import Triton, even for a GPU-produced state.
+        backend = cfg.backend
+        if torch.device(device).type == "cpu":
+            cfg.backend = "torch"
+        E = st["E"]
+        atlas = cls(E.shape[0], E.shape[2], E, cfg, n_annot=st["n_a"], device=device)
+        cfg.backend = backend
+        atlas.load_state_dict(st)
+        return atlas
 
     def load_state_dict(self, st: dict):
         assert st["cfg"] == dict(self.cfg.__dict__), "config mismatch on resume"
@@ -621,7 +640,12 @@ class Atlas:
         if self.n_a:
             self.enr.copy_(st["enr"].to(self.dev)); self.ann_tot.copy_(st["ann_tot"].to(self.dev))
         if self.gram is not None:
-            self.gram64.zero_(); self.gram.zero_(); self.gram_rows = 0
+            self.gram.zero_()
+            if "gram64" in st:
+                self.gram64.copy_(st["gram64"])
+                self.gram_rows = st["gram_rows"]
+            else:
+                self.gram64.zero_(); self.gram_rows = 0
         self.n_seen, self.n_sub, self.stats = st["n_seen"], st["n_sub"], dict(st["stats"])
         self._dense_layers = set(st["dense_layers"])
 
@@ -803,3 +827,10 @@ class _tf32:
 
     def __exit__(self, *a):
         torch.backends.cuda.matmul.allow_tf32 = self.prev
+
+
+def result_digests(res) -> dict[str, str]:
+    """SHA256 of the exact result fields, in their contiguous host representation."""
+    return {k: hashlib.sha256(res[k].contiguous().numpy().tobytes()).hexdigest()
+            for k in ("top_val", "top_tok", "res_tok", "res_val", "res_key",
+                      "sub_bin", "enr", "ann_tot", "edges") if k in res}

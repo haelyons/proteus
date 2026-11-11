@@ -13,8 +13,8 @@ the K-th largest of N earlier ones with probability K/(N+1).
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
+import resource
 import queue
 import threading
 import os
@@ -25,8 +25,8 @@ from pathlib import Path
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from atlas.core import Atlas, AtlasConfig, gemm_paths  # noqa: E402
-from atlas.data import SwissProt, shuffled_order  # noqa: E402
+from atlas.core import Atlas, AtlasConfig, gemm_paths, result_digests  # noqa: E402
+from atlas.data import SwissProt, shuffled_order, plan_digest  # noqa: E402
 from atlas.esm import attach, flops_per_batch, load, pilot  # noqa: E402
 from atlas.reference import pilot_edges  # noqa: E402
 
@@ -49,7 +49,18 @@ def latest_ckpt(d: Path):
     return c[-1] if c else None
 
 
+def shard_arg(value):
+    try:
+        i, n = map(int, value.split("/"))
+        if not 0 <= i < n:
+            raise ValueError
+    except ValueError:
+        raise argparse.ArgumentTypeError("shard must be i/N with 0 <= i < N and N >= 1")
+    return [i, n]
+
+
 def main():
+    process_start = time.time()
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="8M")
     ap.add_argument("--control", default="none", choices=["none", "shuffled", "random"])
@@ -101,7 +112,17 @@ def main():
     ap.add_argument("--max-batches", type=int, default=0, help="stream only the first M batches of the plan (complete run)")
     ap.add_argument("--deadline", type=float, default=0.0,
                     help="epoch seconds; checkpoint and exit cleanly when the time left drops below 2x (batch + checkpoint) time")
+    ap.add_argument("--shard", type=shard_arg, default=None)
+    ap.add_argument("--pilot-out", default=None)
+    ap.add_argument("--pilot-only", action="store_true")
+    ap.add_argument("--pilot-from", default=None)
     a = ap.parse_args()
+    if a.pilot_only and not a.pilot_out:
+        ap.error("--pilot-only requires --pilot-out")
+    if a.pilot_from and (a.edges_from or a.pilot_out):
+        ap.error("--pilot-from is mutually exclusive with --edges-from and --pilot-out")
+    if a.shard and a.shard[1] > 1 and not a.pilot_from:
+        ap.error("--shard with N > 1 requires --pilot-from")
     out = Path(a.out)
     (out / "ckpt").mkdir(parents=True, exist_ok=True)
     dev = a.device
@@ -134,6 +155,7 @@ def main():
     if a.max_batches:
         plan = plan[: a.max_batches]
     n_total = int(sum(min(int(ds.len[i]), ds.max_res) for grp in plan for i in grp))
+    plan_sha256 = plan_digest(plan)
     t_load = time.time() - t0
 
     cfg = AtlasConfig(K=a.K, Kr=a.Kr, backend=a.backend, seed=a.seed, reservoir=not a.no_reservoir,
@@ -141,6 +163,16 @@ def main():
                       stats_impl=a.stats_impl, merge_impl=a.merge_impl, cap_frac_early=a.cap_frac_early)
     ck = latest_ckpt(out / "ckpt") if a.resume else None
     t1 = time.time()
+    artifact = None
+    if a.pilot_from:
+        artifact = torch.load(a.pilot_from, map_location="cpu", weights_only=False)
+        expected = {"plan_sha256": plan_sha256, "n_total": n_total}
+        for k, value in expected.items():
+            if artifact[k] != value:
+                ap.error(f"--pilot-from mismatch: {k}")
+        for k, value in _pilot_args_key(a).items():
+            if k not in artifact["args_key"] or artifact["args_key"][k] != value:
+                ap.error(f"--pilot-from mismatch: args_key.{k}")
     if ck is not None:
         st = torch.load(ck, weights_only=False)
         assert st["args_key"] == _args_key(a), "resume with different run arguments"
@@ -148,7 +180,12 @@ def main():
         start = st["next_batch"]
     else:
         seeds = None
-        if a.edges_from and not a.seed_thresholds:
+        if artifact is not None:
+            E = artifact["edges"]
+            if artifact["top_seed"] is not None or artifact["res_seed_key"] is not None:
+                seeds = (artifact["top_seed"], artifact["res_seed_key"])
+            Hp = None
+        elif a.edges_from and not a.seed_thresholds:
             src = torch.load(a.edges_from, map_location="cpu", weights_only=False)
             E = src["edges"] if "edges" in src else src["atlas"]["E"]
             Hp = None
@@ -161,7 +198,7 @@ def main():
                 E = src["edges"] if "edges" in src else src["atlas"]["E"]
             else:
                 E = torch.cat([pilot_edges([h.to(dev)], probs=tuple(a.edge_q)).cpu() for h in Hp])  # one layer on device at a time
-        if a.seed_thresholds:
+        if a.seed_thresholds and artifact is None:
             from atlas.reference import pilot_seeds
             prot = pilot.last_tok // 1024  # protein of each pilot row: tails cluster within proteins
             parts = [pilot_seeds([h.to(dev)], E[li:li + 1].to(dev), a.K, a.Kr, n_total, groups=prot)
@@ -169,6 +206,19 @@ def main():
             seeds = (torch.cat([p_[0] for p_ in parts]), torch.cat([p_[1] for p_ in parts]))
         del Hp
         start = a.plan_offset
+    if a.pilot_out:
+        # Resumed states retain the applied thresholds in their internal representation.
+        if ck is not None:
+            top_seed = st["atlas"]["top_seed"].view(L, 2, D) if a.seed_thresholds else None
+            rs = st["atlas"]["res_seed"]
+            res_seed_key = torch.where(rs == torch.iinfo(torch.int64).min, 2**32, -rs).view(E.shape) if a.seed_thresholds else None
+        else:
+            top_seed, res_seed_key = seeds if seeds is not None else (None, None)
+        atomic_save({"edges": E, "top_seed": top_seed, "res_seed_key": res_seed_key,
+                     "n_total": n_total, "n_batches": len(plan), "plan_sha256": plan_sha256,
+                     "args_key": _pilot_args_key(a), "model": info}, Path(a.pilot_out))
+        if a.pilot_only:
+            return
     t_pilot = time.time() - t1
     atlas = Atlas(L, D, E, cfg, n_annot=len(ds.vocab) if cfg.subsample else 0, device=dev)
     if ck is not None:
@@ -195,18 +245,33 @@ def main():
         attach(model, observe_ties)
 
     def summary(done: bool, bi: int):
-        return {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_excluded": n_excluded, "n_batches_plan": len(plan),
+        sm = {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_excluded": n_excluded, "n_batches_plan": len(plan),
                 "next_batch": bi, "complete": done, "seconds": {"load": t_load, "pilot": t_pilot,
                 "stream_this_process": time.time() - t2}, "n_seen": atlas.n_seen, "stats": atlas.stats,
-                "gemm_paths": gemm_paths()}
+                "gemm_paths": gemm_paths(),
+                "host": {"cpus": os.cpu_count(), "peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024}}
+        sm["seconds"].update(final_save=final_s, total=time.time() - process_start)
+        if a.shard is not None:
+            sm.update(shard=a.shard, plan_sha256=plan_sha256, batches_done=batches_done)
+        if torch.device(dev).type == "cuda":
+            props = torch.cuda.get_device_properties(dev)
+            sm["gpu"] = {"name": props.name, "total_memory": props.total_memory,
+                         "max_memory_allocated": torch.cuda.max_memory_allocated(dev),
+                         "max_memory_reserved": torch.cuda.max_memory_reserved(dev)}
+            if getattr(props, "uuid", None) is not None:
+                sm["gpu"]["uuid"] = str(props.uuid)
+        return sm
 
+    final_s = 0.0
+    batches_done = st.get("batches_done", atlas.stats["batches"]) if ck is not None else 0
     logf = open(out / "batches.jsonl", "a")
     ckpt_s, batch_s, last_ckpt_s = 0.0, 0.0, None
 
     def save_ckpt(next_batch):
         nonlocal ckpt_s, last_ckpt_s
         t = time.time()
-        atomic_save({"atlas": atlas.state_dict(), "next_batch": next_batch, "args_key": _args_key(a),
+        atomic_save({"atlas": atlas.state_dict(include_gram=a.shard is not None), "next_batch": next_batch,
+                     "batches_done": batches_done, "args_key": _args_key(a),
                      "model": info}, out / "ckpt" / f"ckpt_{next_batch}.pt")
         for old in sorted((out / "ckpt").glob("ckpt_*.pt"), key=lambda p: int(p.stem.split("_")[1]))[:-2]:
             old.unlink()
@@ -219,12 +284,26 @@ def main():
     n_done = 0
     bi = start
     with torch.no_grad():
-        src_iter = ds.batches(vocab, order, a.tokens_per_batch, plan=plan, start=start)
-        if a.prefetch > 0:  # batch building and host-side contexts off the critical path
-            src_iter = _prefetch(((b, atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann, device="cpu")) for b in src_iter), a.prefetch)
-        else:
-            src_iter = ((b, None) for b in src_iter)
-        for bi, (b, ctx_host) in enumerate(src_iter, start=start):
+        indices = [bi for bi in range(start, len(plan))
+                   if a.shard is None or bi % a.shard[1] == a.shard[0]]
+
+        def build_batches():
+            batches = ds.batches(vocab, order, a.tokens_per_batch, plan=[plan[bi] for bi in indices])
+            for bi in indices:
+                build_start = time.time()
+                b = next(batches)
+                ctx_host = atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann, device="cpu") if a.prefetch > 0 else None
+                yield bi, b, ctx_host, time.time() - build_start
+
+        src_iter = iter(_prefetch(build_batches(), a.prefetch) if a.prefetch > 0 else build_batches())
+        while True:
+            wait_start = time.time()
+            try:
+                bi, b, ctx_host, build_s = next(src_iter)
+            except StopIteration:
+                break
+            wait_s = time.time() - wait_start
+            shard_pos = bi if a.shard is None else bi // a.shard[1]
             tb = time.time()
             ids, am = b.input_ids.to(dev, non_blocking=True), b.attention_mask.to(dev, non_blocking=True)
             fwd_s = None
@@ -244,6 +323,8 @@ def main():
             ta0 = time.time()
             ctx = ctx_host.to(dev) if ctx_host is not None else atlas.make_ctx(b.n_rows, b.valid_rows, b.tok, b.ann)
             t_ctx = time.time() - ta0
+            if ctx_host is None:
+                build_s += t_ctx
             before = dict(atlas.stats)
             n_before = atlas.n_seen
             tie_acc.clear()
@@ -255,7 +336,7 @@ def main():
                 atlas.begin_batch(ctx, redo_layers=redo)
                 model(input_ids=ids, attention_mask=am)
                 assert atlas.end_batch() == []
-            gram_flushed = bi % a.gram_flush_every == a.gram_flush_every - 1
+            gram_flushed = shard_pos % a.gram_flush_every == a.gram_flush_every - 1
             if gram_flushed:
                 atlas.flush_gram()
             sync(dev)
@@ -278,9 +359,14 @@ def main():
                    "bulk_rows_in": s.get("bulk_rows_in", 0) - before.get("bulk_rows_in", 0),
                    "bulk_rows_kept": s.get("bulk_rows_kept", 0) - before.get("bulk_rows_kept", 0),
                    "pred_topk_frac_iid": a.K / (n_before + 1) if n_before else None}
+            rec.update(shard=a.shard, shard_pos=shard_pos, build_s=build_s, wait_s=wait_s)
+            if torch.device(dev).type == "cuda":
+                rec.update(gpu_mem_alloc=torch.cuda.memory_allocated(dev),
+                           gpu_mem_reserved=torch.cuda.memory_reserved(dev))
             if ties is not None and not redo and n_before:
                 rec["ties_at_tau_frac"] = ties / elems
             n_done += 1
+            batches_done += 1
             last_ckpt_s = None
             if (bi + 1) % a.ckpt_every == 0:
                 save_ckpt(bi + 1)
@@ -302,12 +388,19 @@ def main():
     res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed,
                 "n_total_plan": n_total, "n_batches": len(plan)})
     tf = time.time()
-    atomic_save(res, out / "atlas.pt")
+    output_path = out / ("shard.pt" if a.shard is not None else "atlas.pt")
+    if a.shard is None:
+        atomic_save(res, output_path)
+    else:
+        atomic_save({"atlas": atlas.state_dict(include_gram=True), "shard": a.shard,
+                     "plan_sha256": plan_sha256, "n_batches_plan": len(plan), "n_total_plan": n_total,
+                     "batches_done": batches_done, "args_key": _args_key(a),
+                     "model": info, "coverage": res["coverage"], "vocab": ds.vocab,
+                     "order_seed": a.seed}, output_path)
     final_s = time.time() - tf
-    digests = {k: hashlib.sha256(res[k].contiguous().numpy().tobytes()).hexdigest()
-               for k in ("top_val", "top_tok", "res_tok", "res_val", "res_key", "sub_bin", "enr", "ann_tot", "edges") if k in res}
+    digests = result_digests(res)
     sm = summary(True, len(plan))
-    sm.update({"digests": digests, "final_save_s": final_s, "atlas_pt_GB": (out / "atlas.pt").stat().st_size / 1e9,
+    sm.update({"digests": digests, "final_save_s": final_s, "atlas_pt_GB": output_path.stat().st_size / 1e9,
                "gram_rows": res.get("gram_rows"), "res_seeded_bins": res["res_seeded_bins"],
                "res_seed_limited_bins": res["res_seed_limited_bins"], "top_seed_short_groups": res["top_seed_short_groups"]})
     (out / "run.json").write_text(json.dumps(sm, indent=1))
@@ -372,7 +465,16 @@ def _args_key(a) -> dict:
     key = {k: getattr(a, k) for k in keep}
     if getattr(a, "control_seed", None) is not None:   # only when set, so earlier checkpoints still resume
         key["control_seed"] = a.control_seed
+    if getattr(a, "shard", None) is not None:
+        key["shard"] = a.shard
     return key
+
+
+def _pilot_args_key(a) -> dict:
+    keep = ["model", "control", "control_seed", "dtype", "tokens_per_batch", "window",
+            "sorted_batches", "pilot_tokens", "K", "Kr", "seed", "max_seqs", "max_batches",
+            "edge_q", "seed_thresholds"]
+    return {k: getattr(a, k) for k in keep}
 
 
 if __name__ == "__main__":
