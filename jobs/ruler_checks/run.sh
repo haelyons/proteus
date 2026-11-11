@@ -1,9 +1,10 @@
 #!/bin/bash
-# Frozen ruler checks. Env: JOB OUT FS DEADLINE; SMOKE=1 builds local inputs.
+# Frozen ruler checks. Env: JOB OUT FS DEADLINE; SMOKE=1 builds local inputs; POOLING=0 skips pooling.
 set -uo pipefail
 : "${JOB:?}" "${OUT:?}" "${FS:?}" "${DEADLINE:?}"
 PYTHON=${PYTHON:-python3}
 SMOKE=${SMOKE:-0}
+POOLING=${POOLING:-1}
 WORKERS=${WORKERS:-$(( $(nproc) > 2 ? $(nproc) - 2 : 1 ))}
 SHAPES_IN=${SHAPES:-}  # SHAPES=none: pooling check only (no planted shapes)
 SHAPES=${SHAPES:-"gauss gelu gelu_off randdir sae:0.1 sae:0.01 sae:0.001"}
@@ -13,6 +14,7 @@ if [ "$SMOKE" = 1 ]; then
   [ "$SHAPES_IN" = none ] || SHAPES="gauss sae:0.01"; PER_LAYER=8; NOISE=20
   [ "$WORKERS" -le 4 ] || WORKERS=4
 fi
+[[ "$POOLING" =~ ^[01]$ ]] || exit 2
 [[ "$DEADLINE" =~ ^[0-9]+$ && "$WORKERS" =~ ^[1-9][0-9]*$ && "$PER_LAYER" =~ ^[1-9][0-9]*$ ]] || exit 2
 OUT=$("$PYTHON" - "$OUT" "$SHAPES" <<'PYOUT'
 import sys
@@ -222,7 +224,7 @@ planted() {
   [[ "$shape" != sae:* ]] || extra=(--sae-rate "${shape#*:}")
   mkdir -p "$dir"
   step "planted_${shape}_build" build_columns "$threads" --data "$DATA" --desc-dir "$DESC_SUBSET" \
-    --uniref "$UNIREF" --shape "$base" "${extra[@]}" --mixtures --noise-columns "$NOISE" --out "$dir" || return
+    --gen-workers "$threads" --uniref "$UNIREF" --shape "$base" "${extra[@]}" --mixtures --noise-columns "$NOISE" --out "$dir" || return
   count=$("$PYTHON" - "$dir/columns.json" <<'PY'
 import json
 import sys
@@ -298,22 +300,24 @@ PIDS=()
 [ "$FAILED" = 0 ] || exit 1
 if [ "$SMOKE" = 1 ] && [ "$SHAPES" != none ]; then step smoke_parity smoke_parity || exit 1; fi
 
-mkdir -p "$OUT/pooling"
-step pooling_sample "$PYTHON" scripts/compare_sources.py sample --atlas "trained=$A8_PRE" "shuf1=$A8_SHUF1" \
-  "shuf2=$A8_SHUF2" "shuf3=$A8_SHUF3" --per-layer "$PER_LAYER" --seed 0 --out "$OUT/pooling/sample.json" || exit 1
-for source in trained shuf1 shuf2 shuf3; do
-  case "$source" in
-    trained) atlas=$A8_PRE;; shuf1) atlas=$A8_SHUF1;; shuf2) atlas=$A8_SHUF2;; shuf3) atlas=$A8_SHUF3;;
-  esac
-  step "pooling_score_$source" "$PYTHON" scripts/compare_sources.py score --sample "$OUT/pooling/sample.json" \
-    --source "$source" --atlas "$atlas" --desc "$DESC_WHOLE" --data "$DATA" --uniref "$UNIREF" \
-    --workers "$WORKERS" --out "$OUT/pooling/scores" || exit 1
-done
-step pooling_score_trained_4 "$PYTHON" scripts/compare_sources.py score --sample "$OUT/pooling/sample.json" \
-  --source trained --atlas "$A8_PRE" --desc "$DESC_WHOLE" --data "$DATA" --uniref "$UNIREF" \
-  --workers 4 --out "$OUT/pooling/scores_4" || exit 1
-for pool in trained trained,shuf1 trained,shuf1,shuf2,shuf3; do
-  step "pooling_summary_$pool" "$PYTHON" scripts/compare_sources.py summarise --scores "$OUT/pooling/scores" \
-    --pool "$pool" --out "$OUT/pooling/summary_$pool.json" || exit 1
-done
+if [ "$POOLING" = 1 ]; then
+  mkdir -p "$OUT/pooling"
+  step pooling_sample "$PYTHON" scripts/compare_sources.py sample --atlas "trained=$A8_PRE" "shuf1=$A8_SHUF1" \
+    "shuf2=$A8_SHUF2" "shuf3=$A8_SHUF3" --per-layer "$PER_LAYER" --seed 0 --out "$OUT/pooling/sample.json" || exit 1
+  for source in trained shuf1 shuf2 shuf3; do
+    case "$source" in
+      trained) atlas=$A8_PRE;; shuf1) atlas=$A8_SHUF1;; shuf2) atlas=$A8_SHUF2;; shuf3) atlas=$A8_SHUF3;;
+    esac
+    step "pooling_score_$source" "$PYTHON" scripts/compare_sources.py score --sample "$OUT/pooling/sample.json" \
+      --source "$source" --atlas "$atlas" --desc "$DESC_WHOLE" --data "$DATA" --uniref "$UNIREF" \
+      --workers "$WORKERS" --out "$OUT/pooling/scores" || exit 1
+  done
+  step pooling_score_trained_4 "$PYTHON" scripts/compare_sources.py score --sample "$OUT/pooling/sample.json" \
+    --source trained --atlas "$A8_PRE" --desc "$DESC_WHOLE" --data "$DATA" --uniref "$UNIREF" \
+    --workers 4 --out "$OUT/pooling/scores_4" || exit 1
+  for pool in trained trained,shuf1 trained,shuf1,shuf2,shuf3; do
+    step "pooling_summary_$pool" "$PYTHON" scripts/compare_sources.py summarise --scores "$OUT/pooling/scores" \
+      --pool "$pool" --out "$OUT/pooling/summary_$pool.json" || exit 1
+  done
+fi
 step report "$PYTHON" scripts/ruler_checks_report.py "$OUT" || exit 1
