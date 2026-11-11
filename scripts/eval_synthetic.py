@@ -35,10 +35,14 @@ def main():
     table = collections.defaultdict(lambda: collections.Counter())
     gate = collections.defaultdict(lambda: [0, 0])
     sub = collections.defaultdict(lambda: [0, 0])
+    ungraded = collections.Counter()
     for col in cols:
         c = calls[col["col"]]; t, al = col["type"], col["alpha"]
         key = c["call"] + (f" / {c.get('primary')} {c.get('mode_label', '')} {c.get('persistence', '')}".rstrip() if c.get("mode_label") else "")
         table[(t, al)][key] += 1
+        if t not in EXPECT:
+            ungraded[(t, al)] += 1
+            continue
         if 0 < al < a.min_alpha and t != "noise":  # below the gate's SNR: descriptive only (detected = any association)
             sub[t][0] += c["call"] != NONE; sub[t][1] += 1
             continue
@@ -55,6 +59,8 @@ def main():
     rows = {f"{t} alpha={al}": dict(v) for (t, al), v in sorted(table.items())}
     res = {"min_alpha": a.min_alpha, "gate": {k: f"{v[0]}/{v[1]}" for k, v in sorted(gate.items())},
            "detected_below_gate": {k: f"{v[0]}/{v[1]}" for k, v in sorted(sub.items())}, "calls_by_type_alpha": rows}
+    if ungraded:
+        res["ungraded"] = {f"{t} alpha={al}": n for (t, al), n in sorted(ungraded.items())}
     Path(a.out).write_text(json.dumps(res, indent=1))
     for k, v in sorted(gate.items()):
         print(f"{k:30s} {v[0]}/{v[1]}")
