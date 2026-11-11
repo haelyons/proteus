@@ -13,6 +13,7 @@ the K-th largest of N earlier ones with probability K/(N+1).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import resource
 import queue
@@ -26,8 +27,9 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from atlas.core import Atlas, AtlasConfig, gemm_paths, result_digests  # noqa: E402
+from atlas.columns import attach_sources, parse_sources  # noqa: E402
 from atlas.data import SwissProt, shuffled_order, plan_digest  # noqa: E402
-from atlas.esm import attach, flops_per_batch, load, pilot  # noqa: E402
+from atlas.esm import flops_per_batch, load, pilot  # noqa: E402
 from atlas.reference import pilot_edges  # noqa: E402
 
 
@@ -63,6 +65,7 @@ def main():
     process_start = time.time()
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="8M")
+    ap.add_argument("--columns", default="neurons_pre")
     ap.add_argument("--control", default="none", choices=["none", "shuffled", "random"])
     ap.add_argument("--control-seed", type=int, default=None,
                     help="seed of the weight shuffle / re-init only (default --seed); the stream, hashes and plan keep --seed")
@@ -151,6 +154,11 @@ def main():
     info["control_seed"] = a.seed if a.control_seed is None else a.control_seed
     vocab = tok.get_vocab()
     L, D = info["n_layers"], info["d_ff"]
+    try:
+        sources = parse_sources(a.columns, D)
+    except ValueError as e:
+        ap.error(str(e))
+    multi = len(sources) != 1 or sources[0].name != "neurons_pre"
     plan = ds.plan(order, a.tokens_per_batch, a.window, a.seed, shuffle_batches=not a.sorted_batches)
     if a.max_batches:
         plan = plan[: a.max_batches]
@@ -166,6 +174,8 @@ def main():
     artifact = None
     if a.pilot_from:
         artifact = torch.load(a.pilot_from, map_location="cpu", weights_only=False)
+        if artifact["args_key"].get("columns", "neurons_pre") != a.columns:
+            ap.error("--pilot-from mismatch: args_key.columns")
         expected = {"plan_sha256": plan_sha256, "n_total": n_total}
         for k, value in expected.items():
             if artifact[k] != value:
@@ -173,62 +183,93 @@ def main():
         for k, value in _pilot_args_key(a).items():
             if k not in artifact["args_key"] or artifact["args_key"][k] != value:
                 ap.error(f"--pilot-from mismatch: args_key.{k}")
+    if multi and a.edges_from:
+        ap.error("--edges-from supports only the single neurons_pre source; use --pilot-from for column sources")
     if ck is not None:
         st = torch.load(ck, weights_only=False)
         assert st["args_key"] == _args_key(a), "resume with different run arguments"
-        E = st["atlas"]["E"]
+        states = [st["sources"][s.name] for s in sources] if multi else [st["atlas"]]
+        edges = [state["E"] for state in states]
+        seeds_by_source = [None] * len(sources)
         start = st["next_batch"]
     else:
-        seeds = None
+        seeds_by_source = [None] * len(sources)
         if artifact is not None:
-            E = artifact["edges"]
-            if artifact["top_seed"] is not None or artifact["res_seed_key"] is not None:
-                seeds = (artifact["top_seed"], artifact["res_seed_key"])
-            Hp = None
+            entries = [artifact["sources"][s.name] for s in sources] if multi else [artifact]
+            edges = [entry["edges"] for entry in entries]
+            seeds_by_source = [(entry["top_seed"], entry["res_seed_key"])
+                               if entry["top_seed"] is not None or entry["res_seed_key"] is not None else None
+                               for entry in entries]
         elif a.edges_from and not a.seed_thresholds:
             src = torch.load(a.edges_from, map_location="cpu", weights_only=False)
-            E = src["edges"] if "edges" in src else src["atlas"]["E"]
-            Hp = None
-            print(f"[atlas] bin edges from {a.edges_from} {tuple(E.shape)}; no pilot", flush=True)
+            edges = [src["edges"] if "edges" in src else src["atlas"]["E"]]
+            print(f"[atlas] bin edges from {a.edges_from} {tuple(edges[0].shape)}; no pilot", flush=True)
         else:
             pplan = ds.pilot_plan(plan, a.pilot_tokens, a.tokens_per_batch, a.seed)  # random sequences, all lengths
-            Hp, n_pilot = pilot(model, ds.batches(vocab, order, a.tokens_per_batch, plan=pplan), dev, 1 << 40)
+            batches = ds.batches(vocab, order, a.tokens_per_batch, plan=pplan)
+            if multi:
+                values, pilot_tok = _pilot_sources(model, sources, batches, dev)
+            else:
+                Hp, n_pilot = pilot(model, batches, dev, 1 << 40)
+                values, pilot_tok = [Hp], pilot.last_tok
+                del Hp
             if a.edges_from:
                 src = torch.load(a.edges_from, map_location="cpu", weights_only=False)
-                E = src["edges"] if "edges" in src else src["atlas"]["E"]
+                edges = [src["edges"] if "edges" in src else src["atlas"]["E"]]
             else:
-                E = torch.cat([pilot_edges([h.to(dev)], probs=tuple(a.edge_q)).cpu() for h in Hp])  # one layer on device at a time
-        if a.seed_thresholds and artifact is None:
-            from atlas.reference import pilot_seeds
-            prot = pilot.last_tok // 1024  # protein of each pilot row: tails cluster within proteins
-            parts = [pilot_seeds([h.to(dev)], E[li:li + 1].to(dev), a.K, a.Kr, n_total, groups=prot)
-                     for li, h in enumerate(Hp)]
-            seeds = (torch.cat([p_[0] for p_ in parts]), torch.cat([p_[1] for p_ in parts]))
-        del Hp
+                edges = [torch.cat([pilot_edges([h.to(dev)], probs=tuple(a.edge_q)).cpu() for h in Hp])
+                         for Hp in values]  # one layer on device at a time
+            if a.seed_thresholds:
+                from atlas.reference import pilot_seeds
+                prot = pilot_tok // 1024  # protein of each pilot row: tails cluster within proteins
+                for i, (Hp, E) in enumerate(zip(values, edges)):
+                    parts = [pilot_seeds([h.to(dev)], E[li:li + 1].to(dev), a.K, a.Kr, n_total, groups=prot)
+                             for li, h in enumerate(Hp)]
+                    seeds_by_source[i] = (torch.cat([p_[0] for p_ in parts]), torch.cat([p_[1] for p_ in parts]))
+            del values
+            if a.seed_thresholds:
+                del Hp
         start = a.plan_offset
     if a.pilot_out:
-        # Resumed states retain the applied thresholds in their internal representation.
-        if ck is not None:
-            top_seed = st["atlas"]["top_seed"].view(L, 2, D) if a.seed_thresholds else None
-            rs = st["atlas"]["res_seed"]
-            res_seed_key = torch.where(rs == torch.iinfo(torch.int64).min, 2**32, -rs).view(E.shape) if a.seed_thresholds else None
-        else:
-            top_seed, res_seed_key = seeds if seeds is not None else (None, None)
-        atomic_save({"edges": E, "top_seed": top_seed, "res_seed_key": res_seed_key,
-                     "n_total": n_total, "n_batches": len(plan), "plan_sha256": plan_sha256,
-                     "args_key": _pilot_args_key(a), "model": info}, Path(a.pilot_out))
+        entries = {}
+        for i, (source, E) in enumerate(zip(sources, edges)):
+            # Resumed states retain the applied thresholds in their internal representation.
+            if ck is not None:
+                state = states[i]
+                top_seed = state["top_seed"].view(L, 2, source.width) if a.seed_thresholds else None
+                rs = state["res_seed"]
+                res_seed_key = torch.where(rs == torch.iinfo(torch.int64).min, 2**32, -rs).view(E.shape) if a.seed_thresholds else None
+            else:
+                seeds = seeds_by_source[i]
+                top_seed, res_seed_key = seeds if seeds is not None else (None, None)
+            entries[source.name] = {"edges": E, "top_seed": top_seed, "res_seed_key": res_seed_key}
+        payload = {"sources": entries} if multi else entries[sources[0].name]
+        payload.update(n_total=n_total, n_batches=len(plan), plan_sha256=plan_sha256,
+                       args_key=_pilot_args_key(a), model=info)
+        atomic_save(payload, Path(a.pilot_out))
         if a.pilot_only:
             return
     t_pilot = time.time() - t1
-    atlas = Atlas(L, D, E, cfg, n_annot=len(ds.vocab) if cfg.subsample else 0, device=dev)
-    if ck is not None:
-        atlas.load_state_dict(st["atlas"])
-        print(f"[atlas] resumed from {ck.name}: batch {start}/{len(plan)}, n_seen {atlas.n_seen}", flush=True)
-    elif seeds is not None:
-        atlas.seed(*seeds)
-        print(f"[atlas] seeded thresholds for n_total={n_total}: reservoir bins seeded "
-              f"{int((atlas.res_seed != torch.iinfo(torch.int64).min).sum())}/{atlas.res_seed.numel()}", flush=True)
-    attach(model, atlas.observe)
+    atlases = []
+    for i, (source, E, seeds) in enumerate(zip(sources, edges, seeds_by_source)):
+        current = Atlas(L, source.width, E, cfg, n_annot=len(ds.vocab) if cfg.subsample else 0, device=dev)
+        if ck is not None:
+            current.load_state_dict(states[i])
+            print(f"[atlas] resumed from {ck.name}: batch {start}/{len(plan)}, n_seen {current.n_seen}", flush=True)
+        elif seeds is not None:
+            current.seed(*seeds)
+            print(f"[atlas] seeded thresholds for n_total={n_total}: reservoir bins seeded "
+                  f"{int((current.res_seed != torch.iinfo(torch.int64).min).sum())}/{current.res_seed.numel()}", flush=True)
+        atlases.append(current)
+    atlas = atlases[0]
+    participating = set(range(len(sources)))
+    hooks_enabled = True
+
+    def dispatch(i, l, H):
+        if hooks_enabled and i in participating:
+            atlases[i].observe(l, H)
+
+    handles = attach_sources(model, sources, dispatch)
     tie_acc = {}
     if a.count_ties:
         orig = atlas.observe
@@ -236,20 +277,31 @@ def main():
         def observe_ties(l, H, _orig=orig):
             if l in atlas._active and l not in atlas._dense_layers:
                 v = atlas.ctx.rowmap >= 0
-                thr = atlas.top_s[:, -1].view(L, 2, D)[l]
+                thr = atlas.top_s[:, -1].view(L, 2, sources[0].width)[l]
                 eq = (((H.float() == thr[0]) | (-H.float() == thr[1])) & v[:, None]).sum()
                 tie_acc[l] = eq
             _orig(l, H)
-        for m in model.encoder.layer:
-            m.intermediate.dense._forward_hooks.clear()
-        attach(model, observe_ties)
+
+        def dispatch_ties(i, l, H):
+            if hooks_enabled and i in participating:
+                if i == 0:
+                    observe_ties(l, H)
+                else:
+                    atlases[i].observe(l, H)
+
+        for handle in handles:
+            handle.remove()
+        attach_sources(model, sources, dispatch_ties)
 
     def summary(done: bool, bi: int):
         sm = {"args": vars(a), "model": info, "coverage": ds.coverage(order), "n_excluded": n_excluded, "n_batches_plan": len(plan),
-                "next_batch": bi, "complete": done, "seconds": {"load": t_load, "pilot": t_pilot,
+                "n_total_plan": n_total, "next_batch": bi, "complete": done, "seconds": {"load": t_load, "pilot": t_pilot,
                 "stream_this_process": time.time() - t2}, "n_seen": atlas.n_seen, "stats": atlas.stats,
                 "gemm_paths": gemm_paths(),
                 "host": {"cpus": os.cpu_count(), "peak_rss_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024}}
+        if multi:
+            sm.update(columns=a.columns, sources={source.name: source_summary(i)
+                                                  for i, source in enumerate(sources)})
         sm["seconds"].update(final_save=final_s, total=time.time() - process_start)
         if a.shard is not None:
             sm.update(shard=a.shard, plan_sha256=plan_sha256, batches_done=batches_done)
@@ -262,6 +314,30 @@ def main():
                 sm["gpu"]["uuid"] = str(props.uuid)
         return sm
 
+    source_results = {}
+    directions_sha256 = {}
+    if multi:
+        for source in sources:
+            if source.name.startswith("randdir"):
+                R = [source.directions(l, "cpu", torch.float32) for l in range(L)]
+                sha256 = hashlib.sha256(b"".join(r.numpy().tobytes() for r in R)).hexdigest()
+                directions_sha256[source.name] = sha256
+                atomic_save({"seed": source.seed, "M": source.width, "R": R, "sha256": sha256},
+                            out / f"directions_{source.name}.pt")
+
+    def source_summary(i):
+        source, current = sources[i], atlases[i]
+        entry = {"width": source.width, "stats": current.stats, "n_seen": current.n_seen}
+        result = source_results.get(source.name)
+        verification = result if result is not None else current.verify_seeds()
+        entry.update({k: verification[k]
+                      for k in ("res_seeded_bins", "res_seed_limited_bins", "top_seed_short_groups")})
+        if result is not None and a.shard is None:
+            entry["digests"] = result_digests(result)
+        if source.name in directions_sha256:
+            entry["directions_sha256"] = directions_sha256[source.name]
+        return entry
+
     final_s = 0.0
     batches_done = st.get("batches_done", atlas.stats["batches"]) if ck is not None else 0
     logf = open(out / "batches.jsonl", "a")
@@ -270,7 +346,10 @@ def main():
     def save_ckpt(next_batch):
         nonlocal ckpt_s, last_ckpt_s
         t = time.time()
-        atomic_save({"atlas": atlas.state_dict(include_gram=a.shard is not None), "next_batch": next_batch,
+        state = ({"sources": {source.name: current.state_dict(include_gram=True)
+                              for source, current in zip(sources, atlases)}} if multi else
+                 {"atlas": atlas.state_dict(include_gram=a.shard is not None)})
+        atomic_save({**state, "next_batch": next_batch,
                      "batches_done": batches_done, "args_key": _args_key(a),
                      "model": info}, out / "ckpt" / f"ckpt_{next_batch}.pt")
         for old in sorted((out / "ckpt").glob("ckpt_*.pt"), key=lambda p: int(p.stem.split("_")[1]))[:-2]:
@@ -308,13 +387,13 @@ def main():
             ids, am = b.input_ids.to(dev, non_blocking=True), b.attention_mask.to(dev, non_blocking=True)
             fwd_s = None
             if a.pair_forward or (a.pair_every and bi % a.pair_every == 0):  # same batch, hooks off: the baseline
-                atlas.enabled = False
+                hooks_enabled = False
                 sync(dev)
                 tf0 = time.time()
                 model(input_ids=ids, attention_mask=am)
                 sync(dev)
                 fwd_s = time.time() - tf0
-                atlas.enabled = True
+                hooks_enabled = True
             prof = None
             if bi in a.profile_at:
                 acts = [torch.profiler.ProfilerActivity.CPU] + ([torch.profiler.ProfilerActivity.CUDA] if str(dev).startswith("cuda") else [])
@@ -328,17 +407,24 @@ def main():
             before = dict(atlas.stats)
             n_before = atlas.n_seen
             tie_acc.clear()
-            atlas.begin_batch(ctx)
+            participating = set(range(len(sources)))
+            for current in atlases:
+                current.begin_batch(ctx)
             model(input_ids=ids, attention_mask=am)
             ties = int(sum(tie_acc.values())) if tie_acc else None
-            redo = atlas.end_batch()
+            redos = [current.end_batch() for current in atlases]
+            redo = sorted({l for layers in redos for l in layers})
             if redo:
-                atlas.begin_batch(ctx, redo_layers=redo)
+                participating = {i for i, layers in enumerate(redos) if layers}
+                for i in sorted(participating):
+                    atlases[i].begin_batch(ctx, redo_layers=redos[i])
                 model(input_ids=ids, attention_mask=am)
-                assert atlas.end_batch() == []
+                for i in sorted(participating):
+                    assert atlases[i].end_batch() == []
             gram_flushed = shard_pos % a.gram_flush_every == a.gram_flush_every - 1
             if gram_flushed:
-                atlas.flush_gram()
+                for current in atlases:
+                    current.flush_gram()
             sync(dev)
             atlas_s = time.time() - ta0
             if prof is not None:
@@ -346,7 +432,7 @@ def main():
                 _write_profile(prof, out / f"profile_batch_{bi}.txt", dev)
                 print(f"[atlas] profiled batch {bi} -> profile_batch_{bi}.txt", flush=True)
             s = atlas.stats
-            elems = 2 * ctx.n_v * D * L
+            elems = 2 * ctx.n_v * sources[0].width * L
             rec = {"batch": bi, "n_seen_before": n_before, "n_valid": ctx.n_v, "rows": b.n_rows,
                    "Lmax": int(b.input_ids.shape[1]), "seconds": time.time() - tb, "t_start": tb, "t_end": time.time(),
                    "fwd_only_s": fwd_s, "atlas_pass_s": atlas_s, "make_ctx_s": t_ctx,
@@ -359,6 +445,8 @@ def main():
                    "bulk_rows_in": s.get("bulk_rows_in", 0) - before.get("bulk_rows_in", 0),
                    "bulk_rows_kept": s.get("bulk_rows_kept", 0) - before.get("bulk_rows_kept", 0),
                    "pred_topk_frac_iid": a.K / (n_before + 1) if n_before else None}
+            if multi:
+                rec["redo_layers_by_source"] = {source.name: layers for source, layers in zip(sources, redos)}
             rec.update(shard=a.shard, shard_pos=shard_pos, build_s=build_s, wait_s=wait_s)
             if torch.device(dev).type == "cuda":
                 rec.update(gpu_mem_alloc=torch.cuda.memory_allocated(dev),
@@ -384,23 +472,33 @@ def main():
                 (out / "run.json").write_text(json.dumps(summary(False, bi + 1), indent=1))
                 return
     logf.close()
-    if a.shard is None:
-        res = atlas.result()
-        res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed,
-                    "n_total_plan": n_total, "n_batches": len(plan)})
-    else:
-        res = atlas.verify_seeds()
-        res["gram_rows"] = atlas.gram_rows
     tf = time.time()
-    output_path = out / ("shard.pt" if a.shard is not None else "atlas.pt")
-    if a.shard is None:
-        atomic_save(res, output_path)
-    else:
-        atomic_save({"atlas": atlas.state_dict(include_gram=True), "shard": a.shard,
-                     "plan_sha256": plan_sha256, "n_batches_plan": len(plan), "n_total_plan": n_total,
-                     "batches_done": batches_done, "args_key": _args_key(a),
-                     "model": info, "coverage": ds.coverage(order), "vocab": ds.vocab,
-                     "order_seed": a.seed}, output_path)
+    output_paths = []
+    for source, current in zip(sources, atlases):
+        if a.shard is None:
+            res = current.result()
+            res.update({"model": info, "coverage": ds.coverage(order), "vocab": ds.vocab, "order_seed": a.seed,
+                        "n_total_plan": n_total, "n_batches": len(plan)})
+        else:
+            res = current.verify_seeds()
+            res["gram_rows"] = current.gram_rows
+        stem = "shard" if a.shard is not None else "atlas"
+        output_path = out / (f"{stem}_{source.name}.pt" if multi else f"{stem}.pt")
+        if a.shard is None:
+            atomic_save(res, output_path)
+        else:
+            payload = {"atlas": current.state_dict(include_gram=True), "shard": a.shard,
+                       "plan_sha256": plan_sha256, "n_batches_plan": len(plan), "n_total_plan": n_total,
+                       "batches_done": batches_done, "args_key": _args_key(a),
+                       "model": info, "coverage": ds.coverage(order), "vocab": ds.vocab,
+                       "order_seed": a.seed}
+            if multi:
+                payload["source"] = source.name
+            atomic_save(payload, output_path)
+        source_results[source.name] = res
+        output_paths.append(output_path)
+    res = source_results[sources[0].name]
+    output_path = output_paths[0]
     final_s = time.time() - tf
     digests = result_digests(res) if a.shard is None else None
     sm = summary(True, len(plan))
@@ -415,6 +513,27 @@ def main():
           f"{res['res_seed_limited_bins']} of {res['res_seeded_bins']} seeded bins short, top-K groups short {res['top_seed_short_groups']}", flush=True)
     print(json.dumps({k: v for k, v in summary(True, len(plan)).items() if k in ("model", "coverage", "seconds", "n_seen")}, indent=1))
     print("stats", atlas.stats)
+
+
+@torch.no_grad()
+def _pilot_sources(model, sources, batches, device):
+    bufs = [[[] for _ in model.encoder.layer] for _ in sources]
+    rows = None
+
+    def sink(i, l, H):
+        bufs[i][l].append(H.index_select(0, rows).cpu())
+
+    handles = attach_sources(model, sources, sink)
+    toks = []
+    try:
+        for b in batches:
+            rows = b.valid_rows.to(device)
+            model(input_ids=b.input_ids.to(device), attention_mask=b.attention_mask.to(device))
+            toks.append(b.tok)
+    finally:
+        for handle in handles:
+            handle.remove()
+    return [[torch.cat(layer) for layer in source] for source in bufs], torch.cat(toks)
 
 
 def _prefetch(it, n):
@@ -474,6 +593,8 @@ def _args_key(a) -> dict:
         key["control_seed"] = a.control_seed
     if getattr(a, "shard", None) is not None:
         key["shard"] = a.shard
+    if a.columns != "neurons_pre":
+        key["columns"] = a.columns
     return key
 
 
@@ -481,7 +602,10 @@ def _pilot_args_key(a) -> dict:
     keep = ["model", "control", "control_seed", "dtype", "tokens_per_batch", "window",
             "sorted_batches", "pilot_tokens", "K", "Kr", "seed", "max_seqs", "max_batches",
             "edge_q", "seed_thresholds"]
-    return {k: getattr(a, k) for k in keep}
+    key = {k: getattr(a, k) for k in keep}
+    if a.columns != "neurons_pre":
+        key["columns"] = a.columns
+    return key
 
 
 if __name__ == "__main__":
