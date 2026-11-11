@@ -120,8 +120,8 @@ def fetch_after_done(jup, base, out, files, ev):
         for attempt in range(3):
             try:
                 data = jup.get_bytes(f"{base}/{f}")
-                (out / f).parent.mkdir(parents=True, exist_ok=True)
-                (out / f).write_bytes(data)
+                (out / "job" / f).parent.mkdir(parents=True, exist_ok=True)  # job/: the launcher keeps its own timeline.json in out/
+                (out / "job" / f).write_bytes(data)
                 ev("fetched", file=f, bytes=len(data))
                 break
             except Exception as e:  # noqa: BLE001
@@ -229,8 +229,8 @@ def main():
                 pass
             for f in a.mirror:
                 try:
-                    (out / f).parent.mkdir(parents=True, exist_ok=True)
-                    (out / f).write_text(jup.read_text(f"{base}/{f}"))
+                    (out / "job" / f).parent.mkdir(parents=True, exist_ok=True)
+                    (out / "job" / f).write_text(jup.read_text(f"{base}/{f}"))
                 except Exception:  # noqa: BLE001
                     pass
             try:

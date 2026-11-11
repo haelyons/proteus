@@ -129,7 +129,7 @@ SMOKE=1 JOB=smoke OUT=/tmp/smoke FS=/tmp/fs DEADLINE=$(( $(date +%s) + 3600 )) b
 
 ## GPU jobs (Lambda Cloud, HTTPS only)
 
-`infra/lambda_job.py` picks the first instance type with capacity from a preference list in any
+`infra/lambda_job.py` (fetched and mirrored job files land under `infra/runs/<run>/job/`) picks the first instance type with capacity from a preference list in any
 allowed region (`--type a,b,c --region any`), creates a per-region filesystem if needed, launches
 with a cloud-init inbox runner, uploads job and inputs through the instance's Jupyter contents API
 (chunked for large files), mirrors job output from the persistent filesystem on every poll, and
