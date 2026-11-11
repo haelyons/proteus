@@ -85,12 +85,12 @@ def run_record(path, smi):
                                             else b.get('redo_layers', 0) for b in batches)
     redo_batches = None if batches is None else sum(bool(b.get('redo_layers')) for b in batches)
     model = run.get('model', {})
-    d, layers = model.get('d_ff'), model.get('n_layers')
-    filtered = [b for b in batches if not b.get('redo_layers')] if batches is not None else None
-    filtered_candidates = (total(b.get('compacted_frac') * 2 * b['n_valid'] * d * layers
-                                 if b.get('compacted_frac') is not None else None for b in filtered)
-                           if filtered is not None and d is not None and layers is not None else None)
-    filtered_layer_batches = len(filtered) * layers if filtered is not None and layers is not None else None
+    layers = model.get('n_layers')
+    stats = run.get('stats', {})
+    filtered_candidates = stats.get('compacted')
+    filtered_layer_batches = (stats['batches'] * layers - stats['dense_layer_batches']
+                              if layers is not None and stats.get('batches') is not None
+                              and stats.get('dense_layer_batches') is not None else None)
     sizes = read(path / 'output_files.json')
     if sizes is None:
         sizes = {p.name: p.stat().st_size for p in path.glob('*.pt') if p.is_file()}
@@ -145,7 +145,7 @@ def main():
         time_path = root / 'merge_time.txt'
         match = re.search(r'Maximum resident set size \(kbytes\):\s*(\d+)', time_path.read_text()) if time_path.is_file() else None
         merge_record['time_v_peak_rss_bytes'] = int(match.group(1)) * 1024 if match else None
-        record = {'pilot_s': pilot_s, 'wall_N': wall, 'speedup_e2e': ratio(wall_1, wall),
+        record = {'pilot_s': pilot_s, 'wall_1': wall_1, 'wall_N': wall, 'speedup_e2e': ratio(wall_1, wall),
                   'efficiency': ratio(ratio(wall_1, wall), n), 'stream': stream,
                   'speedup_stream': ratio(single['seconds']['stream_this_process'], stream),
                   'imbalance': ratio(stream, statistics.mean(streams)) if complete else None,

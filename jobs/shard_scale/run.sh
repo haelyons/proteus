@@ -164,12 +164,8 @@ shards() {
   local -a pids=()
   trap 'for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; for pid in "${pids[@]}"; do wait "$pid" 2>/dev/null || true; done; exit 143' TERM INT
   for ((i=0; i<n; i++)); do
-    if [ "$SMOKE" = 1 ]; then
-      step "shard_n${n}_s${i}" "$PYTHON" scripts/run_atlas.py "$@" --pilot-from "$SCRATCH/pilot.pt" --shard "$i/$n" --out "$SCRATCH/n$n/s$i" || bad=1
-    else
-      step "shard_n${n}_s${i}" env CUDA_VISIBLE_DEVICES="$i" "$PYTHON" scripts/run_atlas.py "$@" --pilot-from "$SCRATCH/pilot.pt" --shard "$i/$n" --out "$SCRATCH/n$n/s$i" &
-      pids+=("$!")
-    fi
+    step "shard_n${n}_s${i}" env CUDA_VISIBLE_DEVICES="$i" "$PYTHON" scripts/run_atlas.py "$@" --pilot-from "$SCRATCH/pilot.pt" --shard "$i/$n" --out "$SCRATCH/n$n/s$i" &
+    pids+=("$!")
   done
   for pid in "${pids[@]}"; do wait "$pid" || bad=1; done
   trap - TERM INT
@@ -237,7 +233,7 @@ naive_pair() {
   trap 'for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; for pid in "${pids[@]}"; do wait "$pid" 2>/dev/null || true; done; exit 143' TERM INT
   step "${pair}_filtered" env CUDA_VISIBLE_DEVICES=0 "$PYTHON" scripts/run_atlas.py "$@" "${bounds[@]}" "${pilot[@]}" --out "$SCRATCH/naive/$pair/filtered" &
   pids+=("$!")
-  if [ "$gpus" -lt 2 ]; then
+  if [ "$gpus" -lt 2 ] && [ "$SMOKE" != 1 ]; then
     wait "${pids[0]}" || bad=1
     pids=()
   fi
@@ -256,7 +252,7 @@ if [ "$SMOKE" = 1 ]; then
   NS="1 2"; GPUS=1
   DATA=${SMOKE_DATA:-data/swissprot_test500.pt}
   HELD=lists/heldout_created_after_2021-11-17.tsv
-  LIMITS=(--max-seqs 160)
+  LIMITS=(--max-seqs 128)
   EDGES=(0.3 0.5 0.7 0.9 0.99)
   NAIVE_PREFIX=2; NAIVE_OFFSET=4; NAIVE_STEADY=1
 else
