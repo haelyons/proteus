@@ -171,6 +171,12 @@ dtype. torch 2.15 computes them in float64; measured on 42 input groups (float32
 to 5,000,001, ties, negatives), the float64 definition matched `torch.quantile` bitwise in all 42
 and the dtype definition differed in 5. In float32, ranks above 2^24 are also too coarse.
 
+Correction 2 (2026-11-12, before any use): "bitwise" means bitwise **up to the sign of zero**
+(compare `t + 0.0`). torch's sort puts tied -0.0 and +0.0 in an unspecified order, which is neither
+the default nor the stable `Tensor.sort`. On 216 input groups, 6 differed from `torch.quantile` and
+all 6 only in the sign of a zero. The cut points are thresholds, so the sign of zero changes no
+class.
+
 Amendment 5c (2026-11-12, after the first launch stopped at the reproduction gate; the owner's
 decision): the reproduction criterion of section 1 is replaced. On the machine that runs it, the
 module and the legacy `scripts/unit_writes.py` silencing hook (its `silenced()`: post-GELU set to

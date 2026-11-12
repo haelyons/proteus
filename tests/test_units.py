@@ -192,7 +192,8 @@ def test_quantile_linear_matches_torch_bitwise(study, dtype, n, ties):
     actual = quantile_linear(x, q)
     assert actual.shape == q.shape
     assert actual.dtype == x.dtype
-    assert torch.equal(actual.view(torch.uint8), expected.view(torch.uint8))
+    # Amendment 5d, correction 2: bitwise up to the sign of zero (t + 0.0 maps -0.0 to +0.0).
+    assert torch.equal((actual + 0.0).view(torch.uint8), (expected + 0.0).view(torch.uint8))
 
 
 def test_quantile_linear_above_torch_size_limit(study):
@@ -215,7 +216,7 @@ def test_quantile_linear_above_torch_size_limit(study):
     assert actual.dtype == x.dtype
     assert torch.all(lower <= actual)
     assert torch.all(actual <= upper)
-    assert torch.equal(actual.view(torch.uint8), expected.view(torch.uint8))
+    assert torch.equal((actual + 0.0).view(torch.uint8), (expected + 0.0).view(torch.uint8))
 
 
 def _json(path):
