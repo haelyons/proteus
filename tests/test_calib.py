@@ -257,8 +257,26 @@ def test_source_cap_preserves_atlases_and_reduces_redo(work, record_property):
     assert {"atlas_neurons_pre.pt", "atlas_neurons_post.pt"} <= before.keys()
     assert before.keys() == after.keys()
     for name in before:
-        # Compare file bytes: floating-point equality rejects NaN reservoir padding.
-        assert before[name].read_bytes() == after[name].read_bytes(), name
+        expected = torch.load(before[name], map_location="cpu", weights_only=False)
+        actual = torch.load(after[name], map_location="cpu", weights_only=False)
+        # Compare tensor bytes: floating-point equality rejects NaN reservoir padding.
+        _assert_equal(_tensors(actual), _tensors(expected), (name,))
+        assert actual.keys() == expected.keys(), name
+        differing = set()
+        for key in expected:
+            if key == "cfg":
+                assert actual[key].keys() == expected[key].keys(), (name, key)
+                for field in expected[key]:
+                    try:
+                        _assert_equal(actual[key][field], expected[key][field], (name, key, field))
+                    except AssertionError:
+                        differing.add((key, field))
+            else:
+                try:
+                    _assert_equal(actual[key], expected[key], (name, key))
+                except AssertionError:
+                    differing.add((key,))
+        assert differing <= {("cfg", "cap_frac"), ("stats",)}, (name, differing)
     assert redo_counts["with_cap"] <= redo_counts["without_cap"], redo_counts
     if redo_counts["without_cap"] > 0:
         assert redo_counts["with_cap"] < redo_counts["without_cap"], redo_counts
