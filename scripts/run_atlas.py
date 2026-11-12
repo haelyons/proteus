@@ -264,6 +264,12 @@ def main():
                        args_key=_pilot_args_key(a), model=info)
         atomic_save(payload, Path(a.pilot_out))
         if a.pilot_only:
+            summary = {"args": vars(a), "model": info, "coverage": ds.coverage(order),
+                       "n_excluded": n_excluded, "n_batches_plan": len(plan), "n_total_plan": n_total,
+                       "plan_sha256": plan_sha256, "complete": True,
+                       "seconds": {"load": t_load, "pilot": time.time() - t1,
+                                   "total": time.time() - process_start}}
+            (out / "run.json").write_text(json.dumps(summary, indent=1))
             return
     t_pilot = time.time() - t1
     atlases = []
