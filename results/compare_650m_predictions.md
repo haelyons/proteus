@@ -68,3 +68,20 @@ preflight restored as in `jobs/compare_8m/run.sh`; weights cached on local `$SCR
 atlas and merge processes get `nproc / 8` threads, as in shard_scale's measured 650M runs (1 thread
 in SMOKE, so the SMOKE path is unchanged). The owner halted all work before a requeue. Q1–Q16 stand
 as sealed.
+
+## Second launch (2026-11-12): stopped at `inputs`; no predictions measured
+
+Run `compare-650m-20261112-2258`, owner's yes to requeue without a SMOKE rerun: one
+`gpu_8x_a100_80gb_sxm4` (A100 SXM4 80 GB, $22.32/h), us-east-1, launched 23:08:03Z on attempt 3,
+healthy 23:15:36Z, terminated 23:20:10Z (about 5 billed minutes, about $2). `preflight` passed (the
+first launch's fix held); `inputs` failed with
+`FileNotFoundError: compare-650m-20261112-2258/results_8m_compare.json`. The spec's interface
+section names the path `$JOB/results_8m_compare.json`, but `$JOB` is the run name, not a directory;
+the launcher unpacks `--include` files into the working directory (step 6 of the spec already says
+`results_8m_compare.json`). SMOKE self-compares, so it never reads this path.
+
+Integrator fix: `SMALL_COMPARE` defaults to `$PWD/results_8m_compare.json`; spec correction noted
+under the interface. Checked locally by unpacking the launcher's bundle: the file resolves, sha256
+equals `results/compare_8m_20261112/compare.json`; `scripts/h3_report.py` parses the real 8M
+`compare.json` (self-comparison: all trends `"flat"`, H1 `"against"`). The 80 GB card does not
+change Q12's limits; Q11 and Q14–Q16 stand as sealed.

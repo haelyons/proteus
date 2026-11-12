@@ -253,7 +253,8 @@ else
   HELD=heldout_created_after_2021-11-17.tsv
   DESC=$FS/descriptors_swissprot_2026_03.pt
   UNIREF=lists/swissprot_2026_03_uniref50.tsv.gz
-  SMALL_COMPARE=${SMALL_COMPARE:-$JOB/results_8m_compare.json}
+  # JOB is the run name, not a directory; the launcher unpacks --include files into the working directory.
+  SMALL_COMPARE=${SMALL_COMPARE:-$PWD/results_8m_compare.json}
   LIMITS=(); EDGES=(0.5 0.9 0.99 0.999 0.9999 0.99999)
   step preflight preflight || exit 2
 fi

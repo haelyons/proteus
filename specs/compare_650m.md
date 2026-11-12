@@ -102,7 +102,10 @@ Frozen so the blind tests can find the files.
 - The unsharded reference for the sharding invariant is `scripts/run_atlas.py` with the shard's
   recorded arguments, without `--shard`, with `--pilot-from $SCRATCH/<run>/pilot.pt`.
 - The small model's comparison is read from `$JOB/results_8m_compare.json` (the launcher includes
-  a copy of `results/compare_8m_20261112/compare.json` under that name). Env `SMALL_COMPARE`
+  a copy of `results/compare_8m_20261112/compare.json` under that name). Correction (integrator,
+  2026-11-12, after the second launch failed at `inputs`): `$JOB` is the run name, not a
+  directory; the launcher unpacks `--include` files into the job's working directory, so the path
+  is `./results_8m_compare.json`, as step 6 says. Env `SMALL_COMPARE`
   overrides the path. `SMOKE=1` without `SMALL_COMPARE` uses its own `$OUT/compare.json`, so every
   trend is `"flat"`.
 - `SMOKE=1` keeps `--source-cap neurons_post=0.04 --no-gram` and both sources; it changes model,
