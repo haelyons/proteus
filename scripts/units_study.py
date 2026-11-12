@@ -151,17 +151,23 @@ def jsd(p, q):
 
 
 def profile_distance(p, q):
-    distances = [jsd(p[k], q[k]) for k in ("residue", "ss3", "burial")]
+    distances = [jsd(p[i], q[i]) for i in range(3)]
     return None if None in distances else sum(distances) / 3
 
 
+def rank_pass(own, controls, higher=False):
+    return all(own > x if higher else own < x for x in controls)
+
+
 def profile_check(held, own, controls):
+    held, own, *controls = [[p[k] for k in ("residue", "ss3", "burial")]
+                            for p in (held, own, *controls)]
     d = profile_distance(held, own)
     other = [profile_distance(held, p) for p in controls]
     valid = d is not None and all(x is not None for x in other)
     return {"distance": d, "other_distances": other,
             "p": (1 + sum(x <= d for x in other)) / (len(other) + 1) if valid else None,
-            "pass": bool(valid and all(d < x for x in other))}
+            "pass": bool(valid and rank_pass(d, other))}
 
 
 def average_ranks(x):
@@ -191,26 +197,31 @@ def write_check(b, e, controls):
     valid = own is not None and all(x is not None for x in other)
     return {"correlation": own, "other_correlations": other,
             "p": (1 + sum(x >= own for x in other)) / (len(other) + 1) if valid else None,
-            "pass": bool(valid and all(own > x for x in other))}
+            "pass": bool(valid and rank_pass(own, other, higher=True))}
 
 
-def bootstrap_difference(target, control, paired=True, B=2000, seed=0):
+def bootstrap_diff(target, control, paired=True, draws=2000, seed=0, level=0.95):
     t, c = torch.tensor(target, dtype=torch.float64), torch.tensor(control, dtype=torch.float64)
-    if not len(t) or not len(c):
-        return {"mean": None, "ci": None, "pass": False}
     if paired and len(t) != len(c):
         raise ValueError("paired bootstrap requires matching positions")
     g = generator(seed)
-    idx = torch.randint(len(t), (B, len(t)), generator=g)
-    ci = idx if paired else torch.randint(len(c), (B, len(c)), generator=g)
+    idx = torch.randint(len(t), (draws, len(t)), generator=g)
+    ci = idx if paired else torch.randint(len(c), (draws, len(c)), generator=g)
     means = t[idx].mean(1) - c[ci].mean(1)
-    interval = torch.quantile(means, torch.tensor([.025, .975], dtype=torch.float64)).tolist()
-    return {"mean": float(t.mean() - c.mean()), "ci": interval, "pass": interval[0] > 0}
+    quantiles = [.025, .975] if level == .95 else [(1 - level) / 2, (1 + level) / 2]
+    return torch.quantile(means, torch.tensor(quantiles, dtype=torch.float64)).tolist()
 
 
 def removal_check(effects):
-    controls = {name: bootstrap_difference(effects["target"], effects[name], paired=name != "random")
-                for name in ("other", "matched", "random")}
+    controls = {}
+    for name in ("other", "matched", "random"):
+        target, control = effects["target"], effects[name]
+        if not len(target) or not len(control):
+            controls[name] = {"mean": None, "ci": None, "pass": False}
+            continue
+        interval = bootstrap_diff(target, control, paired=name != "random")
+        t, c = torch.tensor(target, dtype=torch.float64), torch.tensor(control, dtype=torch.float64)
+        controls[name] = {"mean": float(t.mean() - c.mean()), "ci": interval, "pass": interval[0] > 0}
     return {"controls": controls, "pass": all(c["pass"] for c in controls.values())}
 
 
