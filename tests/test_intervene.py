@@ -202,6 +202,17 @@ def test_recorded_unit_writes_reproduction(request, record_property):
     maximum = dict.fromkeys(("dlogp_true", "kl", "travel_kl"), 0.0)
     try:
         engine = Intervener(model="8M", device="cpu", dtype=torch.float32)
+
+        def silenced(ids, l, u, p):
+            def hk(_m, _i, o):
+                o = o.clone(); o[0, p + 1, u] = 0.0
+                return o
+            hd = engine.layers[l].intermediate.register_forward_hook(hk)
+            try:
+                return torch.log_softmax(engine.model(input_ids=ids).logits[0].double(), -1)
+            finally:
+                hd.remove()
+
         # Group by accession: keep only one baseline in memory.
         for accession in dict.fromkeys(row["acc"] for row in cases):
             ids = tokenizer(sequences[accession][:1022], return_tensors="pt")["input_ids"]
@@ -213,14 +224,21 @@ def test_recorded_unit_writes_reproduction(request, record_property):
                         r = torch.zeros(1280, dtype=torch.float32)
                         r[row[field]] = 1
                         edited = engine.run(ids, edit=(row["layer"], r, [row["pos"]], [0.0]))
+                        legacy = baseline._replace(lp_full=silenced(
+                            ids, row["layer"], row[field], row["pos"]))
+                        legacy_effects = _effects(ids, baseline, legacy, row["pos"])
                         for name, value in _effects(ids, baseline, edited, row["pos"]).items():
+                            legacy_value = legacy_effects[name]
                             expected = row[prefix + name]
-                            maximum[name] = max(maximum[name], abs(value - expected))
                             exact &= struct.pack("!d", value) == struct.pack("!d", expected)
-                            rel = 0 if name == "dlogp_true" else 1e-4
-                            if value != pytest.approx(expected, abs=1e-6, rel=rel):
+                            if struct.pack("!d", value) != struct.pack("!d", legacy_value):
                                 failures.append((accession, row["layer"], row[field], name,
-                                                 value, expected))
+                                                 "module != legacy", value, legacy_value))
+                            for source, actual in (("module", value), ("legacy", legacy_value)):
+                                maximum[name] = max(maximum[name], abs(actual - expected))
+                                if actual != pytest.approx(expected, abs=2e-5, rel=0):
+                                    failures.append((accession, row["layer"], row[field], name,
+                                                     source, actual, expected))
                     n_bitwise += int(exact)
     finally:
         torch.set_num_threads(previous)
