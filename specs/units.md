@@ -158,12 +158,18 @@ in `scripts/units_study.py`:
 quantile_linear(x: Tensor[n], q: Tensor[m]) -> Tensor[m]   # x 1-D, finite; q same dtype as x, in [0, 1]
 ```
 
-Same definition as `torch.quantile(x, q)` with linear interpolation: sort `x`; ranks = `q * (n - 1)`
-in `x`'s dtype; lerp between the values at `floor(rank)` and `ceil(rank)` with weight
-`rank - floor(rank)`. It equals `torch.quantile` **bitwise** for every input `torch.quantile`
-accepts, and has no size limit. Worked example: `x = [4., 1., 3., 2.]`, `q = [1/3, 2/3]`
-(float32): sorted `[1, 2, 3, 4]`, ranks `[1, 2]`, result `[2., 3.]`. The burial cuts use it; nothing
-else changes.
+Same definition as `torch.quantile(x, q)` with linear interpolation: sort `x`; ranks =
+`q.double() * (n - 1)` in **float64**; lerp, in `x`'s dtype, between the values at `floor(rank)` and
+`ceil(rank)` with weight `(rank - floor(rank))` cast to `x`'s dtype. It equals `torch.quantile`
+**bitwise** on the reference stack (torch 2.15, which has no size limit) and has no size limit. The
+box's older torch rejects inputs above 2^24. Worked example: `x = [4., 1., 3., 2.]`,
+`q = [1/3, 2/3]` (float32): sorted `[1, 2, 3, 4]`, ranks `[1, 2]`, result `[2., 3.]`. The burial
+cuts use it; nothing else changes.
+
+Correction (2026-11-12, before any use): the first text of this amendment put the ranks in `x`'s
+dtype. torch 2.15 computes them in float64; measured on 42 input groups (float32 and float64, n up
+to 5,000,001, ties, negatives), the float64 definition matched `torch.quantile` bitwise in all 42
+and the dtype definition differed in 5. In float32, ranks above 2^24 are also too coarse.
 
 Amendment 5c (2026-11-12, after the first launch stopped at the reproduction gate; the owner's
 decision): the reproduction criterion of section 1 is replaced. On the machine that runs it, the
