@@ -68,3 +68,40 @@ pooled `calls()` over all sources; median peak log2.
 4. **Calibration needs new 8M atlases at the post-GELU hook** (trained and three shuffled, plus
    directions, in one forward per model with `--columns neurons_post,randdir:512:0`): about 1 GPU-hour
    in total at 8M.
+
+## Amendment 1 (2026-11-12, the owner's decision; before any direction content is read)
+
+**State when amended.** No random-direction atlas, sample, score or digest from any real network has
+been read. The first calibration launch produced nothing. The calibration relaunch
+(`calib-8m-20261112-1018`, started 10:18Z, before this amendment arrived) was building its third
+shuffled control; only its launcher timeline and step lines had reached this machine.
+
+**Reason.** A positive neuron-to-direction gap d(N, R) has two candidate causes: training placed
+structure on the neuron basis, or summing dilutes any elementwise-nonlinear unit, trained or not.
+The second predicts the same gap in untrained networks.
+
+**New sources RS1–RS3.** Random directions `randdir:512:0` (same seed, so the same directions R_l as
+R) in each shuffled-weight network, built in the same forward as that control's `neurons_post`,
+sampled per layer like R (250 per layer at 8M) and scored with the same tables and B.
+
+**New statistic.** d(Sc, RSc): Cliff's d of `primary_jsd` between Sc and RSc, Mann-Whitney p, and a
+bootstrap 95% interval (columns resampled within source, 2,000 draws, seeded), as for H3. d(N, R)
+gets the same interval.
+
+**H1, changed.** "Supports" and "Weak support" are read only if, in addition to their conditions
+above, d(N, R) exceeds every d(Sc, RSc) with non-overlapping 95% intervals (the lower bound of
+d(N, R) above the upper bound of each d(Sc, RSc)). If the conditions above hold but this one does
+not, the outcome is **"gap not attributable to training"**. "Against" and "Strongly against" are
+unchanged.
+
+**Order.** Calibration first (unchanged), then d(Sc, RSc) for c = 1, 2, 3, then H1.
+
+**650M.** The same, with RSc built in the same forward as each shuffled control.
+
+**Where RS1–RS3 are built.** The calibration relaunch had started, so it is not changed (its
+shuffled runs build `neurons_pre,neurons_post`, and keep only the trained `neurons_post` and
+`randdir_512_0` atlases). The comparison job builds RS1–RS3 by rerunning each shuffled control
+with `neurons_post,randdir:512:0` in one forward. Its `neurons_post` records for the calibration
+sample must equal the calibration job's (`score_sha256`) as a reproduction check. The comparison
+job is still not built; its spec comes first. Predictions for d(Sc, RSc):
+`results/rs_controls_predictions.md`, sealed in the same commit as this amendment.
