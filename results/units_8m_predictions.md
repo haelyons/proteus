@@ -55,3 +55,11 @@ on all 1,800 effects (900 cases and their base units). Both differ from the 5 No
 same amounts (maximum 9.6e-6, median 2.8e-7, 133 bitwise). The legacy script no longer reproduces
 its own record on today's software stack (torch 2.15 here). The module reproduces the legacy
 computation exactly. My tolerance was set below the drift between the recording stack and today's.
+
+## Addendum before the relaunch (2026-11-12; amendment 5c)
+
+| # | Quantity | Prediction | Wrong if |
+| --- | --- | --- | --- |
+| U1' | Amended gate: module equals the legacy hook bitwise on the box (1,800 effects), both within 2e-5 of the record | `ok` true; 1,800/1,800 bitwise | false, or fewer |
+
+U2–U11 stand as sealed.

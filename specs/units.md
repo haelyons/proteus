@@ -150,6 +150,17 @@ path, size, sha256 into `$OUT/inputs.json`, a missing one fails the job): `$FS/c
 study); `sample`; `heldout_values` (one forward per held-out protein); `columns` (the 300 columns
 across `WORKERS` processes, one card each); `report`. CPU only, fp32, one torch thread per process.
 
+Amendment 5c (2026-11-12, after the first launch stopped at the reproduction gate; the owner's
+decision): the reproduction criterion of section 1 is replaced. On the machine that runs it, the
+module and the legacy `scripts/unit_writes.py` silencing hook (its `silenced()`: post-GELU set to
+0.0 at one position) are both computed for all 900 cases and their base units. They must agree
+**bitwise** on `dlogp_true`, `kl` and `travel_kl` (1,800 effects), and **both** must be within
+**2e-5 absolute** of the recorded values. Reason: on today's software the legacy script itself
+differs from its own 5 Nov record by up to 9.6e-6 (`results/units_8m_repro_20261112/`).
+`repro_unit_writes.json` gains `{"n_effects", "module_equals_legacy_bitwise", "max_abs_diff_legacy":
+{...}, "max_abs_diff_module": {...}}`; `ok` is the conjunction of the two conditions. The blind
+reproduction test asserts the same two conditions.
+
 Amendment 5b (2026-11-12, before any run): the recorded cases ship in the job tarball
 (`results/unit_writes_8M_20261105/` placed at that relative path in the job directory; `CASES`
 defaults to it). Non-smoke `preflight` as `jobs/calib_8m/run.sh` plus `pytest`. After
