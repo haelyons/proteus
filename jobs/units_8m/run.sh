@@ -116,6 +116,11 @@ step() {
 }
 run_step() { step "$@" || FAILED=1; }
 
+preflight() {
+  "$PYTHON" -m pip install --user -q -U 'pillow>=10' 'transformers>=4.46' pytest || return
+  "$PYTHON" -c 'import torch, triton, transformers, PIL, pytest; from transformers import EsmModel; print("preflight ok")'
+}
+
 smoke_inputs() {
   "$PYTHON" - <<'PY'
 import gzip
@@ -173,7 +178,7 @@ for p in paths:
 (Path(os.environ['OUT']) / 'inputs.json').write_text(json.dumps(rows, indent=2) + '\n')
 PY
 }
-export -f timeline record skip step smoke_inputs inputs
+export -f timeline record skip step preflight smoke_inputs inputs
 
 if [ "$SMOKE" = 1 ]; then
   export SMOKE_DATA=${SMOKE_DATA:-data/swissprot_test500.pt}
@@ -199,22 +204,28 @@ else
   DESC_DIR=$FS/runs/atlas-wab-20261105-0140/desc_subset
   DESC=$FS/descriptors_swissprot_2026_03.pt
   UNIREF=lists/swissprot_2026_03_uniref50.tsv.gz
-  CASES=${UNIT_WRITES_CASES:-$FS/results/unit_writes_8M_20261105/cases.jsonl}
+  CASES=${CASES:-${UNIT_WRITES_CASES:-results/unit_writes_8M_20261105/cases.jsonl}}
+  # The launcher packs included directories at the job root under their basename.
+  if [ ! -e results/unit_writes_8M_20261105 ] && [ -f unit_writes_8M_20261105/cases.jsonl ]; then
+    mkdir -p results && ln -s ../unit_writes_8M_20261105 results/unit_writes_8M_20261105 || exit 1
+  fi
+  step preflight preflight || exit 2
   FLAGS=()
 fi
 export CALIB DATA DESC_DIR DESC UNIREF CASES
 step inputs inputs || exit 1
-# Concurrent module writer may still be finishing section 1.
-for ((attempt=0; attempt<40; attempt++)); do
-  [ -f atlas/intervene.py ] && break
-  echo '[atlas] waiting for atlas/intervene.py'
-  sleep 60
-done
-[ -f atlas/intervene.py ] || { echo 'atlas/intervene.py missing after 40 minutes'; exit 1; }
 COMMON=(--out "$OUT" --scratch "$SCRATCH" --calib "$CALIB" --data "$DATA" \
         --desc-dir "$DESC_DIR" --desc "$DESC" --uniref "$UNIREF" --cases "$CASES" \
         --workers "$WORKERS" "${FLAGS[@]}")
 for name in repro_unit_writes sample heldout_values columns report; do
   step "$name" "$PYTHON" scripts/units_study.py "$name" "${COMMON[@]}" || exit 1
+  if [ "$name" = repro_unit_writes ]; then
+    if [ "$SMOKE" = 1 ]; then
+      skip blind_repro_test 'SMOKE: requires full Swiss-Prot cache'
+    else
+      run_step blind_repro_test env PROTEUS_SWISSPROT="$DATA" "$PYTHON" -m pytest -q \
+        -p no:cacheprovider tests/test_intervene.py -k reproduction
+    fi
+  fi
 done
 exit 0
