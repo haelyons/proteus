@@ -104,12 +104,16 @@ negative pole's candidate filter keeps every tied token; the default buffer is
   unchanged. An unknown NAME is an error. Recorded in `run.json` (`args`). Absent: every output
   bitwise as before.
 - The atlas is exact under any buffer size (an overflow runs the dense redo), so a source's
-  `atlas_NAME.pt` with `--source-cap NAME=F` must be bitwise equal to the same run without it.
+  `atlas_NAME.pt` with `--source-cap NAME=F` must equal the same run without it: every tensor
+  bitwise (bytes), and every non-tensor entry equal except `cfg["cap_frac"]` (the cap itself) and
+  `stats` (run counters such as redo and dense layer-batches, which the cap changes).
+  Clarified 2026-11-12: the first wording ("bitwise equal") read as whole-file bytes, which these
+  two entries make impossible.
 - `jobs/calib_8m/run.sh` passes `--source-cap neurons_post=0.1` to all four runs (SMOKE too).
   `neurons_pre` keeps the recorded configuration (C1 unaffected).
 - Acceptance addition (blind): on 8M, CPU, `--dtype bf16`, `--columns neurons_pre,neurons_post`,
-  a few batches: (a) with and without `--source-cap neurons_post=0.1` every atlas file is bitwise
-  equal; (b) the run with the cap has fewer `neurons_post` redo layer-batches
+  a few batches: (a) with and without `--source-cap neurons_post=0.1` every atlas file equal as
+  defined above (tensors bitwise; non-tensor entries equal except `cfg["cap_frac"]` and `stats`); (b) the run with the cap has fewer `neurons_post` redo layer-batches
   (`redo_layers_by_source`) than the run without (reported; asserted only if the run without
   has any).
 
