@@ -87,6 +87,32 @@ Steps:
 Swiss-Prot test set's proteins, and the reproduction step compares against a pre-change
 single-source run made in the job (`--columns` absent) instead of the recorded atlases.
 
+### 3b. Amendment (2026-11-12, after the first launch; before any result): per-source candidate cap
+
+The first launch (`calib-8m-20261111-2350`, terminated by the owner's operator at batch 4,415 of
+6,143 of `trained`, no result) measured `neurons_post` overflowing its candidate buffer on every
+layer of every batch (26,490 of 26,490 layer-batches; `neurons_pre` 0, `randdir_512_0` 22), so
+every batch ran the exact dense redo: 0.77 s per batch against 0.08 s for the recorded
+single-source run, about 4 h for the job against a 3 h cap. Cause, measured locally (8M, bf16,
+57k tokens): GELU is flat at its minimum (about -0.17), and in bf16 a median 1.0% (maximum 3.1%)
+of a column's tokens are tied exactly at the column minimum (pre-GELU: under 0.01%). The
+negative pole's candidate filter keeps every tied token; the default buffer is
+`cap_frac = 0.005` of the layer's elements.
+
+- New `scripts/run_atlas.py` argument `--source-cap NAME=F` (repeatable; default none): the Atlas of
+  source NAME uses `AtlasConfig(cap_frac=F)`; every other setting and every other source are
+  unchanged. An unknown NAME is an error. Recorded in `run.json` (`args`). Absent: every output
+  bitwise as before.
+- The atlas is exact under any buffer size (an overflow runs the dense redo), so a source's
+  `atlas_NAME.pt` with `--source-cap NAME=F` must be bitwise equal to the same run without it.
+- `jobs/calib_8m/run.sh` passes `--source-cap neurons_post=0.1` to all four runs (SMOKE too).
+  `neurons_pre` keeps the recorded configuration (C1 unaffected).
+- Acceptance addition (blind): on 8M, CPU, `--dtype bf16`, `--columns neurons_pre,neurons_post`,
+  a few batches: (a) with and without `--source-cap neurons_post=0.1` every atlas file is bitwise
+  equal; (b) the run with the cap has fewer `neurons_post` redo layer-batches
+  (`redo_layers_by_source`) than the run without (reported; asserted only if the run without
+  has any).
+
 ## Acceptance (blind tests; invariants and arithmetic)
 
 - (1) on a small synthetic descriptor set: `--shape randdir` output after the change equals the
