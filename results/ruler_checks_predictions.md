@@ -111,3 +111,10 @@ Spend for the three A10 launches: about $6.
 Qualifying statistics (separate trained from shuffled, do not rate mixtures above parts, on the
 five measured shapes): **`primary_jsd`** (trained higher) and **`share_residue_mode`** (shuffled
 higher). `share_struct` does not qualify. The randdir and sae:0.001 shapes remain to be checked.
+
+## Outcome addendum: `randdir` and `sae:0.001` (2026-11-12, `results/ruler_checks_rerun_20261112/`)
+
+Measured on the rerun (`results/calib_8m_predictions.md`, outcome section). #3 for `sae:0.001`: no
+(98.26% < 99%; persistence differs 40.5%, "peak only" 194 -> 106). #4: no (`randdir` gate:
+`narrow` 3/12, 5 of 542 noise and alpha = 0 columns called). #5: yes (1.16% and 0.58%; upper
+bounds 2.50% and 1.68%). #18: yes on all seven shapes. The qualifying statistics are unchanged.

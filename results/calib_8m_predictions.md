@@ -49,3 +49,29 @@ its 3 h cap. Relaunch with `--source-cap neurons_post=0.1`. C1-C4 stand. Added:
 | --- | --- | --- | --- |
 | C5 | `neurons_post` redo layer-batches in `trained` with the cap | at most 5% of 36,858 (6,143 batches x 6 layers) | above |
 | C6 | `trained` step time (three sources) | 15-45 min (recorded single-source stream 8.2 min; first launch 0.77 s per batch with the redo) | outside |
+
+## Outcome: planted-shape rerun (2026-11-12, `results/ruler_checks_rerun_20261112/`)
+
+Run `ruler-rerun-20261111-2349`: one `gpu_1x_a10` in us-east-1 on `esm-atlas-results`, healthy
+23:55:03Z, job done 02:17:14Z, terminated 02:18:56Z (about 2.4 billed hours, about $3.10). Inputs'
+sha256 equal to the first checks run's. Numbers from `timeline.json`, the build logs' final
+lines, `checks.json`, `calls.json` and the separation gate rerun over all seven shapes
+(`separation_all7.json`; its `stats` equal the recorded `separation.json`'s).
+
+| # | Predicted | Measured | Held? |
+| --- | --- | --- | --- |
+| R1 | both shapes finish within the 4 h cap | yes: job done 2 h 22 min after start | yes |
+| R1' | `randdir` build 40–120 min; `sae:0.001` build 60–200 min | `randdir` 38.5 min (2,109 s streaming, 9 redo layer-batches of 623); `sae:0.001` 139.7 min (8,271 s; dense on every batch: 50.4G of 61.3G elements were top-K candidates, the zero mass) | no (`randdir` faster than the range) |
+| R2 | `randdir` gate within the recorded range; at most 3 of 542 noise and alpha = 0 called | `narrow` 3/12 (recorded 8–10/12); every other type 12/12; 5 of 542 called | no |
+| R3 | `sae:0.001` peak-level calls identical to `gauss` for at least 95% | 1,464/1,490 (98.26%) | yes |
+
+Earlier predictions applied to these shapes (`results/ruler_checks_predictions.md`): #3 (`sae:0.001`
+at least 99% identical): no, 98.26%; persistence differs for 244/602 (40.5%) but "peak only" fell
+194 -> 106. #4 (`randdir` within the recorded range): no (`narrow` 3/12). #5 (noise null at most 2%,
+upper bound below 3%): yes for both, `randdir` 6/518 = 1.16% [0.43%, 2.50%], `sae:0.001` 3/518 =
+0.58% [0.12%, 1.68%]. #18 (no mixture above its largest part): yes for both (and the five earlier
+shapes, recomputed). `randdir` peak calls equal `gauss`'s for 831/1,490 (55.8%) columns.
+
+Consequence for the qualification: unchanged. `primary_jsd` and `share_residue_mode` still
+qualify on all seven shapes; `share_struct` does not. The ruler loses most `narrow` columns
+when the noise is a random direction's (skewed, heavier right tail) rather than Gaussian.

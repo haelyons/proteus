@@ -1,0 +1,42 @@
+{
+  "sources": {
+    "randdir": {
+      "n_sampled": 1490,
+      "n_scored": 1490,
+      "k_struct": 711,
+      "share_struct": 0.4771812080536913,
+      "share_struct_ci": [
+        0.4515505696447568,
+        0.5029019549953546
+      ],
+      "share_struct_all": 0.4771812080536913,
+      "jsd": {
+        "n": 1490,
+        "mean": 0.18682712569034693,
+        "q10": 0.006381892412900925,
+        "q25": 0.012461897917091846,
+        "q50": 0.03615213371813297,
+        "q75": 0.3694564551115036,
+        "q90": 0.497067853808403
+      },
+      "share_residue_mode": 0.5308724832214765
+    }
+  },
+  "pooled_v12": {
+    "pool": [
+      "randdir"
+    ],
+    "n_columns": 1490,
+    "calls": {
+      "randdir": {
+        "context association": 585,
+        "no association found by this procedure": 696,
+        "structural association": 109,
+        "composition association": 100
+      }
+    }
+  },
+  "tables_sha256": "e77cf1a9b07b926607c53fb517131f1edd551ded586e101a4d6f003c293425ff",
+  "ruler_sha256": "add6c0b838c8d478fd3af850e77f62747a7015ccfa954a41a19020be449601f1",
+  "B": 2000
+}

@@ -1,0 +1,42 @@
+{
+  "sources": {
+    "sae:0.001": {
+      "n_sampled": 1490,
+      "n_scored": 1490,
+      "k_struct": 637,
+      "share_struct": 0.42751677852348996,
+      "share_struct_ci": [
+        0.4022255446853471,
+        0.45309428624359693
+      ],
+      "share_struct_all": 0.42751677852348996,
+      "jsd": {
+        "n": 1490,
+        "mean": 0.1606932643347423,
+        "q10": 0.005786782293580472,
+        "q25": 0.01052880403585732,
+        "q50": 0.027412873227149248,
+        "q75": 0.351633008569479,
+        "q90": 0.4871852695941925
+      },
+      "share_residue_mode": 0.5134228187919463
+    }
+  },
+  "pooled_v12": {
+    "pool": [
+      "sae:0.001"
+    ],
+    "n_columns": 1490,
+    "calls": {
+      "sae:0.001": {
+        "context association": 521,
+        "no association found by this procedure": 777,
+        "structural association": 100,
+        "composition association": 92
+      }
+    }
+  },
+  "tables_sha256": "e77cf1a9b07b926607c53fb517131f1edd551ded586e101a4d6f003c293425ff",
+  "ruler_sha256": "add6c0b838c8d478fd3af850e77f62747a7015ccfa954a41a19020be449601f1",
+  "B": 2000
+}

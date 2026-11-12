@@ -1,0 +1,42 @@
+{
+  "DATA": {
+    "path": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+    "size": 324894837,
+    "sha256": "49825c0a838d4c0513032113b627cd1572767670adc2790cffb4cd6ae4ae9276"
+  },
+  "DESC_SUBSET": {
+    "path": "/lambda/nfs/esm-atlas-results/runs/atlas-wab-20261105-0140/desc_subset",
+    "size": 562741502,
+    "sha256": "e77cf1a9b07b926607c53fb517131f1edd551ded586e101a4d6f003c293425ff"
+  },
+  "DESC_WHOLE": {
+    "path": "/lambda/nfs/esm-atlas-results/descriptors_swissprot_2026_03.pt",
+    "size": 4514251315,
+    "sha256": "60a6af8297373e0d7c4c7605c26717ba972d8db20bf1b7a34e47c0857765b770"
+  },
+  "UNIREF": {
+    "path": "lists/swissprot_2026_03_uniref50.tsv.gz",
+    "size": 3511381,
+    "sha256": "67aea7c3a8c55c153ff2f28882a059f1b3bf62be02a62520dbe791b92f734d97"
+  },
+  "A8_PRE": {
+    "path": "/lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_pre/atlas.pt",
+    "size": 611184909,
+    "sha256": "f756cb21237112dfe0e37a05953b19d9ae8c0ee4a6beeb6feb2597b52ed0c7a5"
+  },
+  "A8_SHUF1": {
+    "path": "/lambda/nfs/esm-atlas-results/runs/atlas-batch2-20261105-0348/a8_shuf1/atlas.pt",
+    "size": 611184909,
+    "sha256": "b3c5a44b1cba66e7989224a579ce0fd6250b59caf09d529312625533011c8385"
+  },
+  "A8_SHUF2": {
+    "path": "/lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_shuf2/atlas.pt",
+    "size": 611184909,
+    "sha256": "3966f712ebc4363e6ed528cda49fe62d25c1442741bc28fb7aea8366c8e53cde"
+  },
+  "A8_SHUF3": {
+    "path": "/lambda/nfs/esm-atlas-results/runs/atlas-batch2-20261105-0348/a8_shuf3/atlas.pt",
+    "size": 611184909,
+    "sha256": "99e2b0797d4391bea20f7983e0e23fa0c0c8cd95a70638b93558dab4dfe43c9c"
+  }
+}

@@ -1,0 +1,89 @@
+{
+ "job": "ruler-rerun-20261111-2349",
+ "steps": [
+  {
+   "step": "inputs",
+   "start": 1794441317.102108,
+   "end": 1794441384.513477,
+   "rc": 0
+  },
+  {
+   "step": "planted_randdir_build",
+   "start": 1794441384.5896628,
+   "end": 1794443694.0150714,
+   "rc": 0
+  },
+  {
+   "step": "planted_sae:0.001_build",
+   "start": 1794441384.5982335,
+   "end": 1794449764.6241357,
+   "rc": 0
+  },
+  {
+   "step": "planted_randdir_sample",
+   "start": 1794443694.082954,
+   "end": 1794443695.7386458,
+   "rc": 0
+  },
+  {
+   "step": "planted_randdir_score",
+   "start": 1794443695.7753024,
+   "end": 1794443747.086083,
+   "rc": 0
+  },
+  {
+   "step": "planted_randdir_calls",
+   "start": 1794443747.1216207,
+   "end": 1794443750.3194704,
+   "rc": 0
+  },
+  {
+   "step": "planted_randdir_eval",
+   "start": 1794443750.3535335,
+   "end": 1794443750.5329304,
+   "rc": 0
+  },
+  {
+   "step": "planted_randdir_summary",
+   "start": 1794443750.5715232,
+   "end": 1794443753.356745,
+   "rc": 0
+  },
+  {
+   "step": "planted_sae:0.001_sample",
+   "start": 1794449764.7061386,
+   "end": 1794449766.326026,
+   "rc": 0
+  },
+  {
+   "step": "planted_sae:0.001_score",
+   "start": 1794449766.3612397,
+   "end": 1794449807.6202655,
+   "rc": 0
+  },
+  {
+   "step": "planted_sae:0.001_calls",
+   "start": 1794449807.6541462,
+   "end": 1794449810.517273,
+   "rc": 0
+  },
+  {
+   "step": "planted_sae:0.001_eval",
+   "start": 1794449810.5525858,
+   "end": 1794449810.689821,
+   "rc": 0
+  },
+  {
+   "step": "planted_sae:0.001_summary",
+   "start": 1794449810.7270393,
+   "end": 1794449813.2097802,
+   "rc": 0
+  },
+  {
+   "step": "report",
+   "start": 1794449813.2464576,
+   "end": 1794449814.7954822,
+   "rc": 0
+  }
+ ]
+}
