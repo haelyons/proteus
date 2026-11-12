@@ -36,3 +36,16 @@ processes (`specs/calib.md` amendment 1b, bitwise equal), 14 per shape on the 30
 | # | Quantity | Prediction | Wrong if |
 | --- | --- | --- | --- |
 | R1' | Build step times (replaces R1's reason; R1 stands as written) | `randdir` build 40–120 min; `sae:0.001` build 60–200 min (the recorded `sae:0.01` build took 3.2 h at 4 threads with 7 shapes sharing the host; its cost is the atlas, not generation) | outside |
+
+## Addendum 2 before the calibration relaunch (2026-11-12, no calibration result yet)
+
+The first calibration launch (`calib-8m-20261111-2350`, one `gpu_1x_a100_sxm4`) was terminated by
+the orchestrating agent at `trained` batch 4,415 of 6,143 (about 1.2 billed hours, about $2.40). No
+atlas, score or calibration output was produced or read. `neurons_post` overflowed on every
+layer-batch (bf16 ties at GELU's minimum; `specs/calib.md` 3b), making the job about 4 h against
+its 3 h cap. Relaunch with `--source-cap neurons_post=0.1`. C1-C4 stand. Added:
+
+| # | Quantity | Prediction | Wrong if |
+| --- | --- | --- | --- |
+| C5 | `neurons_post` redo layer-batches in `trained` with the cap | at most 5% of 36,858 (6,143 batches x 6 layers) | above |
+| C6 | `trained` step time (three sources) | 15-45 min (recorded single-source stream 8.2 min; first launch 0.77 s per batch with the redo) | outside |

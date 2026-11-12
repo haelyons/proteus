@@ -89,7 +89,7 @@ single-source run made in the job (`--columns` absent) instead of the recorded a
 
 ### 3b. Amendment (2026-11-12, after the first launch; before any result): per-source candidate cap
 
-The first launch (`calib-8m-20261111-2350`, terminated by the owner's operator at batch 4,415 of
+The first launch (`calib-8m-20261111-2350`, terminated by the orchestrating agent at batch 4,415 of
 6,143 of `trained`, no result) measured `neurons_post` overflowing its candidate buffer on every
 layer of every batch (26,490 of 26,490 layer-batches; `neurons_pre` 0, `randdir_512_0` 22), so
 every batch ran the exact dense redo: 0.77 s per batch against 0.08 s for the recorded
