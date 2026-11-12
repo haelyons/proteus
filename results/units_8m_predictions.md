@@ -63,3 +63,18 @@ computation exactly. My tolerance was set below the drift between the recording 
 | U1' | Amended gate: module equals the legacy hook bitwise on the box (1,800 effects), both within 2e-5 of the record | `ok` true; 1,800/1,800 bitwise | false, or fewer |
 
 U2–U11 stand as sealed.
+
+## Outcome of the second launch (2026-11-12): U1' held; stopped at `columns`
+
+Run `units-8m-20261112-1825` (one `gpu_1x_a10`, us-east-1; healthy 18:29:45Z, terminated 19:01Z,
+about $0.68). Files in `results/units_8m_launch2_20261112/`.
+
+- **U1': yes.** `repro_unit_writes.ok` true; module equals the legacy hook bitwise on all 1,800
+  effects; maximum absolute differences from the record are `dlogp_true` 1.01e-5, `kl` 3.7e-6 and
+  `travel_kl` 1.07e-5, the same for both. The blind reproduction test passed on the box (1 passed,
+  476 s).
+- `sample` (2 s) and `heldout_values` (499 s) passed.
+- `columns` failed after 7 s. `torch.quantile` rejects inputs above 2^24 elements, and the burial
+  cut points cover the whole build. The SMOKE's data is too small to reach the limit. Fix: amendment
+  5d (`quantile_linear`, bitwise equal to `torch.quantile` where torch accepts the input).
+  U2–U11 were not measured and stand as sealed.

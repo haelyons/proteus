@@ -1,0 +1,22 @@
+{
+  "n_cases": 900,
+  "n_bitwise": 1,
+  "max_abs_diff": {
+    "dlogp_true": 1.006809269998854e-05,
+    "kl": 3.6638562789792495e-06,
+    "travel_kl": 1.06676135294137e-05
+  },
+  "ok": true,
+  "n_effects": 1800,
+  "module_equals_legacy_bitwise": true,
+  "max_abs_diff_legacy": {
+    "dlogp_true": 1.006809269998854e-05,
+    "kl": 3.6638562789792495e-06,
+    "travel_kl": 1.06676135294137e-05
+  },
+  "max_abs_diff_module": {
+    "dlogp_true": 1.006809269998854e-05,
+    "kl": 3.6638562789792495e-06,
+    "travel_kl": 1.06676135294137e-05
+  }
+}
