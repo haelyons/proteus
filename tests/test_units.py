@@ -163,6 +163,61 @@ def test_worked_example_clopper_pearson_interval():
     assert share_ci(23, 138) == pytest.approx([0.10868, 0.23951], abs=5e-6)
 
 
+def test_quantile_linear_worked_example(study):
+    import torch
+
+    x = torch.tensor([4., 1., 3., 2.], dtype=torch.float32)
+    q = torch.tensor([1 / 3, 2 / 3], dtype=x.dtype)
+    actual = study.quantile_linear(x, q)
+    expected = torch.tensor([2., 3.], dtype=x.dtype)
+    assert actual.shape == q.shape
+    assert actual.dtype == x.dtype
+    assert torch.equal(actual.view(torch.uint8), expected.view(torch.uint8))
+
+
+@pytest.mark.parametrize("dtype", ["float32", "float64"])
+@pytest.mark.parametrize("n", [1, 2, 7, 257, 4096, 2 ** 24])
+@pytest.mark.parametrize("ties", [False, True])
+def test_quantile_linear_matches_torch_bitwise(study, dtype, n, ties):
+    import torch
+
+    # Resolve the helper before allocating large inputs when it is absent.
+    quantile_linear = study.quantile_linear
+    x = torch.randn(n, dtype=getattr(torch, dtype),
+                    generator=torch.Generator().manual_seed(20261112))
+    if ties:
+        x = x.round()
+    q = torch.tensor([0., 1 / 3, 0.17, 0.5, 0.73, 2 / 3, 1.], dtype=x.dtype)
+    expected = torch.quantile(x, q)
+    actual = quantile_linear(x, q)
+    assert actual.shape == q.shape
+    assert actual.dtype == x.dtype
+    assert torch.equal(actual.view(torch.uint8), expected.view(torch.uint8))
+
+
+def test_quantile_linear_above_torch_size_limit(study):
+    import torch
+
+    quantile_linear = study.quantile_linear
+    n = 2 ** 24 + 7
+    x = torch.randn(n, dtype=torch.float32,
+                    generator=torch.Generator().manual_seed(20261112))
+    # Include a fractional rank near zero even at this float32 input size.
+    q = torch.tensor([0., 0.5 / (n - 1), 1e-6, 0.1234567, 0.5, 0.75, 1.],
+                     dtype=x.dtype)
+    ranks = q.double() * (n - 1)
+    floors, ceils = ranks.floor(), ranks.ceil()
+    lower = torch.stack([torch.kthvalue(x, int(rank) + 1).values for rank in floors])
+    upper = torch.stack([torch.kthvalue(x, int(rank) + 1).values for rank in ceils])
+    expected = torch.lerp(lower, upper, (ranks - floors).to(x.dtype))
+    actual = quantile_linear(x, q)
+    assert actual.shape == q.shape
+    assert actual.dtype == x.dtype
+    assert torch.all(lower <= actual)
+    assert torch.all(actual <= upper)
+    assert torch.equal(actual.view(torch.uint8), expected.view(torch.uint8))
+
+
 def _json(path):
     return json.loads(path.read_text())
 
