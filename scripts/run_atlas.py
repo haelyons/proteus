@@ -13,8 +13,10 @@ the K-th largest of N earlier ones with probability K/(N+1).
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import hashlib
 import json
+import math
 import resource
 import queue
 import threading
@@ -66,6 +68,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="8M")
     ap.add_argument("--columns", default="neurons_pre")
+    ap.add_argument("--source-cap", action="append", default=[], metavar="NAME=F",
+                    help="candidate buffer fraction for a column source (repeatable)")
     ap.add_argument("--control", default="none", choices=["none", "shuffled", "random"])
     ap.add_argument("--control-seed", type=int, default=None,
                     help="seed of the weight shuffle / re-init only (default --seed); the stream, hashes and plan keep --seed")
@@ -158,6 +162,18 @@ def main():
         sources = parse_sources(a.columns, D)
     except ValueError as e:
         ap.error(str(e))
+    source_caps = {}
+    for value in a.source_cap:
+        try:
+            name, fraction = value.split("=")
+            fraction = float(fraction)
+            if not math.isfinite(fraction) or fraction < 0:
+                raise ValueError
+        except ValueError:
+            ap.error("--source-cap must be NAME=F with finite F >= 0")
+        if name not in {source.name for source in sources}:
+            ap.error(f"unknown --source-cap source: {name}")
+        source_caps[name] = fraction
     multi = len(sources) != 1 or sources[0].name != "neurons_pre"
     plan = ds.plan(order, a.tokens_per_batch, a.window, a.seed, shuffle_batches=not a.sorted_batches)
     if a.max_batches:
@@ -252,7 +268,8 @@ def main():
     t_pilot = time.time() - t1
     atlases = []
     for i, (source, E, seeds) in enumerate(zip(sources, edges, seeds_by_source)):
-        current = Atlas(L, source.width, E, cfg, n_annot=len(ds.vocab) if cfg.subsample else 0, device=dev)
+        source_cfg = replace(cfg, cap_frac=source_caps[source.name]) if source.name in source_caps else cfg
+        current = Atlas(L, source.width, E, source_cfg, n_annot=len(ds.vocab) if cfg.subsample else 0, device=dev)
         if ck is not None:
             current.load_state_dict(states[i])
             print(f"[atlas] resumed from {ck.name}: batch {start}/{len(plan)}, n_seen {current.n_seen}", flush=True)
@@ -598,6 +615,8 @@ def _args_key(a) -> dict:
         key["shard"] = a.shard
     if a.columns != "neurons_pre":
         key["columns"] = a.columns
+    if a.source_cap:
+        key["source_cap"] = a.source_cap
     return key
 
 

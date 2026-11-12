@@ -228,6 +228,50 @@ def test_calib_smoke_reproduction_and_gate_arithmetic(work):
     _sha256(randdir["directions_sha256"])
 
 
+def _source_cap_args(out):
+    data = ROOT / "data/swissprot_test500.pt"
+    assert data.is_file(), data
+    return [sys.executable, "scripts/run_atlas.py", "--model", "8M", "--data", data,
+            "--out", out, "--device", "cpu", "--dtype", "bf16", "--backend", "torch",
+            "--columns", "neurons_pre,neurons_post", "--max-seqs", 96,
+            "--tokens-per-batch", 8192, "--K", 16, "--Kr", 8,
+            "--edge-q", 0.3, 0.5, 0.7, 0.9, 0.99,
+            "--pilot-tokens", 8192, "--seed-thresholds"]
+
+
+def test_source_cap_preserves_atlases_and_reduces_redo(work, record_property):
+    outputs = {}
+    redo_counts = {}
+    for name, extra in (("without_cap", []),
+                        ("with_cap", ["--source-cap", "neurons_post=0.1"])):
+        out = work / name
+        _run([*_source_cap_args(out), *extra], timeout=180)
+        outputs[name] = {path.name: path for path in out.glob("atlas*.pt")}
+        records = [json.loads(line) for line in (out / "batches.jsonl").read_text().splitlines()]
+        assert records, name
+        redo_counts[name] = sum(len(row["redo_layers_by_source"]["neurons_post"])
+                                for row in records)
+        record_property(f"neurons_post_redo_layer_batches_{name}", redo_counts[name])
+
+    before, after = outputs["without_cap"], outputs["with_cap"]
+    assert {"atlas_neurons_pre.pt", "atlas_neurons_post.pt"} <= before.keys()
+    assert before.keys() == after.keys()
+    for name in before:
+        # Compare file bytes: floating-point equality rejects NaN reservoir padding.
+        assert before[name].read_bytes() == after[name].read_bytes(), name
+    assert redo_counts["with_cap"] <= redo_counts["without_cap"], redo_counts
+    if redo_counts["without_cap"] > 0:
+        assert redo_counts["with_cap"] < redo_counts["without_cap"], redo_counts
+
+
+def test_source_cap_unknown_name_is_error(work):
+    args = [*_source_cap_args(work / "unknown-source"),
+            "--source-cap", "unknown_source=0.1"]
+    result = subprocess.run(list(map(str, args)), cwd=ROOT, env=_env(),
+                            capture_output=True, text=True, timeout=180)
+    assert result.returncode != 0, (result.stdout[-6000:], result.stderr[-6000:])
+
+
 def main():
     return 0 if pytest.main([str(Path(__file__)), "-q", *sys.argv[1:]]) == 0 else 1
 
