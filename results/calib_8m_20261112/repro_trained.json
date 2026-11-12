@@ -1,0 +1,78 @@
+{
+ "a": "/home/ubuntu/scratch/calib-8m-20261112-1018/trained/atlas_neurons_pre.pt",
+ "b": "/lambda/nfs/esm-atlas-results/runs/atlas-batch-20261105-0258/a8_pre/atlas.pt",
+ "fields": {
+  "sub_bin": {
+   "exact": false,
+   "n_diff": 18334
+  },
+  "enr": {
+   "exact": false,
+   "n_diff": 3057
+  },
+  "ann_tot": {
+   "exact": true,
+   "n_diff": null
+  },
+  "top_val": {
+   "exact": false,
+   "n_diff": 8
+  },
+  "top_tok": {
+   "exact": false,
+   "n_diff": 44
+  },
+  "res_tok": {
+   "exact": false,
+   "n_diff": 9681
+  },
+  "res_val": {
+   "exact": false,
+   "n_diff": 10866
+  },
+  "res_key": {
+   "exact": false,
+   "n_diff": 9681
+  },
+  "edges": {
+   "exact": true,
+   "n_diff": null
+  },
+  "sub_sum": {
+   "bitwise": false,
+   "max_rel_diff": 2.875438128252809e-08,
+   "ok": true
+  },
+  "sub_sq": {
+   "bitwise": false,
+   "max_rel_diff": 4.8810053444343107e-08,
+   "ok": true
+  },
+  "gram": {
+   "bitwise": false,
+   "max_rel_diff": 5.2400913867446345e-08,
+   "ok": true
+  },
+  "n_seen": {
+   "a": 194177125,
+   "b": 194177125,
+   "equal": true
+  },
+  "n_sub": {
+   "a": 9715300,
+   "b": 9715300,
+   "equal": true
+  },
+  "gram_rows": {
+   "a": 9715300,
+   "b": 9715300,
+   "equal": true
+  }
+ },
+ "missing": [],
+ "exact_all": false,
+ "close_all": true,
+ "scalars_all": true,
+ "rtol": 1e-05,
+ "ok": false
+}

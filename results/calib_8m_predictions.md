@@ -75,3 +75,30 @@ shapes, recomputed). `randdir` peak calls equal `gauss`'s for 831/1,490 (55.8%) 
 Consequence for the qualification: unchanged. `primary_jsd` and `share_residue_mode` still
 qualify on all seven shapes; `share_struct` does not. The ruler loses most `narrow` columns
 when the noise has the random-direction shape rather than Gaussian (cause not measured).
+
+## Outcome: 8M calibration (2026-11-12, `results/calib_8m_20261112/`)
+
+Run `calib-8m-20261112-1018`: `gpu_1x_a100_sxm4` in us-east-1 on `esm-atlas-results`; the box was an
+**A100-SXM4-80GB** (driver 570.148.08) although the type is listed as "A100 (40 GB SXM4)". Healthy
+10:22:55Z, job done 11:40:24Z, terminated 11:43Z (about 1.34 billed hours, about $2.67; with the
+first launch, about $5.10 for calibration). Config `specs/calib.md` 3 with 3b
+(`--source-cap neurons_post=0.1`). Numbers from `calib.json`, `calibration.json`, `repro_*.json`,
+`timeline.json`, the runs' `run.json`, and a recomputation of Cliff's d from
+`pooling/scores/*.jsonl`, which equals `calibration.json` to six decimals.
+
+| # | Predicted | Measured | Held? |
+| --- | --- | --- | --- |
+| C1 | `neurons_pre` bitwise equal to the recorded `a8_pre`, `a8_shuf1..3` | all four differ, slightly. `edges`, `ann_tot` and `n_seen` (194,177,125) are equal; trained: `top_val` 8 and `top_tok` 44 elements, reservoirs about 10k of about 24M entries; float sums within 5e-8 relative. The premise was wrong: the recorded 8M atlases were built on an **A10** (`results/README.md`, job batch_20261105: "no A100/H100 anywhere at 02:55"), not an A100. A GPU architecture change (sm_86 to sm_80) changing bf16 kernels fits the pattern but is not measured | no |
+| C2 | calibration passes: d >= 0.147 and p < 0.01 for all three | d(trained, shuf c) = +0.236, +0.214, +0.198; p = 1.7e-28, 1.0e-23, 2.2e-20 | **yes: calibration passes** |
+| C3 | post-GELU d within 0.05 of pre-GELU (+0.225, +0.202, +0.167) | differences +0.011, +0.012, +0.031 | yes |
+| C4 | at least 60% of sampled trained records `score_sha256` equal post vs pre | 675/1,500 (45.0%); the pre-GELU reference is the recorded A10 atlas's scores (`results/ruler_checks_20261111/`), so C1's differences are mixed in | no |
+| C5 | `neurons_post` redo layer-batches in `trained` at most 5% of 36,858 | 4 (0.01%); `neurons_pre` 0, `randdir_512_0` 22 | yes |
+| C6 | `trained` step 15–45 min | 14.0 min (shuffled runs 12.7–12.9 min, two sources each) | no (faster) |
+
+Non-insufficient columns scored: trained 1,499 of 1,500; shuffled 1,427, 1,433, 1,420. The
+`randdir_512_0` atlas of `trained` (`atlases/` on the filesystem, with `atlas_neurons_post.pt`)
+has its digests and `directions_sha256` in `calib.json`; nothing else about it was read.
+
+Consequence (sealed rule, amendment 1): calibration holds at 8M at the post-GELU hook, so the
+comparison may be read once built. Per amendment 1 it needs RS1–RS3, which the comparison job
+builds. Its spec comes first.

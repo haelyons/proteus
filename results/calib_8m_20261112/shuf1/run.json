@@ -1,0 +1,201 @@
+{
+ "args": {
+  "model": "8M",
+  "columns": "neurons_pre,neurons_post",
+  "source_cap": [
+   "neurons_post=0.1"
+  ],
+  "control": "shuffled",
+  "control_seed": 1,
+  "data": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+  "out": "/home/ubuntu/scratch/calib-8m-20261112-1018/shuf1",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 262144,
+  "K": 64,
+  "Kr": 256,
+  "backend": "triton",
+  "cap_frac_early": 0.0,
+  "stats_impl": "v3",
+  "merge_impl": "stacked",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 2000,
+  "gram_flush_every": 500,
+  "resume": false,
+  "stop_after": 0,
+  "seed_thresholds": true,
+  "pair_forward": false,
+  "pair_every": 0,
+  "plan_offset": 0,
+  "prefetch": 2,
+  "only_acc": null,
+  "edges_from": null,
+  "exclude_acc": "heldout_created_after_2021-11-17.tsv",
+  "edge_q": [
+   0.5,
+   0.9,
+   0.99,
+   0.999,
+   0.9999,
+   0.99999
+  ],
+  "profile_at": [],
+  "max_batches": 0,
+  "deadline": 1794489213.0,
+  "shard": null,
+  "pilot_out": null,
+  "pilot_only": false,
+  "pilot_from": null
+ },
+ "model": {
+  "hf": "facebook/esm2_t6_8M_UR50D",
+  "control": "shuffled",
+  "attn": "sdpa",
+  "n_layers": 6,
+  "d_model": 320,
+  "d_ff": 1280,
+  "n_params": 7409081,
+  "control_seed": 1
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "n_excluded": 10010,
+ "n_batches_plan": 6143,
+ "n_total_plan": 194177125,
+ "next_batch": 6143,
+ "complete": true,
+ "seconds": {
+  "load": 8.728654623031616,
+  "pilot": 19.868987560272217,
+  "stream_this_process": 728.8215398788452,
+  "final_save": 3.4353272914886475,
+  "total": 758.994794845581
+ },
+ "n_seen": 194177125,
+ "stats": {
+  "batches": 6143,
+  "dense_layer_batches": 522,
+  "redo_layers": 522,
+  "compacted": 609046274,
+  "elements": 2982560640000,
+  "top_cand": 84458887,
+  "res_cand": 153023133,
+  "bulk_rows_in": 1924252,
+  "bulk_rows_kept": 1924252
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": true
+  },
+  "mm_out_dtype": {
+   "ok": null
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ },
+ "host": {
+  "cpus": 30,
+  "peak_rss_bytes": 18126069760
+ },
+ "columns": "neurons_pre,neurons_post",
+ "sources": {
+  "neurons_pre": {
+   "width": 1280,
+   "stats": {
+    "batches": 6143,
+    "dense_layer_batches": 522,
+    "redo_layers": 522,
+    "compacted": 609046274,
+    "elements": 2982560640000,
+    "top_cand": 84458887,
+    "res_cand": 153023133,
+    "bulk_rows_in": 1924252,
+    "bulk_rows_kept": 1924252
+   },
+   "n_seen": 194177125,
+   "res_seeded_bins": 67842,
+   "res_seed_limited_bins": 0,
+   "top_seed_short_groups": 0,
+   "digests": {
+    "top_val": "95856145073b1ffdf9f87e825018c5428cce2ba0c0daba907ae1822c9b1765ca",
+    "top_tok": "9b239ea1aa4138cd83fa53945060ec8c78b0fdd84655294b9e4e41bf2bc247b9",
+    "res_tok": "c28e4a1b7c63ee9733cc92b1ce194a099a1f1061efb24b6cbd984a7bc36940f8",
+    "res_val": "231600d6d543eba18e1175484c3b0300b9f59c8fac38631ccf235c1fb0427422",
+    "res_key": "6f07dfd47fb34f7d6737d7e2cf6fef6da5734f07c69170fa6c9ee737178682a2",
+    "sub_bin": "952a2728c5be84ad720da4f4f317e45af4f67325027488720f32da6cf429de24",
+    "enr": "ed01ea5993f6614c51ef301e9fd042887d7e4bb6b1c38bb771a729dde8f95981",
+    "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+    "edges": "c0faf5e96968941d322646315eabe15c7377660b7be4f2f19ab0faabbccf4ca1"
+   }
+  },
+  "neurons_post": {
+   "width": 1280,
+   "stats": {
+    "batches": 6143,
+    "dense_layer_batches": 0,
+    "redo_layers": 0,
+    "compacted": 24289236115,
+    "elements": 2982560640000,
+    "top_cand": 16775887,
+    "res_cand": 68093261,
+    "bulk_rows_in": 1941370,
+    "bulk_rows_kept": 1941370
+   },
+   "n_seen": 194177125,
+   "res_seeded_bins": 64991,
+   "res_seed_limited_bins": 0,
+   "top_seed_short_groups": 0,
+   "digests": {
+    "top_val": "c281d2b047e30434711c75c872a39d758860ef398ced46edab3604096be27521",
+    "top_tok": "226181d561c52599c59068798f57b6ad494d85dd8508e943de10f7723f09fb50",
+    "res_tok": "0e2d0bc12c8f9a8b4520c6c67b40051bc22f164f96389aba24ec6b735a640ad0",
+    "res_val": "72fbf8791b06ff7b369b983b517594b0f9a124cee161a2a7b0424de2ca521516",
+    "res_key": "7fe8a60970f5ad1ccc847ae146db5c4895a11730b0525fe971db99de21144996",
+    "sub_bin": "e95a37677879edc0a04dc1eff69710f01a974ccb85e1031c2045235c04bf6878",
+    "enr": "b22fd1bee1de9f6585b029979571e5cf50a0b910995359a83a8dd6ce5708e2e3",
+    "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+    "edges": "82cf64836ed9161445c146207acdf09d69603f1b2ef11b5e798b00290be3dab7"
+   }
+  }
+ },
+ "gpu": {
+  "name": "NVIDIA A100-SXM4-80GB",
+  "total_memory": 85095874560,
+  "max_memory_allocated": 8753123840,
+  "max_memory_reserved": 8891924480,
+  "uuid": "e51604f2-e64f-faff-efa9-23e249b1eedb"
+ },
+ "digests": {
+  "top_val": "95856145073b1ffdf9f87e825018c5428cce2ba0c0daba907ae1822c9b1765ca",
+  "top_tok": "9b239ea1aa4138cd83fa53945060ec8c78b0fdd84655294b9e4e41bf2bc247b9",
+  "res_tok": "c28e4a1b7c63ee9733cc92b1ce194a099a1f1061efb24b6cbd984a7bc36940f8",
+  "res_val": "231600d6d543eba18e1175484c3b0300b9f59c8fac38631ccf235c1fb0427422",
+  "res_key": "6f07dfd47fb34f7d6737d7e2cf6fef6da5734f07c69170fa6c9ee737178682a2",
+  "sub_bin": "952a2728c5be84ad720da4f4f317e45af4f67325027488720f32da6cf429de24",
+  "enr": "ed01ea5993f6614c51ef301e9fd042887d7e4bb6b1c38bb771a729dde8f95981",
+  "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+  "edges": "c0faf5e96968941d322646315eabe15c7377660b7be4f2f19ab0faabbccf4ca1"
+ },
+ "final_save_s": 3.4353272914886475,
+ "atlas_pt_GB": 0.611185277,
+ "gram_rows": 9715300,
+ "res_seeded_bins": 67842,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

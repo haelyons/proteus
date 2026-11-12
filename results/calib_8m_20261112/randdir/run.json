@@ -1,0 +1,30 @@
+{
+  "width": 512,
+  "stats": {
+    "batches": 6143,
+    "dense_layer_batches": 22,
+    "redo_layers": 22,
+    "compacted": 172005717,
+    "elements": 1193024256000,
+    "top_cand": 4112532,
+    "res_cand": 28267044,
+    "bulk_rows_in": 1941370,
+    "bulk_rows_kept": 1941370
+  },
+  "n_seen": 194177125,
+  "res_seeded_bins": 29754,
+  "res_seed_limited_bins": 0,
+  "top_seed_short_groups": 0,
+  "digests": {
+    "top_val": "fdf87c5cc07fca9679c6fc2e474db289ab08c5bf2a3fa30bcdf2d70525e77146",
+    "top_tok": "ac97f1fc8f4608c218b0b272c493cc8ba495701969505a06b15a07f43348688f",
+    "res_tok": "bb5effc11496819286e8462da0231a3a86077aba953bc73551b199db96867b06",
+    "res_val": "67a0d736f780d8c75a8766c214be1ac2315156db4874d60179512892b6046b46",
+    "res_key": "74413a073b69b42838b039bd54f06f39ad9b4021b95557f217db1bacfe9b54e6",
+    "sub_bin": "285131a81d628897208027b9c8d7dcad561d42581f4490cc5589df69ad2c66a3",
+    "enr": "80a36b27f0d6b008f58d8f100db09bdb8fd5add96c736d7ca65b03425faca34b",
+    "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+    "edges": "8782116c814074c88c6c446fa1b03dfe0779f74632cecd2e86f5bd160fc45f44"
+  },
+  "directions_sha256": "625afb88e917f6e4194ac9c806510529eb3399db6a891fa240643e965bd91d35"
+}
