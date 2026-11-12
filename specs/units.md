@@ -118,6 +118,24 @@ generator seeded by `20261112 + 13 + 1000 * layer + column index` (pass means p 
    of mean target effect minus mean control effect lies above 0, for all three controls. Also
    reported for resampling replacement (secondary).
 
+### 4b. Amendment (2026-11-12, before any run): frozen helper interface
+
+The first version named no helpers for the check arithmetic, and the blind tests had to assume
+names. These are now frozen in `scripts/units_study.py`, and the study computes the checks with them:
+
+```
+profile_distance(p, q) -> float        # p, q: [residue(20), ss3(4), burial(4)] probability vectors; mean base-2 JSD
+rank_pass(own, controls, higher=False) -> bool   # higher=False: own < every control (check 1); True: own > every control (check 2)
+spearman(x, y) -> float                # average ranks for ties
+bootstrap_diff(target, control, paired=True, draws=2000, seed=0, level=0.95) -> [lo, hi]
+                                       # interval of mean(target) - mean(control); paired=True resamples positions
+                                       # jointly (equal lengths required), False independently; check 3 passes a
+                                       # control when lo > 0
+```
+
+Cards expose `checks` with keys `profile`, `write_steer`, `removal`, each with a boolean `pass`
+(null when insufficient); `removal` also holds `resample` with its own `pass`.
+
 Pass rates per population (neurons, directions): passes over sufficient columns, with
 Clopper-Pearson 95% intervals; also per layer. A difference between populations is described,
 never tested as a pairing.
