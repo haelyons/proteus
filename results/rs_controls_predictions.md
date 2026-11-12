@@ -31,3 +31,16 @@ comparison job (not yet specified or built), 8M first.
 | RS-4 | `share_residue_mode` of RSc (secondary) | at least 90% for each c (directions in shuffled networks are residue read-outs too) | below 90% |
 
 At 650M the predictions are sealed separately, after the 8M outcome is recorded.
+
+## Outcome (2026-11-12, `results/compare_8m_20261112/compare.json`)
+
+| # | Predicted | Measured | Held? |
+| --- | --- | --- | --- |
+| RS-1 | each d(Sc, RSc) in [-0.10, +0.12], none at 0.147 or beyond | -0.047, +0.011, -0.028 | yes |
+| RS-2 | interval widths 0.05–0.12 | 0.087, 0.088, 0.083 | yes |
+| RS-3 | spread at most 0.10 | 0.058 | yes |
+| RS-4 | `share_residue_mode` of RSc at least 90% | 100%, 99.9%, 100% | yes |
+
+Summing did not dilute units in the shuffled networks, and it did not in the trained network
+either (d(N, R) = -0.021). Under amendment 1 the question did not arise: H1 reads "against" at
+its first condition.

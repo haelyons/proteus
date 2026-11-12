@@ -105,3 +105,9 @@ with `neurons_post,randdir:512:0` in one forward. Its `neurons_post` records for
 sample must equal the calibration job's (`score_sha256`) as a reproduction check. The comparison
 job is still not built; its spec comes first. Predictions for d(Sc, RSc):
 `results/rs_controls_predictions.md`, sealed in the same commit as this amendment.
+
+## Verdict at 8M (2026-11-12; the rule applied, not amended)
+
+Calibration holds. **H1: "against"** (d(N, R) = -0.021, p = 0.33, 95% interval [-0.062, +0.023]).
+Details and predictions: `results/compare_8m_predictions.md`, `results/compare_8m_20261112/`.
+H2 and H3 are not evaluated: 650M, 3B and SAE latents wait for the owner's decision.

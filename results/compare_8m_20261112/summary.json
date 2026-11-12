@@ -1,0 +1,241 @@
+{
+  "sources": {
+    "N": {
+      "n_sampled": 1500,
+      "n_scored": 1499,
+      "k_struct": 1477,
+      "share_struct": 0.9853235490326885,
+      "share_struct_ci": [
+        0.9778635702523071,
+        0.9907800971241756
+      ],
+      "share_struct_all": 0.9846666666666667,
+      "jsd": {
+        "n": 1499,
+        "mean": 0.21981320669509538,
+        "q10": 0.05345063880085945,
+        "q25": 0.10150405019521713,
+        "q50": 0.18920424580574036,
+        "q75": 0.3162498250603676,
+        "q90": 0.43118848204612736
+      },
+      "share_residue_mode": 0.9693128752501667
+    },
+    "R": {
+      "n_sampled": 1500,
+      "n_scored": 1499,
+      "k_struct": 1497,
+      "share_struct": 0.9986657771847899,
+      "share_struct_ci": [
+        0.9951887204900911,
+        0.9998383785655778
+      ],
+      "share_struct_all": 0.998,
+      "jsd": {
+        "n": 1499,
+        "mean": 0.220475144447601,
+        "q10": 0.07272463403642178,
+        "q25": 0.11490963771939278,
+        "q50": 0.18934570252895355,
+        "q75": 0.29962675273418427,
+        "q90": 0.4229050070047379
+      },
+      "share_residue_mode": 0.9939959973315544
+    },
+    "RS1": {
+      "n_sampled": 1500,
+      "n_scored": 1498,
+      "k_struct": 1465,
+      "share_struct": 0.9779706275033377,
+      "share_struct_ci": [
+        0.9692006833340412,
+        0.9847886315093985
+      ],
+      "share_struct_all": 0.9766666666666667,
+      "jsd": {
+        "n": 1498,
+        "mean": 0.16287170028132456,
+        "q10": 0.051365893147885804,
+        "q25": 0.0916565740481019,
+        "q50": 0.14930333942174911,
+        "q75": 0.21796506457030773,
+        "q90": 0.292827507853508
+      },
+      "share_residue_mode": 1.0
+    },
+    "RS2": {
+      "n_sampled": 1500,
+      "n_scored": 1498,
+      "k_struct": 1474,
+      "share_struct": 0.9839786381842457,
+      "share_struct_ci": [
+        0.9762547689597316,
+        0.9897085387634388
+      ],
+      "share_struct_all": 0.9826666666666667,
+      "jsd": {
+        "n": 1498,
+        "mean": 0.15730625440572352,
+        "q10": 0.05161753445863724,
+        "q25": 0.08998636156320572,
+        "q50": 0.14264319837093353,
+        "q75": 0.2097127065062523,
+        "q90": 0.2819311395287513
+      },
+      "share_residue_mode": 0.9993324432576769
+    },
+    "RS3": {
+      "n_sampled": 1500,
+      "n_scored": 1489,
+      "k_struct": 1475,
+      "share_struct": 0.9905977165883143,
+      "share_struct_ci": [
+        0.9842748389853839,
+        0.9948504224694847
+      ],
+      "share_struct_all": 0.9833333333333333,
+      "jsd": {
+        "n": 1489,
+        "mean": 0.16730622802263712,
+        "q10": 0.06021123230457306,
+        "q25": 0.09679215028882027,
+        "q50": 0.1516546532511711,
+        "q75": 0.21888890117406845,
+        "q90": 0.29547715485095977
+      },
+      "share_residue_mode": 1.0
+    },
+    "S1": {
+      "n_sampled": 1500,
+      "n_scored": 1427,
+      "k_struct": 1401,
+      "share_struct": 0.9817799579537492,
+      "share_struct_ci": [
+        0.9734167339948023,
+        0.9880644117395596
+      ],
+      "share_struct_all": 0.934,
+      "jsd": {
+        "n": 1427,
+        "mean": 0.1553959373747584,
+        "q10": 0.049390428513288495,
+        "q25": 0.08524315431714058,
+        "q50": 0.13960451632738113,
+        "q75": 0.2076471522450447,
+        "q90": 0.282996740937233
+      },
+      "share_residue_mode": 1.0
+    },
+    "S2": {
+      "n_sampled": 1500,
+      "n_scored": 1433,
+      "k_struct": 1408,
+      "share_struct": 0.9825540823447313,
+      "share_struct_ci": [
+        0.9743535069760101,
+        0.9886789134557148
+      ],
+      "share_struct_all": 0.9386666666666666,
+      "jsd": {
+        "n": 1433,
+        "mean": 0.16008097614195466,
+        "q10": 0.05378585830330849,
+        "q25": 0.09091701731085777,
+        "q50": 0.14307338744401932,
+        "q75": 0.21212423592805862,
+        "q90": 0.2858564436435699
+      },
+      "share_residue_mode": 0.9993021632937893
+    },
+    "S3": {
+      "n_sampled": 1500,
+      "n_scored": 1420,
+      "k_struct": 1397,
+      "share_struct": 0.9838028169014085,
+      "share_struct_ci": [
+        0.9757948934634624,
+        0.9897053881207756
+      ],
+      "share_struct_all": 0.9313333333333333,
+      "jsd": {
+        "n": 1420,
+        "mean": 0.16429910952574572,
+        "q10": 0.05019268319010735,
+        "q25": 0.08867323026061058,
+        "q50": 0.14823263883590698,
+        "q75": 0.21772556379437447,
+        "q90": 0.3025772288441659
+      },
+      "share_residue_mode": 1.0
+    }
+  },
+  "pooled_v12": {
+    "pool": [
+      "N",
+      "R",
+      "S1",
+      "S2",
+      "S3",
+      "RS1",
+      "RS2",
+      "RS3"
+    ],
+    "n_columns": 12000,
+    "calls": {
+      "N": {
+        "context association": 1397,
+        "composition association": 20,
+        "no association found by this procedure": 2,
+        "structural association": 80,
+        "insufficient samples": 1
+      },
+      "R": {
+        "context association": 1485,
+        "composition association": 2,
+        "insufficient samples": 1,
+        "structural association": 12
+      },
+      "S1": {
+        "context association": 1401,
+        "composition association": 25,
+        "insufficient samples": 73,
+        "no association found by this procedure": 1
+      },
+      "S2": {
+        "context association": 1405,
+        "composition association": 24,
+        "insufficient samples": 67,
+        "no association found by this procedure": 1,
+        "structural association": 3
+      },
+      "S3": {
+        "context association": 1395,
+        "composition association": 23,
+        "insufficient samples": 80,
+        "structural association": 2
+      },
+      "RS1": {
+        "context association": 1464,
+        "composition association": 33,
+        "insufficient samples": 2,
+        "structural association": 1
+      },
+      "RS2": {
+        "context association": 1472,
+        "composition association": 23,
+        "structural association": 2,
+        "insufficient samples": 2,
+        "no association found by this procedure": 1
+      },
+      "RS3": {
+        "context association": 1472,
+        "composition association": 14,
+        "insufficient samples": 11,
+        "structural association": 3
+      }
+    }
+  },
+  "tables_sha256": "60a6af8297373e0d7c4c7605c26717ba972d8db20bf1b7a34e47c0857765b770",
+  "ruler_sha256": "add6c0b838c8d478fd3af850e77f62747a7015ccfa954a41a19020be449601f1",
+  "B": 2000
+}

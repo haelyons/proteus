@@ -43,3 +43,35 @@ directions as R" up to rounding, not bitwise.
 | # | Quantity | Prediction | Wrong if |
 | --- | --- | --- | --- |
 | P9 | `directions_sha256` of RS1–RS3 (the three shuffled runs' `run.json`) | equal to each other; equal to the calibration's 625afb88... if the box reports the same torch version as the calibration box, else not | the three differ from each other |
+
+## Outcome (2026-11-12, `results/compare_8m_20261112/`)
+
+Run `compare-8m-20261112-1313`: one `gpu_1x_a100_sxm4` in us-east-1 on `esm-atlas-results` (an
+A100-SXM4-40GB this time), healthy 13:17:09Z, job done 14:45:22Z, terminated 14:48Z (about 1.5
+billed hours, about $3.00). Numbers from `compare.json`, `repro.json`, `timeline.json` and the
+shuffled runs' `run.json`.
+
+**Verdict on H1 at 8M (sealed rule with amendment 1): "against".** Calibration holds
+(d(N, Sc) = +0.236, +0.214, +0.198, all p < 1e-19, recomputed here and identical to the
+calibration job). d(N, R) = -0.021, p = 0.33, 95% interval [-0.062, +0.023]: random directions in
+the trained post-GELU space score the same as neurons on `primary_jsd` (medians 0.1893 and
+0.1892). Every d(Sc, RSc) is near zero too (-0.047, +0.011, -0.028). The trained-versus-shuffled
+gap belongs to the representation, not to the neuron basis.
+
+| # | Predicted | Measured | Held? |
+| --- | --- | --- | --- |
+| P1 | d(N, R) +0.15 to +0.45, p < 1e-6 | -0.021, p = 0.33 | **no** |
+| P2 | interval width 0.05–0.12 | 0.085 | yes |
+| P3 | "supports" | "against" | **no** |
+| P4 | N records 1,500/1,500 equal to the calibration's | 1,500/1,500 | yes |
+| P5 | each Sc 1,500/1,500 | 1,500/1,500 each (the calibration box was an 80 GB A100, this one 40 GB) | yes |
+| P6 | median `primary_jsd` R below N | R 0.18935, N 0.18920 (equal to three decimals) | **no** |
+| P7 | `share_residue_mode` R below N, intervals apart | R 99.4% [98.9, 99.7] above N 96.9% [95.9, 97.7] | **no** (opposite) |
+| P8 | shuffled runs 11–16 min | 12.4–12.6 min | yes |
+| P9 | RS1–RS3 direction hashes equal to each other, and to the calibration's if the torch build matches | all three 625afb88..., equal to the calibration's | yes |
+
+Secondary: pooled v1.2 calls rate R mostly "context" (1,485 of 1,499) against N's 1,397, and
+"structural" 12 against 80. These counts are never decisive (problem B).
+
+As instructed, the 8M comparison line stops here. Nothing at 650M, 3B or with SAE latents is
+started without the owner's decision.

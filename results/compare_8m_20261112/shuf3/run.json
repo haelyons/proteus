@@ -1,0 +1,202 @@
+{
+ "args": {
+  "model": "8M",
+  "columns": "neurons_post,randdir:512:0",
+  "source_cap": [
+   "neurons_post=0.1"
+  ],
+  "control": "shuffled",
+  "control_seed": 3,
+  "data": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+  "out": "/home/ubuntu/scratch/compare-8m-20261112-1313/shuf3",
+  "device": "cuda",
+  "dtype": "bf16",
+  "max_seqs": 0,
+  "tokens_per_batch": 32768,
+  "window": 8192,
+  "sorted_batches": false,
+  "pilot_tokens": 262144,
+  "K": 64,
+  "Kr": 256,
+  "backend": "triton",
+  "cap_frac_early": 0.0,
+  "stats_impl": "v3",
+  "merge_impl": "stacked",
+  "no_reservoir": false,
+  "no_subsample": false,
+  "no_gram": false,
+  "naive": false,
+  "count_ties": false,
+  "seed": 0,
+  "ckpt_every": 2000,
+  "gram_flush_every": 500,
+  "resume": false,
+  "stop_after": 0,
+  "seed_thresholds": true,
+  "pair_forward": false,
+  "pair_every": 0,
+  "plan_offset": 0,
+  "prefetch": 2,
+  "only_acc": null,
+  "edges_from": null,
+  "exclude_acc": "heldout_created_after_2021-11-17.tsv",
+  "edge_q": [
+   0.5,
+   0.9,
+   0.99,
+   0.999,
+   0.9999,
+   0.99999
+  ],
+  "profile_at": [],
+  "max_batches": 0,
+  "deadline": 1794497882.0,
+  "shard": null,
+  "pilot_out": null,
+  "pilot_only": false,
+  "pilot_from": null
+ },
+ "model": {
+  "hf": "facebook/esm2_t6_8M_UR50D",
+  "control": "shuffled",
+  "attn": "sdpa",
+  "n_layers": 6,
+  "d_model": 320,
+  "d_ff": 1280,
+  "n_params": 7409081,
+  "control_seed": 3
+ },
+ "coverage": {
+  "n_seq": 565738,
+  "n_res_full": 204255964,
+  "n_res_used": 194177125,
+  "n_truncated": 17708,
+  "frac_seq_truncated": 0.031300708651542664,
+  "frac_res_dropped": 0.04934415966272354
+ },
+ "n_excluded": 10010,
+ "n_batches_plan": 6143,
+ "n_total_plan": 194177125,
+ "next_batch": 6143,
+ "complete": true,
+ "seconds": {
+  "load": 8.704892635345459,
+  "pilot": 17.537580728530884,
+  "stream_this_process": 714.0749917030334,
+  "final_save": 2.26715350151062,
+  "total": 741.4904956817627
+ },
+ "n_seen": 194177125,
+ "stats": {
+  "batches": 6143,
+  "dense_layer_batches": 0,
+  "redo_layers": 0,
+  "compacted": 26403853453,
+  "elements": 2982560640000,
+  "top_cand": 17231897,
+  "res_cand": 68411514,
+  "bulk_rows_in": 1941370,
+  "bulk_rows_kept": 1941370
+ },
+ "gemm_paths": {
+  "int_mm": {
+   "ok": true
+  },
+  "mm_out_dtype": {
+   "ok": false
+  },
+  "nonzero_static": {
+   "ok": null
+  }
+ },
+ "host": {
+  "cpus": 30,
+  "peak_rss_bytes": 16599076864
+ },
+ "columns": "neurons_post,randdir:512:0",
+ "sources": {
+  "neurons_post": {
+   "width": 1280,
+   "stats": {
+    "batches": 6143,
+    "dense_layer_batches": 0,
+    "redo_layers": 0,
+    "compacted": 26403853453,
+    "elements": 2982560640000,
+    "top_cand": 17231897,
+    "res_cand": 68411514,
+    "bulk_rows_in": 1941370,
+    "bulk_rows_kept": 1941370
+   },
+   "n_seen": 194177125,
+   "res_seeded_bins": 64942,
+   "res_seed_limited_bins": 0,
+   "top_seed_short_groups": 0,
+   "digests": {
+    "top_val": "7137d595dbe89e56568148941193990b6c030a0d2a78b5c5b7fe080f7f310245",
+    "top_tok": "07c2d7e623ff5ff4b548851f5fadd32ed74a6d31fb4d149a40db06f48a9cefc2",
+    "res_tok": "88b550368dbd6bbbff6f269af61a7bed30a14362557e717fd2a7e731e9a9d8dc",
+    "res_val": "c2aa7f194701158aa26d0d89149830a6b14a3be3e6f70f2c219d5e9afa19357d",
+    "res_key": "2d6b8abd149c694e21bac32684f174d7f8cb84c87de4e7ae5bd8988d213f653a",
+    "sub_bin": "f2a7800ed08f9a44d18afb398b193698d78bf6e664991b6a90e2ef5dd4c8902c",
+    "enr": "b3260745b9dd9c3aec74a5cc957ce5dafaecd3e6112e3e687cd36f151c5c8fb5",
+    "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+    "edges": "ef995c053ac041ae03fadfbf27d7d83766282c6cf1a59d457234a429b723070f"
+   }
+  },
+  "randdir_512_0": {
+   "width": 512,
+   "stats": {
+    "batches": 6143,
+    "dense_layer_batches": 542,
+    "redo_layers": 542,
+    "compacted": 252312194,
+    "elements": 1193024256000,
+    "top_cand": 32729903,
+    "res_cand": 59034686,
+    "bulk_rows_in": 1923398,
+    "bulk_rows_kept": 1923398
+   },
+   "n_seen": 194177125,
+   "res_seeded_bins": 26896,
+   "res_seed_limited_bins": 0,
+   "top_seed_short_groups": 0,
+   "digests": {
+    "top_val": "a9de8ec7d2bc8ac92a70e3bfdfb3b3b7c12a521c0ff1a9a2f91666865a1bce70",
+    "top_tok": "2f47a45c196b7c60a1b3f37dc599d0c56592b9f66f0359aeaa6867ab5438f24f",
+    "res_tok": "c1da3b248a45d17ae6151538f3d39dba34e9c91a14a3d394827d4a24ec155985",
+    "res_val": "e4b3f8945b301d5cf1c65ee855e4a40dbf7d8f386b3358afaea7dde94b221c9c",
+    "res_key": "c53b047a79df3236f3d64c4fe5d48aeb02a1a30ce74aa15056cde3331e78896b",
+    "sub_bin": "d97046069ebddbd7162f2b6ec1c90f5c4a75645217aadc525229257adfaa9107",
+    "enr": "6d35ffbdf9c360fbff1dc614c5edfc2e1bbf7e2cd2c35c05f552a5eb62f80302",
+    "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+    "edges": "cd1fddda75c5f86748ae0b0070583d7abc8f5cb919e846f7234e3bfda1eac847"
+   },
+   "directions_sha256": "625afb88e917f6e4194ac9c806510529eb3399db6a891fa240643e965bd91d35"
+  }
+ },
+ "gpu": {
+  "name": "NVIDIA A100-SXM4-40GB",
+  "total_memory": 42406903808,
+  "max_memory_allocated": 8760988160,
+  "max_memory_reserved": 8891924480,
+  "uuid": "c527ef85-ca39-5b0b-3197-e97f02203aab"
+ },
+ "digests": {
+  "top_val": "7137d595dbe89e56568148941193990b6c030a0d2a78b5c5b7fe080f7f310245",
+  "top_tok": "07c2d7e623ff5ff4b548851f5fadd32ed74a6d31fb4d149a40db06f48a9cefc2",
+  "res_tok": "88b550368dbd6bbbff6f269af61a7bed30a14362557e717fd2a7e731e9a9d8dc",
+  "res_val": "c2aa7f194701158aa26d0d89149830a6b14a3be3e6f70f2c219d5e9afa19357d",
+  "res_key": "2d6b8abd149c694e21bac32684f174d7f8cb84c87de4e7ae5bd8988d213f653a",
+  "sub_bin": "f2a7800ed08f9a44d18afb398b193698d78bf6e664991b6a90e2ef5dd4c8902c",
+  "enr": "b3260745b9dd9c3aec74a5cc957ce5dafaecd3e6112e3e687cd36f151c5c8fb5",
+  "ann_tot": "a099d1047b76fce6d79749223941afb44a825fb022bf5fa2e3a408ed3a8da080",
+  "edges": "ef995c053ac041ae03fadfbf27d7d83766282c6cf1a59d457234a429b723070f"
+ },
+ "final_save_s": 2.26715350151062,
+ "atlas_pt_GB": 0.611185297,
+ "gram_rows": 9715300,
+ "res_seeded_bins": 64942,
+ "res_seed_limited_bins": 0,
+ "top_seed_short_groups": 0
+}

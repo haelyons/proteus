@@ -1,0 +1,253 @@
+{
+  "n": {
+    "N": 1499,
+    "R": 1499,
+    "S1": 1427,
+    "S2": 1433,
+    "S3": 1420,
+    "RS1": 1498,
+    "RS2": 1498,
+    "RS3": 1489
+  },
+  "calibration": {
+    "S1": {
+      "d": 0.23643279121376404,
+      "p": 1.7429858091031726e-28,
+      "ci": [
+        0.19577062119899608,
+        0.27649643093059467
+      ]
+    },
+    "S2": {
+      "d": 0.21419210853292747,
+      "p": 1.0171560864159371e-23,
+      "ci": [
+        0.17366816305078006,
+        0.2569688934283707
+      ]
+    },
+    "S3": {
+      "d": 0.1978389348767724,
+      "p": 2.2075579045795456e-20,
+      "ci": [
+        0.1568208617951875,
+        0.2374315506112055
+      ]
+    }
+  },
+  "calibration_passes": true,
+  "d_NR": {
+    "d": -0.020525580540462607,
+    "p": 0.3304902373109538,
+    "ci": [
+      -0.061837355657607646,
+      0.023367257068421493
+    ]
+  },
+  "d_SRS": {
+    "S1": {
+      "d": -0.046967552157840875,
+      "p": 0.02789086517703551,
+      "ci": [
+        -0.09043110973472687,
+        -0.0033279364310087193
+      ]
+    },
+    "S2": {
+      "d": 0.010608235963839308,
+      "p": 0.6190724822661523,
+      "ci": [
+        -0.03474861108134874,
+        0.05325083363069808
+      ]
+    },
+    "S3": {
+      "d": -0.027818083788155423,
+      "p": 0.1940222402011952,
+      "ci": [
+        -0.06793412253237358,
+        0.01490529138565432
+      ]
+    }
+  },
+  "d_NS_mean": 0.21615461154115465,
+  "h1": "against",
+  "h1_conditions": {
+    "d_ge_0147": false,
+    "p_lt_001": false,
+    "attributable": false,
+    "half_gap": false
+  },
+  "secondary": {
+    "share_residue_mode": {
+      "N": {
+        "k": 1453,
+        "n": 1499,
+        "share": 0.9693128752501667,
+        "ci": [
+          0.9592781940767103,
+          0.9774474176209083
+        ]
+      },
+      "R": {
+        "k": 1490,
+        "n": 1499,
+        "share": 0.9939959973315544,
+        "ci": [
+          0.9886332557681567,
+          0.9972510216601171
+        ]
+      },
+      "S1": {
+        "k": 1427,
+        "n": 1427,
+        "share": 1.0,
+        "ci": [
+          0.9974182792052455,
+          1.0
+        ]
+      },
+      "S2": {
+        "k": 1432,
+        "n": 1433,
+        "share": 0.9993021632937893,
+        "ci": [
+          0.9961180990822305,
+          0.9999823324603405
+        ]
+      },
+      "S3": {
+        "k": 1420,
+        "n": 1420,
+        "share": 1.0,
+        "ci": [
+          0.9974055689362493,
+          1.0
+        ]
+      },
+      "RS1": {
+        "k": 1498,
+        "n": 1498,
+        "share": 1.0,
+        "ci": [
+          0.9975404932041227,
+          1.0
+        ]
+      },
+      "RS2": {
+        "k": 1497,
+        "n": 1498,
+        "share": 0.9993324432576769,
+        "ci": [
+          0.996286282399907,
+          0.9999830990694016
+        ]
+      },
+      "RS3": {
+        "k": 1489,
+        "n": 1489,
+        "share": 1.0,
+        "ci": [
+          0.9975256455526764,
+          1.0
+        ]
+      }
+    },
+    "median_primary_jsd": {
+      "N": 0.18920424580574036,
+      "R": 0.18934570252895355,
+      "S1": 0.13960451632738113,
+      "S2": 0.14307338744401932,
+      "S3": 0.14823263883590698,
+      "RS1": 0.14930333942174911,
+      "RS2": 0.14264319837093353,
+      "RS3": 0.1516546532511711
+    },
+    "peak_log2_median": {
+      "N": 1.2046091556549072,
+      "R": 1.191031813621521,
+      "S1": 1.555954098701477,
+      "S2": 1.602064609527588,
+      "S3": 1.6289527416229248,
+      "RS1": 1.5726689100265503,
+      "RS2": 1.6053857207298279,
+      "RS3": 1.6521968841552734
+    },
+    "pooled_v12_calls": {
+      "N": {
+        "context association": 1397,
+        "composition association": 20,
+        "no association found by this procedure": 2,
+        "structural association": 80,
+        "insufficient samples": 1
+      },
+      "R": {
+        "context association": 1485,
+        "composition association": 2,
+        "insufficient samples": 1,
+        "structural association": 12
+      },
+      "S1": {
+        "context association": 1401,
+        "composition association": 25,
+        "insufficient samples": 73,
+        "no association found by this procedure": 1
+      },
+      "S2": {
+        "context association": 1405,
+        "composition association": 24,
+        "insufficient samples": 67,
+        "no association found by this procedure": 1,
+        "structural association": 3
+      },
+      "S3": {
+        "context association": 1395,
+        "composition association": 23,
+        "insufficient samples": 80,
+        "structural association": 2
+      },
+      "RS1": {
+        "context association": 1464,
+        "composition association": 33,
+        "insufficient samples": 2,
+        "structural association": 1
+      },
+      "RS2": {
+        "context association": 1472,
+        "composition association": 23,
+        "structural association": 2,
+        "insufficient samples": 2,
+        "no association found by this procedure": 1
+      },
+      "RS3": {
+        "context association": 1472,
+        "composition association": 14,
+        "insufficient samples": 11,
+        "structural association": 3
+      }
+    }
+  },
+  "bootstrap": {
+    "draws": 2000,
+    "seed": 0,
+    "level": 0.95
+  },
+  "repro": {
+    "N": {
+      "n": 1500,
+      "identical": 1500
+    },
+    "S1": {
+      "n": 1500,
+      "identical": 1500
+    },
+    "S2": {
+      "n": 1500,
+      "identical": 1500
+    },
+    "S3": {
+      "n": 1500,
+      "identical": 1500
+    }
+  }
+}

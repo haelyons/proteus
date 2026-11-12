@@ -1,0 +1,57 @@
+[
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/atlases/atlas_neurons_post.pt",
+    "size": 611185297,
+    "sha256": "de9a862422860731840566fcfdb492af254969c1fa9673950e2b698f570d5078"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/atlases/atlas_randdir_512_0.pt",
+    "size": 225606309,
+    "sha256": "652cac8b98b2758b37b445ef67f57ed3ace3fc761ae71fdbbd22dd0c735188c1"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/pooling/sample.json",
+    "size": 289786,
+    "sha256": "be0f87f6ce853b628643fb6e03912f761579d50ff67e706b38651dbdde6c3d7d"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/pooling/scores/trained.jsonl",
+    "size": 632965,
+    "sha256": "5100a1dd173a1f9f1a11339cbc822a07c87fba08f5cb09a37d677ed6fd29c30e"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/pooling/scores/shuf1.jsonl",
+    "size": 622613,
+    "sha256": "e50f2f738ec9fb0c821533f2ee09a019d6066e15950a9ded41e0c7ddfef5976f"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/pooling/scores/shuf2.jsonl",
+    "size": 623578,
+    "sha256": "b5d2159e8b61eb9983943e6e27d8b0c31e1c0c5d7080584856f2e38f85a9a095"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/pooling/scores/shuf3.jsonl",
+    "size": 622566,
+    "sha256": "ef91b9af1bfbf1217372323f214d5e9abc8e6f48d3e46832e5d4f2c65ab7a99e"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+    "size": 324894837,
+    "sha256": "49825c0a838d4c0513032113b627cd1572767670adc2790cffb4cd6ae4ae9276"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/descriptors_swissprot_2026_03.pt",
+    "size": 4514251315,
+    "sha256": "60a6af8297373e0d7c4c7605c26717ba972d8db20bf1b7a34e47c0857765b770"
+  },
+  {
+    "path": "lists/swissprot_2026_03_uniref50.tsv.gz",
+    "size": 3511381,
+    "sha256": "67aea7c3a8c55c153ff2f28882a059f1b3bf62be02a62520dbe791b92f734d97"
+  },
+  {
+    "path": "heldout_created_after_2021-11-17.tsv",
+    "size": 231126,
+    "sha256": "07d4aa11746b4e51a17f226bca56448706196f077abe9aa7f811483406cb4ba0"
+  }
+]
