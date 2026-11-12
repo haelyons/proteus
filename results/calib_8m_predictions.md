@@ -88,7 +88,7 @@ first launch, about $5.10 for calibration). Config `specs/calib.md` 3 with 3b
 
 | # | Predicted | Measured | Held? |
 | --- | --- | --- | --- |
-| C1 | `neurons_pre` bitwise equal to the recorded `a8_pre`, `a8_shuf1..3` | all four differ, slightly. `edges`, `ann_tot` and `n_seen` (194,177,125) are equal; trained: `top_val` 8 and `top_tok` 44 elements, reservoirs about 10k of about 24M entries; float sums within 5e-8 relative. The premise was wrong: the recorded 8M atlases were built on an **A10** (`results/README.md`, job batch_20261105: "no A100/H100 anywhere at 02:55"), not an A100. A GPU architecture change (sm_86 to sm_80) changing bf16 kernels fits the pattern but is not measured | no |
+| C1 | `neurons_pre` bitwise equal to the recorded `a8_pre`, `a8_shuf1..3` | all four differ, slightly. `edges`, `ann_tot` and `n_seen` (194,177,125) are equal; trained: `top_val` 8 and `top_tok` 44 elements, about 10k reservoir entries; float sums within 5e-8 relative. The premise was wrong: the recorded 8M atlases were built on an **A10** (`results/README.md`, job batch_20261105: "no A100/H100 anywhere at 02:55"), not an A100. A GPU architecture change (sm_86 to sm_80) changing bf16 kernels fits the pattern but is not measured | no |
 | C2 | calibration passes: d >= 0.147 and p < 0.01 for all three | d(trained, shuf c) = +0.236, +0.214, +0.198; p = 1.7e-28, 1.0e-23, 2.2e-20 | **yes: calibration passes** |
 | C3 | post-GELU d within 0.05 of pre-GELU (+0.225, +0.202, +0.167) | differences +0.011, +0.012, +0.031 | yes |
 | C4 | at least 60% of sampled trained records `score_sha256` equal post vs pre | 675/1,500 (45.0%); the pre-GELU reference is the recorded A10 atlas's scores (`results/ruler_checks_20261111/`), so C1's differences are mixed in | no |
