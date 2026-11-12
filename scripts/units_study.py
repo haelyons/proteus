@@ -365,6 +365,15 @@ def token_examples(tokens, lookup):
     return examples
 
 
+def quantile_linear(x: torch.Tensor, q: torch.Tensor) -> torch.Tensor:
+    """Linear quantiles with float64 ranks, without a size limit."""
+    values = x.sort().values
+    ranks = q.double() * (x.numel() - 1)
+    lower = ranks.floor()
+    upper = ranks.ceil()
+    return values[lower.long()].lerp(values[upper.long()], (ranks - lower).to(x.dtype))
+
+
 def prepare_profiles(a):
     # Whole-build descriptors supply atlas-token annotations; only subset discovery
     # proteins supply burial cut points.
@@ -378,7 +387,7 @@ def prepare_profiles(a):
                 b = part["burial"][s:e].float()
                 burial.append(b[(part["plddt"][s:e] >= 70) & torch.isfinite(b)])
     burial = torch.cat(burial)
-    cuts = torch.quantile(burial[torch.isfinite(burial)], torch.tensor([1 / 3, 2 / 3]))
+    cuts = quantile_linear(burial[torch.isfinite(burial)], torch.tensor([1 / 3, 2 / 3]))
     torch.save(cuts, Path(a.scratch) / "cuts.pt")
     d = load(a.desc)
     lookup = {int(si): (d, int(d["offset"][j]), int(d["offset"][j + 1]))
