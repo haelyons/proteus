@@ -88,6 +88,27 @@ Worked example: small `d_NR` `{"d": -0.021, "ci": [-0.062, 0.023]}`, large `{"d"
   atlas equals an unsharded run of the same config (exact fields bitwise, float sums within 1e-9),
   which is the sharding invariant inside the comparison job.
 
+## Amendment 1 (2026-11-12, before implementation): file layout and the 8M input
+
+Frozen so the blind tests can find the files.
+
+- `SCRATCH` as `jobs/compare_8m/run.sh`: env-settable, default `$HOME/scratch/$JOB`; the job never
+  deletes it. Per run `<run>` in `trained shuf1 shuf2 shuf3`:
+  `$SCRATCH/<run>/pilot.pt` (the pilot), `$SCRATCH/<run>/s0/` and `$SCRATCH/<run>/s1/` (shard
+  outputs, `shard_<source>.pt` and `run.json`), `$SCRATCH/<run>/atlas_<source>.pt` (merged), for
+  `<source>` in `neurons_post randdir_512_0`.
+- `$OUT/<run>/`: `pilot.json` (the pilot step's `run.json`), `s0.run.json`, `s1.run.json`,
+  `s0.batches.jsonl`, `s1.batches.jsonl`, `merge_<source>.json` (merge record).
+- The unsharded reference for the sharding invariant is `scripts/run_atlas.py` with the shard's
+  recorded arguments, without `--shard`, with `--pilot-from $SCRATCH/<run>/pilot.pt`.
+- The small model's comparison is read from `$JOB/results_8m_compare.json` (the launcher includes
+  a copy of `results/compare_8m_20261112/compare.json` under that name). Env `SMALL_COMPARE`
+  overrides the path. `SMOKE=1` without `SMALL_COMPARE` uses its own `$OUT/compare.json`, so every
+  trend is `"flat"`.
+- `SMOKE=1` keeps `--source-cap neurons_post=0.04 --no-gram` and both sources; it changes model,
+  device, dtype, backend, data, batch size, pilot tokens, `Kr` and edges only, and runs each run's
+  two shards concurrently as CPU processes.
+
 ## Cost
 
 One `gpu_8x_a100` (40 GB) or `gpu_8x_a100_80gb_sxm4` in us-east-1 on `esm-atlas-results`. Estimates,
