@@ -57,7 +57,7 @@ come from `batches.jsonl` (`redo_layers`).
 ## First launch (2026-11-12): stopped at preflight; no predictions measured
 
 Run `compare-650m-20261112-1928`, queued with the owner's yes: one `gpu_8x_a100` (A100 SXM4 40 GB),
-us-east-1, launched 20:53:25Z after 6 retry attempts without capacity, healthy 20:59:13Z, job done
+us-east-1, launched 20:53:25Z on attempt 18 (17 earlier attempts without capacity), healthy 20:59:13Z, job done
 20:59:46Z, terminated 21:02Z (a few billed minutes, under $1). `preflight` failed with
 `ModuleNotFoundError: No module named 'transformers'`. The implementation had dropped the
 `pip install` line that `jobs/compare_8m/run.sh` has, and SMOKE skips preflight.
