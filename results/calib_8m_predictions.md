@@ -74,4 +74,4 @@ shapes, recomputed). `randdir` peak calls equal `gauss`'s for 831/1,490 (55.8%) 
 
 Consequence for the qualification: unchanged. `primary_jsd` and `share_residue_mode` still
 qualify on all seven shapes; `share_struct` does not. The ruler loses most `narrow` columns
-when the noise is a random direction's (skewed, heavier right tail) rather than Gaussian.
+when the noise has the random-direction shape rather than Gaussian (cause not measured).
