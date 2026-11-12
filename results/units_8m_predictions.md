@@ -41,3 +41,17 @@ trained post-GELU neurons and 150 random directions (25 per layer each), never p
 
 Pass rates are over sufficient columns with Clopper-Pearson 95% intervals (`units.json`). The
 predictions are about the rates; no single column's card is predicted.
+
+## Outcome of the first launch (2026-11-12): reproduction gate failed; study not run
+
+Run `units-8m-20261112-1451` (one `gpu_1x_a10`, us-east-1; healthy 14:56:41Z, terminated 15:08Z,
+about $0.30). `repro_unit_writes`: 900 cases, 1 bitwise, maximum absolute differences
+`dlogp_true` 1.0e-5, `kl` 3.7e-6, `travel_kl` 1.1e-5, `ok` false under the frozen tolerance
+(1e-6 absolute). The job stopped before the study, as specified. **U1: no.** U2–U11 not measured.
+
+Diagnosis on this machine (`results/units_8m_repro_20261112/local_compare.json`; the 297
+sequences fetched from UniProt): the module equals the legacy `scripts/unit_writes.py` hook bitwise
+on all 1,800 effects (900 cases and their base units). Both differ from the 5 Nov record by the
+same amounts (maximum 9.6e-6, median 2.8e-7, 133 bitwise). The legacy script no longer reproduces
+its own record on today's software stack (torch 2.15 here). The module reproduces the legacy
+computation exactly. My tolerance was set below the drift between the recording stack and today's.

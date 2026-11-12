@@ -1,0 +1,18 @@
+{
+ "effects_compared": 1800,
+ "seq_len_mismatch_cases": 0,
+ "module_equals_legacy_bitwise": 1800,
+ "legacy_vs_recorded": {
+  "bitwise": 133,
+  "max_abs": 9.551740731694736e-06,
+  "median_abs": 2.7887560349881824e-07
+ },
+ "module_vs_recorded": {
+  "bitwise": 133,
+  "max_abs": 9.551740731694736e-06,
+  "median_abs": 2.7887560349881824e-07
+ },
+ "torch": "2.15.0+cpu"
+}
+
+[exited with code 0]
