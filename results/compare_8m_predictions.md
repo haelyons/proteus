@@ -32,3 +32,14 @@ with amendment 1. Predictions RS-1 to RS-4 for d(Sc, RSc) are sealed separately
 
 If calibration recomputed here failed (it cannot if P4 and P5 hold), H1 would be null and nothing
 else would be read.
+
+## Addendum before launch (2026-11-12)
+
+Found while drafting the next spec: `randdir:512:0` regenerated on this machine (fp32, CPU) has
+`directions_sha256` 852ed324..., the calibration box recorded 625afb88.... Seeded `randn` plus
+column normalisation differs at the last bit across platforms. RS1–RS3 are therefore "the same
+directions as R" up to rounding, not bitwise.
+
+| # | Quantity | Prediction | Wrong if |
+| --- | --- | --- | --- |
+| P9 | `directions_sha256` of RS1–RS3 (the three shuffled runs' `run.json`) | equal to each other; equal to the calibration's 625afb88... if the box reports the same torch version as the calibration box, else not | the three differ from each other |
