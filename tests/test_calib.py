@@ -245,7 +245,7 @@ def test_source_cap_preserves_atlases_and_reduces_redo(work, record_property):
     for name, extra in (("without_cap", []),
                         ("with_cap", ["--source-cap", "neurons_post=0.1"])):
         out = work / name
-        _run([*_source_cap_args(out), *extra], timeout=180)
+        _run([*_source_cap_args(out), *extra], timeout=int(os.environ.get("CALIB_CAP_BUDGET", 180)))
         outputs[name] = {path.name: path for path in out.glob("atlas*.pt")}
         records = [json.loads(line) for line in (out / "batches.jsonl").read_text().splitlines()]
         assert records, name
