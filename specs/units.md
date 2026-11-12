@@ -150,6 +150,21 @@ path, size, sha256 into `$OUT/inputs.json`, a missing one fails the job): `$FS/c
 study); `sample`; `heldout_values` (one forward per held-out protein); `columns` (the 300 columns
 across `WORKERS` processes, one card each); `report`. CPU only, fp32, one torch thread per process.
 
+Amendment 5d (2026-11-12, after the second launch stopped at `columns`: `torch.quantile` rejects
+inputs above 2^24 elements, and the burial cut points of 3a cover the whole build). Frozen helper
+in `scripts/units_study.py`:
+
+```
+quantile_linear(x: Tensor[n], q: Tensor[m]) -> Tensor[m]   # x 1-D, finite; q same dtype as x, in [0, 1]
+```
+
+Same definition as `torch.quantile(x, q)` with linear interpolation: sort `x`; ranks = `q * (n - 1)`
+in `x`'s dtype; lerp between the values at `floor(rank)` and `ceil(rank)` with weight
+`rank - floor(rank)`. It equals `torch.quantile` **bitwise** for every input `torch.quantile`
+accepts, and has no size limit. Worked example: `x = [4., 1., 3., 2.]`, `q = [1/3, 2/3]`
+(float32): sorted `[1, 2, 3, 4]`, ranks `[1, 2]`, result `[2., 3.]`. The burial cuts use it; nothing
+else changes.
+
 Amendment 5c (2026-11-12, after the first launch stopped at the reproduction gate; the owner's
 decision): the reproduction criterion of section 1 is replaced. On the machine that runs it, the
 module and the legacy `scripts/unit_writes.py` silencing hook (its `silenced()`: post-GELU set to
