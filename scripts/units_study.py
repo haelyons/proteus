@@ -567,7 +567,26 @@ def repro_unit_writes(a):
     tok, _ = model_material()
     M = make_intervener()
     maxima = dict.fromkeys(("dlogp_true", "kl", "travel_kl"), 0.)
+    legacy_maxima = dict.fromkeys(maxima, 0.)
+    module_equals_legacy = True
     bitwise, ok = 0, True
+
+    def silenced(ids, l, u, p):
+        def hk(_m, _i, o):
+            o = o.clone(); o[0, p + 1, u] = 0.0
+            return o
+        hd = M.layers[l].intermediate.register_forward_hook(hk)
+        try:
+            return torch.log_softmax(M.model(input_ids=ids).logits[0].double(), -1)
+        finally:
+            hd.remove()
+
+    def effect(lp1):
+        kl = (base.lp_full.exp() * (base.lp_full - lp1)).sum(-1).clamp(min=0)
+        other = torch.cat((kl[1:i + 1], kl[i + 2:-1]))
+        return {"dlogp_true": float(lp1[i + 1, ids[0, i + 1]] - base.lp_full[i + 1, ids[0, i + 1]]),
+                "kl": float(kl[i + 1]), "travel_kl": float(other.max()) if len(other) else 0.}
+
     last, base, ids = None, None, None
     for row in rows:
         if last != row["acc"]:
@@ -579,18 +598,24 @@ def repro_unit_writes(a):
         for prefix, u in (("", row["unit"]), ("base_", row["base_unit"])):
             r = torch.nn.functional.one_hot(torch.tensor(u), 1280).float()
             edited = M.run(ids, edit=(l, r, [i], [0.]))
-            kl = (base.lp_full.exp() * (base.lp_full - edited.lp_full)).sum(-1).clamp(min=0)
-            other = torch.cat((kl[1:i + 1], kl[i + 2:-1]))
-            got = {"dlogp_true": float(edited.lp_full[i + 1, ids[0, i + 1]] - base.lp_full[i + 1, ids[0, i + 1]]),
-                   "kl": float(kl[i + 1]), "travel_kl": float(other.max()) if len(other) else 0.}
+            got = effect(edited.lp_full)
+            legacy = effect(silenced(ids, l, u, i))
+            module_equals_legacy &= torch.equal(
+                torch.tensor(list(got.values()), dtype=torch.float64).view(torch.int64),
+                torch.tensor(list(legacy.values()), dtype=torch.float64).view(torch.int64))
             for k, v in got.items():
                 reference = row[prefix + k]
                 diff = abs(v - reference)
+                legacy_diff = abs(legacy[k] - reference)
                 maxima[k] = max(maxima[k], diff)
+                legacy_maxima[k] = max(legacy_maxima[k], legacy_diff)
                 same &= v == reference
-                ok &= diff <= 1e-6 or (k != "dlogp_true" and diff <= 1e-4 * abs(reference))
+                ok &= diff <= 2e-5 and legacy_diff <= 2e-5
         bitwise += same
-    result = {"n_cases": len(rows), "n_bitwise": bitwise, "max_abs_diff": maxima, "ok": bool(ok)}
+    ok &= module_equals_legacy
+    result = {"n_cases": len(rows), "n_bitwise": bitwise, "max_abs_diff": maxima, "ok": bool(ok),
+              "n_effects": 2 * len(rows), "module_equals_legacy_bitwise": module_equals_legacy,
+              "max_abs_diff_legacy": legacy_maxima, "max_abs_diff_module": maxima}
     write_json(Path(a.out) / "repro_unit_writes.json", result)
     print(json.dumps(result))
     if not ok:
