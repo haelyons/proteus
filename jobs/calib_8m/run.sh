@@ -216,7 +216,7 @@ for name in trained shuf1 shuf2 shuf3; do
     CONTROL=(--control shuffled --control-seed "${name#shuf}")
   fi
   step "$name" "$PYTHON" scripts/run_atlas.py "${COMMON[@]}" "${CONTROL[@]}" \
-    --columns "$COLUMNS" --out "$SCRATCH/$name" || exit 1
+    --columns "$COLUMNS" --source-cap neurons_post=0.1 --out "$SCRATCH/$name" || exit 1
   step "archive_$name" archive "$name" || exit 1
 done
 for name in trained shuf1 shuf2 shuf3; do
