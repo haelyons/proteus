@@ -150,6 +150,13 @@ path, size, sha256 into `$OUT/inputs.json`, a missing one fails the job): `$FS/c
 study); `sample`; `heldout_values` (one forward per held-out protein); `columns` (the 300 columns
 across `WORKERS` processes, one card each); `report`. CPU only, fp32, one torch thread per process.
 
+Amendment 5b (2026-11-12, before any run): the recorded cases ship in the job tarball
+(`results/unit_writes_8M_20261105/` placed at that relative path in the job directory; `CASES`
+defaults to it). Non-smoke `preflight` as `jobs/calib_8m/run.sh` plus `pytest`. After
+`repro_unit_writes`, step `blind_repro_test` runs the blind test
+(`PROTEUS_SWISSPROT=$DATA python -m pytest -q tests/test_intervene.py -k reproduction`) into
+`$OUT/blind_repro_test.log`; its failure is recorded and does not stop the job.
+
 `$OUT/sample.json` (`{"neurons": [[l, u], ...], "directions": [[l, k], ...], "directions_sha256",
 "calib_directions_sha256"}`), `$OUT/repro_unit_writes.json` (`{"n_cases", "n_bitwise",
 "max_abs_diff": {"dlogp_true", "kl", "travel_kl"}, "ok"}`), `$OUT/cards/<pop>_<l>_<k>.json` and `.md` (one per
