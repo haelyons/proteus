@@ -78,3 +78,20 @@ about $0.68). Files in `results/units_8m_launch2_20261112/`.
   cut points cover the whole build. The SMOKE's data is too small to reach the limit. Fix: amendment
   5d (`quantile_linear`, bitwise equal to `torch.quantile` where torch accepts the input).
   U2–U11 were not measured and stand as sealed.
+
+## Outcome of the third launch (2026-11-12): U1' held again; `columns` cut at the deadline
+
+Run `units-8m-20261112-1947` (one `gpu_1x_a10`, us-east-1; healthy 19:52:28Z, terminated 21:15Z,
+about $1.80). Files in `results/units_8m_launch3_20261112/`; the 174 fetched cards stay local in
+`infra/runs/units-8m-20261112-1947/job/cards/` (ignored by git).
+
+- U1' held again: `ok` true, 1,800/1,800 module == legacy bitwise, maximum differences equal to the
+  second launch's (1.01e-5, 3.7e-6, 1.07e-5). The blind reproduction test passed.
+- Amendment 5d worked: `columns` passed the burial cut points.
+- `columns` was stopped by the job deadline after 3,177 s (rc 124). It computed direct writes for
+  4,559 columns (about 18 min), then 174 of 300 cards (about 6.4 per minute on 28 workers). The
+  spec's estimate (15–30 min of compute) was too low by about a factor of 3. A full run needs about
+  90 min of job time, more than a 1.5 h cap allows.
+- No `units.json`; U2–U11 not measured and stand as sealed.
+- The owner approved a rerun with a 2.5 h cap, then halted all work before it was launched. Not
+  launched.

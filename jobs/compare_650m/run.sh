@@ -117,6 +117,7 @@ step() {
 run_step() { step "$@" || FAILED=1; }
 
 preflight() {
+  "$PYTHON" -m pip install --user -q -U 'pillow>=10' 'transformers>=4.46' pydssp || return
   "$PYTHON" -c 'import torch, triton, transformers, PIL, pydssp; from transformers import EsmModel; print("preflight ok")'
 }
 gpu_record() {
@@ -183,10 +184,10 @@ run_atlases() {
   local -a pids=() control=()
   if [ "$name" != trained ]; then control=(--control shuffled --control-seed "${name#shuf}"); fi
   trap 'for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; for pid in "${pids[@]}"; do wait "$pid" 2>/dev/null || true; done; exit 143' TERM INT
-  step "${name}_pilot" env CUDA_VISIBLE_DEVICES="$first" "$PYTHON" scripts/run_atlas.py "$@" "${control[@]}" \
+  step "${name}_pilot" env CUDA_VISIBLE_DEVICES="$first" OMP_NUM_THREADS="$ATLAS_THREADS" MKL_NUM_THREADS="$ATLAS_THREADS" "$PYTHON" scripts/run_atlas.py "$@" "${control[@]}" \
     --out "$SCRATCH/$name/pilot" --pilot-out "$SCRATCH/$name/pilot.pt" --pilot-only || return 1
   for s in 0 1; do
-    step "${name}_s$s" env CUDA_VISIBLE_DEVICES="$((first + s))" "$PYTHON" scripts/run_atlas.py "$@" "${control[@]}" \
+    step "${name}_s$s" env CUDA_VISIBLE_DEVICES="$((first + s))" OMP_NUM_THREADS="$ATLAS_THREADS" MKL_NUM_THREADS="$ATLAS_THREADS" "$PYTHON" scripts/run_atlas.py "$@" "${control[@]}" \
       --pilot-from "$SCRATCH/$name/pilot.pt" --shard "$s/2" --out "$SCRATCH/$name/s$s" &
     pids+=("$!")
   done
@@ -196,7 +197,7 @@ run_atlases() {
   step "archive_$name" archive "$name" || bad=1
   [ "$bad" = 0 ] || return 1
   for source in neurons_post randdir_512_0; do
-    step "${name}_merge_$source" "$PYTHON" scripts/merge_atlas.py \
+    step "${name}_merge_$source" env OMP_NUM_THREADS="$ATLAS_THREADS" MKL_NUM_THREADS="$ATLAS_THREADS" "$PYTHON" scripts/merge_atlas.py \
       --out "$SCRATCH/$name/merge_$source" "$SCRATCH/$name/s0/shard_$source.pt" \
       "$SCRATCH/$name/s1/shard_$source.pt" --device cpu || return 1
     mv "$SCRATCH/$name/merge_$source/atlas.pt" "$SCRATCH/$name/atlas_$source.pt" || return
@@ -232,6 +233,7 @@ PYATLASES
 export -f record step preflight gpu_record smoke_descriptors inputs archive run_atlases copy_atlases
 
 if [ "$SMOKE" = 1 ]; then
+  ATLAS_THREADS=1
   MODEL=8M; DEV=cpu; DT=fp32; BACKEND=torch; TPB=4096; PT=8192; K=16; KR=16
   DATA=${SMOKE_DATA:-data/swissprot_test500.pt}
   HELD=lists/heldout_created_after_2021-11-17.tsv
@@ -243,7 +245,9 @@ if [ "$SMOKE" = 1 ]; then
   step smoke_descriptors smoke_descriptors || exit 1
   for name in preflight gpu_record smi_logger gpu_tests stats_gpu_tests; do skip "$name" 'SMOKE: CPU only'; done
 else
-  export HF_HOME=$FS/cache/hf
+  # As jobs/shard_scale/run.sh: weights cached on local scratch (never written to FS); one atlas process per GPU gets nproc / 8 threads.
+  export HF_HOME=$SCRATCH/hf HF_HUB_CACHE=$SCRATCH/hf/hub
+  ATLAS_THREADS=$(( $(nproc) / 8 > 0 ? $(nproc) / 8 : 1 ))
   MODEL=650M; DEV=cuda; DT=bf16; BACKEND=triton; TPB=32768; PT=262144; K=64; KR=256
   DATA=$FS/cache/swissprot_2026_03.pt
   HELD=heldout_created_after_2021-11-17.tsv

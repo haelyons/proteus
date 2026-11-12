@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/lambda/nfs/esm-atlas-results/cache/swissprot_2026_03.pt",
+    "size": 324894837,
+    "sha256": "49825c0a838d4c0513032113b627cd1572767670adc2790cffb4cd6ae4ae9276"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/atlas-wab-20261105-0140/desc_subset",
+    "size": 562741502,
+    "sha256": "e77cf1a9b07b926607c53fb517131f1edd551ded586e101a4d6f003c293425ff"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/descriptors_swissprot_2026_03.pt",
+    "size": 4514251315,
+    "sha256": "60a6af8297373e0d7c4c7605c26717ba972d8db20bf1b7a34e47c0857765b770"
+  },
+  {
+    "path": "lists/swissprot_2026_03_uniref50.tsv.gz",
+    "size": 3511381,
+    "sha256": "67aea7c3a8c55c153ff2f28882a059f1b3bf62be02a62520dbe791b92f734d97"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/atlases/atlas_neurons_post.pt",
+    "size": 611185297,
+    "sha256": "de9a862422860731840566fcfdb492af254969c1fa9673950e2b698f570d5078"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/atlases/atlas_randdir_512_0.pt",
+    "size": 225606309,
+    "sha256": "652cac8b98b2758b37b445ef67f57ed3ace3fc761ae71fdbbd22dd0c735188c1"
+  },
+  {
+    "path": "/lambda/nfs/esm-atlas-results/runs/calib-8m-20261112-1018/trained/run.json",
+    "size": 7209,
+    "sha256": "f4be94631e3176f2ad58850b09c71c618f8dfec276c10da9c34b9ca7a40a7bd4"
+  },
+  {
+    "path": "results/unit_writes_8M_20261105/cases.jsonl",
+    "size": 378979,
+    "sha256": "d32a7ee5f519bbd7bc1d3cf48a3e62454d645347eaf92e03d27341fc5a036553"
+  }
+]

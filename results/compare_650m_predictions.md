@@ -53,3 +53,18 @@ rule `results/science_decision_rule.md` with amendment 1. Owner's decision: 650M
 Statistics come from `compare.json` and `h3.json`. Times come from `timeline.json` and each run's
 `run.json`. Memory comes from `run.json` (`max_memory_allocated`, `peak_rss_bytes`). Redo counts
 come from `batches.jsonl` (`redo_layers`).
+
+## First launch (2026-11-12): stopped at preflight; no predictions measured
+
+Run `compare-650m-20261112-1928`, queued with the owner's yes: one `gpu_8x_a100` (A100 SXM4 40 GB),
+us-east-1, launched 20:53:25Z after 6 retry attempts without capacity, healthy 20:59:13Z, job done
+20:59:46Z, terminated 21:02Z (a few billed minutes, under $1). `preflight` failed with
+`ModuleNotFoundError: No module named 'transformers'`. The implementation had dropped the
+`pip install` line that `jobs/compare_8m/run.sh` has, and SMOKE skips preflight.
+
+Integrator fixes to `jobs/compare_650m/run.sh` (not SMOKE-verified; the owner stopped the rerun):
+preflight restored as in `jobs/compare_8m/run.sh`; weights cached on local `$SCRATCH/hf`, as in
+`jobs/shard_scale/run.sh` (the spec's reference for the download) instead of written into the FS;
+atlas and merge processes get `nproc / 8` threads, as in shard_scale's measured 650M runs (1 thread
+in SMOKE, so the SMOKE path is unchanged). The owner halted all work before a requeue. Q1–Q16 stand
+as sealed.
